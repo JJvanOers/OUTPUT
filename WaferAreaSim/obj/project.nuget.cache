@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "qXY58ukIIjgNVnJqv+AZD9hoc79ar6zzv5VZ/O4R0XiFepUnULyIilupWjxjDOuTnQRTUXFlr4sdlgeGSk+thg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\WaferAreaSim\\WaferAreaSim.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\nx008314\\.nuget\\packages\\csvhelper\\15.0.5\\csvhelper.15.0.5.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

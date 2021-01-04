@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSSL", "..\..\JelleAdan\CSSL\CSSL\CSSL.csproj", "{5E2DE995-511F-4B32-98BA-19BBDBE273BC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferAreaSim", "..\WaferAreaSim\WaferAreaSim.csproj", "{7DFF79AE-9E59-4ADF-862A-E72D8F0736EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferFabSim", "..\WaferFab\WaferFabSim.csproj", "{976EC35F-D6C0-4851-BFA1-58C91F41A014}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferFabDataReader", "..\WaferFabDataReader\WaferFabDataReader.csproj", "{B317AA92-B446-4564-B692-298F16835A7D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferFabGUI", "..\WaferFabGUI\WaferFabGUI.csproj", "{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E2DE995-511F-4B32-98BA-19BBDBE273BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E2DE995-511F-4B32-98BA-19BBDBE273BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E2DE995-511F-4B32-98BA-19BBDBE273BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E2DE995-511F-4B32-98BA-19BBDBE273BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DFF79AE-9E59-4ADF-862A-E72D8F0736EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DFF79AE-9E59-4ADF-862A-E72D8F0736EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DFF79AE-9E59-4ADF-862A-E72D8F0736EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DFF79AE-9E59-4ADF-862A-E72D8F0736EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{976EC35F-D6C0-4851-BFA1-58C91F41A014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{976EC35F-D6C0-4851-BFA1-58C91F41A014}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{976EC35F-D6C0-4851-BFA1-58C91F41A014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{976EC35F-D6C0-4851-BFA1-58C91F41A014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B317AA92-B446-4564-B692-298F16835A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B317AA92-B446-4564-B692-298F16835A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B317AA92-B446-4564-B692-298F16835A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B317AA92-B446-4564-B692-298F16835A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3B0B47F-53E3-4285-A2F6-E58592EBA1A4}
+	EndGlobalSection
+EndGlobal

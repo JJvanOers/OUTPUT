@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    ".NETCoreApp,Version=v3.1": {}
+    ".NETCoreApp,Version=v3.1": {
+      "CSSL/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v2.1",
+        "compile": {
+          "bin/placeholder/CSSL.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CSSL.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "CSSL/1.0.0": {
+      "type": "project",
+      "path": "../../../JelleAdan/CSSL/CSSL/CSSL.csproj",
+      "msbuildProject": "../../../JelleAdan/CSSL/CSSL/CSSL.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    ".NETCoreApp,Version=v3.1": []
+    ".NETCoreApp,Version=v3.1": [
+      "CSSL >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\nx008314\\.nuget\\packages\\": {},
@@ -14,11 +33,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nx008314\\source\\repos\\OUTPUT\\Test\\Test\\Test.csproj",
+      "projectUniqueName": "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\Test\\Test\\Test.csproj",
       "projectName": "Test",
-      "projectPath": "C:\\Users\\nx008314\\source\\repos\\OUTPUT\\Test\\Test\\Test.csproj",
+      "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\Test\\Test\\Test.csproj",
       "packagesPath": "C:\\Users\\nx008314\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nx008314\\source\\repos\\OUTPUT\\Test\\Test\\obj\\",
+      "outputPath": "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\Test\\Test\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -36,7 +55,11 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj": {
+              "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
