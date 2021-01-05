@@ -23,21 +23,10 @@
           "lib/netcoreapp2.0/_._": {}
         }
       },
-      "CSSL/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v2.1",
-        "compile": {
-          "bin/placeholder/CSSL.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/CSSL.dll": {}
-        }
-      },
       "WaferFabSim/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v2.1",
         "dependencies": {
-          "CSSL": "1.0.0",
           "CsvHelper": "15.0.5"
         },
         "compile": {
@@ -138,11 +127,6 @@
         "version.txt"
       ]
     },
-    "CSSL/1.0.0": {
-      "type": "project",
-      "path": "../../JelleAdan/CSSL/CSSL/CSSL.csproj",
-      "msbuildProject": "../../JelleAdan/CSSL/CSSL/CSSL.csproj"
-    },
     "WaferFabSim/1.0.0": {
       "type": "project",
       "path": "../WaferFab/WaferFabSim.csproj",
@@ -151,7 +135,6 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "CSSL >= 1.0.0",
       "WaferFabSim >= 1.0.0"
     ]
   },
@@ -185,9 +168,6 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj": {
-              "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj"
-            },
             "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\WaferFab\\WaferFabSim.csproj": {
               "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\OUTPUT\\WaferFab\\WaferFabSim.csproj"
             }

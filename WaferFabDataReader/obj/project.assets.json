@@ -1460,7 +1460,6 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v2.1",
         "dependencies": {
-          "CSSL": "1.0.0",
           "CsvHelper": "15.0.5"
         },
         "compile": {

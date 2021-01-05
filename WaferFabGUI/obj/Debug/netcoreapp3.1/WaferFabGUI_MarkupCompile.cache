@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\nx008314\Source\Repos\OUTPUT\WaferFabGUI\obj\Debug\netcoreapp3.1\
+C:\Users\nx008314\source\repos\OUTPUT\WaferFabGUI\obj\Debug\netcoreapp3.1\
 WaferFabGUI
 none
 false
 TRACE;DEBUG;NETCOREAPP;NETCOREAPP3_1
-C:\Users\nx008314\Source\Repos\OUTPUT\WaferFabGUI\App.xaml
+C:\Users\nx008314\source\repos\OUTPUT\WaferFabGUI\App.xaml
 31251596952
 
 81643937845
-231686279892
+231279593010
 MainWindow.xaml;Resources\NexperiaColors.xaml;Views\ShellView.xaml;
 
-False
+True
 

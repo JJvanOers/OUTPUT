@@ -8,7 +8,6 @@
     ".NETCoreApp,Version=v3.1": {
       "WaferAreaSim/1.0.0": {
         "dependencies": {
-          "CSSL": "1.0.0",
           "WaferFabSim": "1.0.0"
         },
         "runtime": {

@@ -248,16 +248,6 @@
         "runtime": {
           "lib/netcoreapp2.1/_._": {}
         }
-      },
-      "CSSL/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v2.1",
-        "compile": {
-          "bin/placeholder/CSSL.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/CSSL.dll": {}
-        }
       }
     }
   },
@@ -879,16 +869,10 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
-    },
-    "CSSL/1.0.0": {
-      "type": "project",
-      "path": "../../JelleAdan/CSSL/CSSL/CSSL.csproj",
-      "msbuildProject": "../../JelleAdan/CSSL/CSSL/CSSL.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.1": [
-      "CSSL >= 1.0.0",
       "CsvHelper >= 15.0.5",
       "Microsoft.NETCore.App >= 2.1.0"
     ]
@@ -922,11 +906,7 @@
       },
       "frameworks": {
         "netcoreapp2.1": {
-          "projectReferences": {
-            "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj": {
-              "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {

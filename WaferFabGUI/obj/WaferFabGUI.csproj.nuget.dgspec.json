@@ -174,11 +174,7 @@
         },
         "frameworks": {
           "netcoreapp2.1": {
-            "projectReferences": {
-              "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj": {
-                "projectPath": "C:\\Users\\nx008314\\Source\\Repos\\JelleAdan\\CSSL\\CSSL\\CSSL.csproj"
-              }
-            }
+            "projectReferences": {}
           }
         },
         "warningProperties": {

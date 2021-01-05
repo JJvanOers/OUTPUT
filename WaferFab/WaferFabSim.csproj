@@ -10,7 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
+    <Reference Include="CSSL">
+      <HintPath>..\..\JelleAdan\CSSL\CSSL\bin\Release\netcoreapp2.1\CSSL.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
