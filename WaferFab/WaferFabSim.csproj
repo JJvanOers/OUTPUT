@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Reference Include="CSSL">
-      <HintPath>..\..\JelleAdan\CSSL\CSSL\bin\Release\netcoreapp2.1\CSSL.dll</HintPath>
+      <HintPath>..\CSSL.dll</HintPath>
     </Reference>
   </ItemGroup>
 
