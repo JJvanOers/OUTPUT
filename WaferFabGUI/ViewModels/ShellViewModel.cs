@@ -45,7 +45,7 @@ namespace WaferFabGUI.ViewModels
             string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
             string outputDir = @"C:\CSSLWaferFab\";
 
-            WaferFabSim = new ShellModel(inputDir + @"\SerializedFiles", outputDir);
+            WaferFabSim = new MainModel(inputDir + @"\SerializedFiles", outputDir);
             WaferFabSim.ReadSimulationResults();
             WaferFabSim.PropertyChanged += ShellModel_PropertyChanged;
 
@@ -97,7 +97,7 @@ namespace WaferFabGUI.ViewModels
             WIPBarChart.Axes.Add(yAxis);
         }
 
-        public ShellModel WaferFabSim { get; set; }
+        public MainModel WaferFabSim { get; set; }
 
         private Stopwatch stopwatch = new Stopwatch();
         private LinearAxis yAxis;

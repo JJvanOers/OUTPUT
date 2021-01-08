@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WaferFabGUI\WaferFabGUI.csproj" />
-    <ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
   </ItemGroup>
 
 </Project>
