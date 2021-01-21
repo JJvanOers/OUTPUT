@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Observers
+namespace WaferFabSim.WaferFabElements.Observers
 {
     public class TotalQueueObserver : ModelElementObserverBase
     {

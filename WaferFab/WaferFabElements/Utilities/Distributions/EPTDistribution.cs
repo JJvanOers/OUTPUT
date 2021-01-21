@@ -5,7 +5,7 @@ using System.Reflection.Metadata;
 using System.Runtime.ExceptionServices;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Utilities
+namespace WaferFabSim.WaferFabElements.Utilities
 {
     [Serializable]
     /// <summary>

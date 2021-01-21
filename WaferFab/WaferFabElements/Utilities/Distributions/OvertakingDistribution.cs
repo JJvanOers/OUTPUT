@@ -10,7 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Transactions;
 
-namespace CSSL.Examples.WaferFab.Utilities
+namespace WaferFabSim.WaferFabElements.Utilities
 {
     [Serializable]
     /// <summary>

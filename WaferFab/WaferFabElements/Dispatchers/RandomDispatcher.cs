@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Dispatchers
+namespace WaferFabSim.WaferFabElements.Dispatchers
 {
     public class RandomDispatcher : DispatcherBase
     {

@@ -1,12 +1,11 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Utilities.Distributions;
+﻿using CSSL.Utilities.Distributions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using WaferFabSim.Import;
+using WaferFabSim.WaferFabElements;
 
 namespace WaferFabSim.InputDataConversion
 {
@@ -19,7 +18,7 @@ namespace WaferFabSim.InputDataConversion
 
         private Dictionary<LotStep, string> WorkCenterLotStepMapping { get; set; }
 
-        public override WaferFabSettings ReadWaferFabSettings()
+        public WaferFabSettings ReadWaferFabSettings()
         {
             WaferFabSettings = new WaferFabSettings();
 

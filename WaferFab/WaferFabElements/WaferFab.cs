@@ -1,4 +1,4 @@
-﻿using CSSL.Examples.WaferFab.Utilities;
+﻿using WaferFabSim.WaferFabElements.Utilities;
 using CSSL.Modeling.Elements;
 using CSSL.Utilities;
 using CSSL.Utilities.Distributions;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab
+namespace WaferFabSim.WaferFabElements
 {
     [Serializable]
     public class WaferFab : EventGeneratorBase, IGetDateTime

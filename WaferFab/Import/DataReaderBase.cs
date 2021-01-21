@@ -1,10 +1,6 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Modeling;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Text;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
 
@@ -49,17 +45,22 @@ namespace WaferFabSim.Import
             throw new NotImplementedException();
         }
 
-        public virtual WaferFabSettings ReadWaferFabSettings()
+        //public virtual WaferFabSettings ReadWaferFabSettings()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public virtual WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
         {
             throw new NotImplementedException();
         }
 
-        public virtual WaferFabSettings ReadWaferFabSettings(string serializedFileName)
+        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string area = "COMPLETE")
         {
             throw new NotImplementedException();
         }
 
-        public virtual List<WorkCenterLotActivities> ReadLotActivityHistoriesCSV(string fileName, bool productionLots)
+        public virtual List<WorkCenterLotActivities> ReadWorkCenterLotActivities(string fileName, bool productionLots)
         {
             throw new NotImplementedException();
         }
@@ -73,7 +74,7 @@ namespace WaferFabSim.Import
         }
 
 
-        public List<Tuple<DateTime, RealLot>> ReadRealLotStartsDAT(string fileName)
+        public List<Tuple<DateTime, RealLot>> DeserializeRealLotStarts(string fileName)
         {
             Console.Write($"Reading {fileName} - ");
             RealLotStarts = Tools.ReadFromBinaryFile<List<Tuple<DateTime, RealLot>>>(Path.Combine(OutputDirectory, fileName));
@@ -81,7 +82,7 @@ namespace WaferFabSim.Import
             return RealLotStarts;
         }
 
-        public List<WorkCenterLotActivities> ReadWorkCenterLotActivitiesDAT(string fileName)
+        public List<WorkCenterLotActivities> DeserializeWorkCenterLotActivities(string fileName)
         {
             Console.Write($"Reading {fileName} - ");
             WorkCenterLotActivities = Tools.ReadFromBinaryFile<List<WorkCenterLotActivities>>(Path.Combine(OutputDirectory, fileName));
@@ -89,7 +90,7 @@ namespace WaferFabSim.Import
             return WorkCenterLotActivities;
         }
 
-        public LotTraces ReadLotTracesDAT(string fileName)
+        public LotTraces DeserializeLotTraces(string fileName)
         {
             Console.Write($"Reading {fileName} - ");
             LotTraces = Tools.ReadFromBinaryFile<LotTraces>(Path.Combine(OutputDirectory, fileName));
@@ -102,46 +103,46 @@ namespace WaferFabSim.Import
             throw new NotImplementedException();
         }
 
-        public void SaveExperimentSettings(string filename)
+        public void SerializeExperimentSettings(string filename)
         {
             Console.Write($"Saving {filename} - ");
             Tools.WriteToBinaryFile<ExperimentSettings>($@"{OutputDirectory}\ExperimentSettings_{filename}.dat", ExperimentSettings);
             Console.Write($"done.\n");
         }
 
-        public void SaveWaferFabSettings(string filename)
+        public void SerializeWaferFabSettings(string filename)
         {
             Console.Write($"Saving {filename} - ");
-            Tools.WriteToBinaryFile<WaferFabSettings>($@"{OutputDirectory}\WaferFabSettings_{filename}.dat", WaferFabSettings);
+            Tools.WriteToBinaryFile<WaferFabSettings>($@"{OutputDirectory}\{filename}.dat", WaferFabSettings);
             Console.Write($"done.\n");
 
         }
 
-        public void SaveRealSnapshots(string filename)
+        public void SerializeRealSnapshots(string filename)
         {
             Console.Write($"Saving {filename} - ");
             Tools.WriteToBinaryFile<List<RealSnapshot>>($@"{OutputDirectory}\RealSnapshots_{filename}.dat", RealSnapshots);
             Console.Write($"done.\n");
         }
 
-        public void SaveWorkCenterLotActivities(string filename)
+        public void SerializeWorkCenterLotActivities(string filename)
         {
             Console.Write($"Saving {filename} - ");
             Tools.WriteToBinaryFile<List<WorkCenterLotActivities>>($@"{OutputDirectory}\WorkCenterLotActivities_{filename}.dat", WorkCenterLotActivities);
             Console.Write($"done.\n");
         }
 
-        public void SaveLotTraces(string filename)
+        public void SerializeLotTraces(string filename)
         {
             Console.Write($"Saving {filename} - ");
-            Tools.WriteToBinaryFile<LotTraces>($@"{OutputDirectory}\LotTraces_{filename}.dat", LotTraces);
+            Tools.WriteToBinaryFile<LotTraces>($@"{OutputDirectory}\{filename}.dat", LotTraces);
             Console.Write($"done.\n");
         }
 
-        public void SaveRealLotStarts(string filename)
+        public void SerializeLotStarts(string filename)
         {
             Console.Write($"Saving {filename} - ");
-            Tools.WriteToBinaryFile<List<Tuple<DateTime, RealLot>>>($@"{OutputDirectory}\LotStarts_{filename}.dat", RealLotStarts);
+            Tools.WriteToBinaryFile<List<Tuple<DateTime, RealLot>>>($@"{OutputDirectory}\{filename}.dat", RealLotStarts);
             Console.Write($"done.\n");
         }
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Utilities
+namespace WaferFabSim.WaferFabElements.Utilities
 {
     [Serializable]
     /// <summary>

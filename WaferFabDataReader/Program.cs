@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Windows.Documents;
 using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements;
 
 namespace WaferFabDataReader
 {
@@ -17,41 +20,104 @@ namespace WaferFabDataReader
 
             string outputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\SerializedFiles";
 
-            LoadAutoData(inputDir, outputDir);
-        }
-
-        public static void LoadAutoData(string inputDir, string outputDir)
-        {
             AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
 
-            reader.ReadWaferFabSettings();
+            //SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
 
-            //reader.ReadLotActivityHistoriesCSV("LotActivity2019_2020.csv", true);
-            //reader.ReadWorkCenterLotActivitiesDAT("WorkCenterLotActivities_2019_2020.dat");
+            //SerializeWaferFabSettings(reader, false);
 
-            //reader.ReadLotActivityHistories("LotActivitySmallTestSet.csv", true);
-            //reader.ReadLotActivityHistories("LotActivityJANFEB2020.csv", true);
+            //SerializeLotTraces(reader, "LotActivity2019_2020.csv");
 
-            //reader.SaveWorkCenterLotActivities("2019_2020");
-            //reader.SaveLotTraces("2019_2020");
+            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
-            //reader.ReadLotTracesDAT("LotTraces_2019_2020.dat");
+            //SerializeWaferFabSettings(reader, true);
 
-            //reader.GetRealLotStarts();
+            //SerializeWaferFabSettings(reader, true, "PHOTOLITH");
 
-            reader.ReadWorkCenterLotActivitiesDAT("WorkCenterLotActivities_2019_2020.dat");
+            //SerializeRealSnaphotsAll(reader);
 
-            reader.SaveRealLotStarts("2019_2020");
+            //SerializeRealSnapshotsPerMonth(reader);
 
-            //reader.SaveLotActivitiesToCSV($@"C: \Users\nx008314\OneDrive - Nexperia\Work\WaferFabPython\AllLotActivitiesWithEPT_20192020.csv");
+            WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
+        }
 
-            //ReadAndSaveRealSnapshotsPerMonth(reader);
+        /// <summary>
+        /// Serializes WorkCenterLotActivities. Uses waferfabsettings + raw lot activities (from Excel add-on Nexperia Tools > F/W Queries > LotsProdEqpt).
+        /// </summary>
+        /// <param name="lotActivitiesFilename"></param>
+        public static void SerializeWorkCenterLotActivities(AutoDataReader reader, string filenameLotActivities, string filenameSerializedOutput, bool onlyProductionLots)
+        {
+            reader.ReadWaferFabSettings(false, true);
 
-            int stop = 0;
+            reader.ReadWorkCenterLotActivities(filenameLotActivities, onlyProductionLots);
+
+            reader.SerializeWorkCenterLotActivities($"WorkCenterLotActivities_{filenameSerializedOutput}");
+        }
+
+        /// <summary>
+        /// Serialized WaferFabSettings without the Distributions (Random class cannot be serialized).
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="area">Area to serialize, if not specified complete fab will be build.</param>
+        /// <param name="withLotStarts">With or without real lot starts</param>
+        public static void SerializeWaferFabSettings(AutoDataReader reader, bool withLotStarts, string area = "COMPLETE")
+        {
+            reader.ReadWaferFabSettings(withLotStarts, false, area);
+
+            string fileName = withLotStarts ? $"WaferFabSettings_{area}_WithLotStarts" : $"WaferFabSettings_{area}_NoLotStarts";
+
+            reader.SerializeWaferFabSettings(fileName);
+        }
+
+        /// <summary>
+        /// Serializes LotTraces. Gets the WorkCenterLotActivities from serialized files. Combines the individual activities from one lot into a trace.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="workCenterLotAcitivitiesSerializedFile"></param>
+        public static void SerializeLotTraces(AutoDataReader reader, string filenameLotActivities)
+        {
+            if (reader.WaferFabSettings == null)
+            {
+                reader.ReadWaferFabSettings(false, false);
+            }
+
+            reader.ReadWorkCenterLotActivities(filenameLotActivities, true);
+
+            reader.SerializeLotTraces("LotTraces_2019_2020");
+        }
+
+        /// <summary>
+        /// Serializes LotStarts. Reads the LotTraces from serialized file, gets from all traces the starts and transfers this into LotStarts.
+        /// </summary>
+        /// <param name="reader"></param>
+        public static void SerializeLotStarts(AutoDataReader reader, string lotTracesSerializedFile)
+        {
+            if (reader.WaferFabSettings == null)
+            {
+                reader.ReadWaferFabSettings(false, false);
+            }
+
+            reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+
+            reader.GetLotStarts();
+
+            reader.SerializeLotStarts("LotStarts_2019_2020");
+        }
+
+        public static void WriteLotActivitiesWithEPTsToCSV(AutoDataReader reader, string serializedLotTracesFile, string filenameSerializedOutput)
+        {
+            reader.DeserializeLotTraces(serializedLotTracesFile);
+
+            reader.WriteLotActivitiesToCSV(filenameSerializedOutput);
         }
         
-        public static void ReadAndSaveRealSnaphotsAll(AutoDataReader reader)
+        public static void SerializeRealSnaphotsAll(AutoDataReader reader)
         {
+            if (reader.LotTraces == null)
+            {
+                reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+            }
+
             DateTime start = reader.LotTraces.StartDate;
             DateTime end = reader.LotTraces.EndDate;
 
@@ -61,11 +127,16 @@ namespace WaferFabDataReader
 
             reader.ReadRealSnapshots(from, until, frequency, 25);
 
-            reader.SaveRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
+            reader.SerializeRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
         }
 
-        public static void ReadAndSaveRealSnapshotsPerMonth(AutoDataReader reader)
+        public static void SerializeRealSnapshotsPerMonth(AutoDataReader reader)
         {
+            if (reader.LotTraces == null)
+            {
+                reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+            }
+
             DateTime start = reader.LotTraces.StartDate;
             DateTime end = reader.LotTraces.EndDate;
 
@@ -77,7 +148,7 @@ namespace WaferFabDataReader
             {
                 reader.ReadRealSnapshots(from, until, frequency, 25);
 
-                reader.SaveRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
+                reader.SerializeRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
 
                 from = until;
                 until = until.AddMonths(1);
@@ -92,13 +163,6 @@ namespace WaferFabDataReader
 
             reader.WaferFabSettings.SampleInterval = 12 * 60 * 60; // 12 hours
 
-            reader.SaveWaferFabSettings("test");
-
-            Tools.WriteToBinaryFile(inputDir + "test.dat", reader.WaferFabSettings);
-
-            WaferFabSettings waferFabSettings2 = Tools.ReadFromBinaryFile<WaferFabSettings>(inputDir + "test.dat");
-
-            int stop = 0;
         }
     }
 }

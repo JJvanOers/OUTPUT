@@ -1,20 +1,17 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Examples.WaferFab.Observers;
-using CSSL.Examples.WaferFab.Utilities;
-using CSSL.Modeling;
+﻿using CSSL.Modeling;
 using CSSL.Utilities.Distributions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using WaferFabSim.Import;
-using WaferFabSim.InputDataConversion;
 using WaferFabSim.OutputDataConversion;
 using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
+using WaferFabSim.WaferFabElements.Observers;
+using WaferFabSim.WaferFabElements.Utilities;
 
 namespace WaferFabSim
 {

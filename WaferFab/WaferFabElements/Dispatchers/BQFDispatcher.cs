@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using CSSL.Modeling.Elements;
 
-namespace CSSL.Examples.WaferFab.Dispatchers
+namespace WaferFabSim.WaferFabElements.Dispatchers
 {
     // Biggest Queue First Dispatcher
     public class BQFDispatcher : DispatcherBase

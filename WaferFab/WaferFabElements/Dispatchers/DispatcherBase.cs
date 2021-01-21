@@ -1,10 +1,10 @@
-﻿using CSSL.Examples.WaferFab.Utilities;
+﻿using WaferFabSim.WaferFabElements.Utilities;
 using CSSL.Modeling.Elements;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Dispatchers
+namespace WaferFabSim.WaferFabElements.Dispatchers
 {
     public abstract class DispatcherBase : SchedulingElementBase, IGetDateTime
     {

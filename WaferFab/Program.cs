@@ -1,19 +1,8 @@
 ﻿using System;
-using CSSL.Examples.DataCenterSimulation;
-using CSSL.Examples.DataCenterSimulation.DataCenterObservers;
 using CSSL.Modeling;
 using CSSL.Reporting;
-using CSSL.Utilities.Distributions;
-using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using CSSL.Examples.WaferFab;
 using WaferFabSim.InputDataConversion;
-using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Examples.WaferFab.Observers;
-using System.Threading.Tasks;
-using WaferFabSim.SnapshotData;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace WaferFabSim
 {
@@ -34,7 +23,7 @@ namespace WaferFabSim
             //ManualDataReader reader = new ManualDataReader(inputDir + "CSVs");
             AutoDataReader reader = new AutoDataReader(inputDir + "Auto");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings();
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(false, true);
 
             waferFabSettings.SampleInterval = 1 * 60 * 60; // seconds
             waferFabSettings.LotStartsFrequency = 1; // hours

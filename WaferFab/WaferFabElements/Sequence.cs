@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab
+namespace WaferFabSim.WaferFabElements
 {
     [Serializable]
     public class Sequence

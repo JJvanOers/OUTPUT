@@ -1,8 +1,4 @@
-﻿using Caliburn.Micro;
-using CSSL.Examples.WaferFab;
-using CSSL.Modeling;
-using CSSL.Utilities.Distributions;
-using MahApps.Metro.Controls;
+﻿using CSSL.Modeling;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using OxyPlot;
@@ -14,21 +10,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Navigation;
-using System.Xml.Serialization;
 using WaferFabGUI.Models;
 using WaferFabSim;
 using WaferFabSim.Import;
@@ -45,7 +31,7 @@ namespace WaferFabGUI.ViewModels
             string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
             string outputDir = @"C:\CSSLWaferFab\";
 
-            WaferFabSim = new MainModel(inputDir + @"\SerializedFiles", outputDir);
+            WaferFabSim = new ShellModel(inputDir + @"\SerializedFiles", outputDir);
             WaferFabSim.ReadSimulationResults();
             WaferFabSim.PropertyChanged += ShellModel_PropertyChanged;
 
@@ -78,7 +64,7 @@ namespace WaferFabGUI.ViewModels
 
             // Initialize Waferfab Settings
             waferFabReader = new AutoDataReader(inputDirectory + @"\Auto");
-            waferFabSettings = waferFabReader.ReadWaferFabSettings();
+            waferFabSettings = waferFabReader.ReadWaferFabSettings(false, true);
             initializeGUIWaferFabSettings(waferFabSettings);
 
             // TEMPORARY
@@ -97,7 +83,7 @@ namespace WaferFabGUI.ViewModels
             WIPBarChart.Axes.Add(yAxis);
         }
 
-        public MainModel WaferFabSim { get; set; }
+        public ShellModel WaferFabSim { get; set; }
 
         private Stopwatch stopwatch = new Stopwatch();
         private LinearAxis yAxis;

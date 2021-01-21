@@ -1,5 +1,5 @@
-﻿using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Examples.WaferFab.Utilities;
+﻿using WaferFabSim.WaferFabElements.Dispatchers;
+using WaferFabSim.WaferFabElements.Utilities;
 using CSSL.Modeling.CSSLQueue;
 using CSSL.Modeling.Elements;
 using CSSL.Utilities.Distributions;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab
+namespace WaferFabSim.WaferFabElements
 {
     [Serializable]
     public class WorkCenter : SchedulingElementBase, IGetDateTime

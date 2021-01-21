@@ -8,7 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Observers
+namespace WaferFabSim.WaferFabElements.Observers
 {
     public class WaferFabObserver : ModelElementObserverBase
     {

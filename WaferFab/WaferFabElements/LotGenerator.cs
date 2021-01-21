@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab
+namespace WaferFabSim.WaferFabElements
 {
     [Serializable]
     public class LotGenerator : EventGeneratorBase
@@ -89,7 +89,7 @@ namespace CSSL.Examples.WaferFab
         protected override void OnExperimentStart()
         {
             // Order lot starts on date because StartRealLots utilizes an ordered list to speed up process
-            if (waferFab.LotStarts.Any())
+            if (waferFab.LotStarts != null)
             {
                 waferFab.LotStarts = waferFab.LotStarts.OrderBy(x => x.Item1).ToList();
             }

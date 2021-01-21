@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Utilities
+namespace WaferFabSim.WaferFabElements.Utilities
 {
     public interface IGetDateTime
     {

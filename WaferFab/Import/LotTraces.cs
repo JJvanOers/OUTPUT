@@ -1,5 +1,4 @@
-﻿using CSSL.Examples.WaferFab;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using System;
@@ -197,8 +196,6 @@ namespace WaferFabSim.Import
                     csv.WriteRecords(trace.LotActivitiesRaw);
                 }
             }
-
-            int stop = 0;
         }
 
         public void WriteToCSV(string fileName)

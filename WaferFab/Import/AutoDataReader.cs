@@ -1,21 +1,15 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Examples.WaferFab.Utilities;
-using CSSL.Utilities.Distributions;
+﻿using CSSL.Utilities.Distributions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Drawing;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography.X509Certificates;
-using System.Transactions;
 using WaferFabSim.Import;
 using WaferFabSim.SnapshotData;
-using static CSSL.Examples.WaferFab.Utilities.EPTDistribution;
-using static CSSL.Examples.WaferFab.Utilities.OvertakingDistributionBase;
+using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Utilities;
 using static WaferFabSim.Import.LotTraces;
+using static WaferFabSim.WaferFabElements.Utilities.EPTDistribution;
+using static WaferFabSim.WaferFabElements.Utilities.OvertakingDistributionBase;
 
 namespace WaferFabSim.InputDataConversion
 {
@@ -37,11 +31,21 @@ namespace WaferFabSim.InputDataConversion
             lotActivitiesRaw = new List<LotActivityRaw>();
         }
 
-        public override WaferFabSettings ReadWaferFabSettings()
+
+        /// <summary>
+        /// Reading waferfabsettings
+        /// </summary>
+        /// <param name="includeLotstarts">True to include lot starts which will be read from serialized file</param>
+        /// <param name="includeDistributions">True to include workcenter service time and overtaking distributions. Do not include this if waferfabsettings have to be serialized,
+        /// because Random class in distributions cannot be serialized.</param>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string area = "COMPLETE")
         {
             Console.Write("Reading waferfabsettings -");
 
-            readWaferFabSettingsDataFromCSVs();
+            ReadLotStepsRawAndIRDs();
+
             lotSteps = fillStepsWithIRDs();
 
             WaferFabSettings = new WaferFabSettings();
@@ -54,8 +58,6 @@ namespace WaferFabSim.InputDataConversion
 
             WaferFabSettings.LotSteps = lotSteps;
 
-            //WaferFabSettings.RealLotStarts = ReadRealLotStartsDAT("LotStarts_2019_2020.dat");
-
             WaferFabSettings.WorkCenters = irdMappings.Select(x => x.WorkStation).Distinct().ToList();
 
             WaferFabSettings.LotStepsPerWorkStation = getLotStepsPerWorkstation();
@@ -66,21 +68,33 @@ namespace WaferFabSim.InputDataConversion
 
             processPlans = getProcessPlans();
 
-            //WaferFabSettings.LotStarts = GetLotStartsOneWorkCenter("PHOTOLITH");
+            Console.WriteLine("Starting to read lot starts.");
 
-            //SaveWaferFabSettings("PHOTOLITH_WithLotStarts");
+            if (includeLotstarts)
+            {
+                if (area == "COMPLETE")
+                {
+                    WaferFabSettings.RealLotStarts = DeserializeRealLotStarts("LotStarts_2019_2020.dat");
+                }
+                else
+                {
+                    WaferFabSettings.LotStarts = GetLotStartsOneWorkCenter(area);
+                }
+            }
 
-            //WaferFabSettings.WorkCenterDistributions = getDistributions();
-            WaferFabSettings.WCServiceTimeDistributions = getWIPDependentEPTDistributions();
+            if (includeDistributions)
+            {
+                WaferFabSettings.WCServiceTimeDistributions = getWIPDependentEPTDistributions();
 
-            WaferFabSettings.WCOvertakingDistributions = getOvertakingDistributions();
+                WaferFabSettings.WCOvertakingDistributions = getOvertakingDistributions();
+            }
 
             Console.Write(" done.\n");
 
             return WaferFabSettings;
         }
 
-        public override WaferFabSettings ReadWaferFabSettings(string serializedFileName)
+        public override WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
         {
             Console.Write("Reading waferfabsettings -");
 
@@ -95,15 +109,7 @@ namespace WaferFabSim.InputDataConversion
             return WaferFabSettings;
         }
 
-        public void ReadEPTDistributions()
-        {
-            //WaferFabSettings.WorkCenterDistributions = getDistributions();
-            WaferFabSettings.WCServiceTimeDistributions = getWIPDependentEPTDistributions();
-
-            WaferFabSettings.WCOvertakingDistributions = getOvertakingDistributions();
-        }
-
-        public override List<WorkCenterLotActivities> ReadLotActivityHistoriesCSV(string fileName, bool onlyProductionLots)
+        public override List<WorkCenterLotActivities> ReadWorkCenterLotActivities(string fileName, bool onlyProductionLots)
         {
             Console.Write("Reading lot activities raw - ");
 
@@ -224,7 +230,7 @@ namespace WaferFabSim.InputDataConversion
             return RealSnapshots;
         }
 
-        public List<Tuple<DateTime, RealLot>> GetRealLotStarts()
+        public List<Tuple<DateTime, RealLot>> GetLotStarts()
         {
             RealLotStarts = LotTraces.GetRealLotStarts();
 
@@ -237,7 +243,7 @@ namespace WaferFabSim.InputDataConversion
 
             if (WorkCenterLotActivities == null || !WorkCenterLotActivities.Any())
             {
-                ReadWorkCenterLotActivitiesDAT("WorkCenterLotActivities_2019_2020.dat");
+                DeserializeWorkCenterLotActivities("WorkCenterLotActivities_2019_2020.dat");
             }
 
             // Make sequences per lotstep. Each sequence contains just 1 lotstep.
@@ -262,9 +268,9 @@ namespace WaferFabSim.InputDataConversion
             return starts;
         }
 
-        public void SaveLotActivitiesToCSV(string directory)
+        public void WriteLotActivitiesToCSV(string fileName)
         {
-            LotTraces.WriteLotActivitiesToCSV(directory);
+            LotTraces.WriteLotActivitiesToCSV(Path.Combine(OutputDirectory, fileName));
         }
 
         /// <summary>
@@ -280,10 +286,12 @@ namespace WaferFabSim.InputDataConversion
         private Dictionary<string, int> irdNumbering { get; set; }
         private Dictionary<string, ProcessPlan> processPlans { get; set; }
 
-        private void readWaferFabSettingsDataFromCSVs()
+
+        private void ReadLotStepsRawAndIRDs()
         {
             lotStepsRaw.Clear();
             irdMappings.Clear();
+            irdNumbering.Clear();
 
             // Read steps from process plans
             using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "ProcessPlans.csv")))
@@ -329,7 +337,6 @@ namespace WaferFabSim.InputDataConversion
                     else if (i == irdMappings.Count - 1)
                     {
                         throw new Exception($"Did not find IRDGroup for {step.Productname} in {step.Techstage} {step.Subplan}");
-                        //missingLines.Add($"{step.Techstage},{step.Subplan}");
                     }
                 }
             }
@@ -480,17 +487,6 @@ namespace WaferFabSim.InputDataConversion
             return dict;
         }
 
-        private Dictionary<string, Distribution> getDistributions()
-        {
-            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution>();
-
-            foreach (string wc in WaferFabSettings.WorkCenters)
-            {
-                dict.Add(wc, new ExponentialDistribution(0.01));
-            }
-
-            return dict;
-        }
         private Dictionary<string, string> getDispatchers()
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -557,10 +553,6 @@ namespace WaferFabSim.InputDataConversion
         private List<string> getProductTypes()
         {
             return lotStepsRaw.Select(x => x.Productname).Distinct().ToList();
-        }
-        private List<string> getProductGroups()
-        {
-            return lotStepsRaw.Select(x => x.Plangroup).Distinct().ToList();
         }
 
         [Serializable]

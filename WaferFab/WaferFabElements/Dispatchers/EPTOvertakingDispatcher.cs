@@ -1,4 +1,4 @@
-﻿using CSSL.Examples.WaferFab.Utilities;
+﻿using WaferFabSim.WaferFabElements.Utilities;
 using CSSL.Modeling.Elements;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 
-namespace CSSL.Examples.WaferFab.Dispatchers
+namespace WaferFabSim.WaferFabElements.Dispatchers
 {
     public class EPTOvertakingDispatcher : DispatcherBase
     {

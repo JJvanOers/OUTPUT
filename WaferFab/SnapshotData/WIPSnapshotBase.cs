@@ -1,5 +1,4 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Modeling;
+﻿using CSSL.Modeling;
 using System;
 using System.Collections.Generic;
 using System.Linq;

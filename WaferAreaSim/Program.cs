@@ -1,8 +1,4 @@
 ﻿using CSSL.Calendar;
-using CSSL.Examples.WaferFab;
-using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Examples.WaferFab.Observers;
-using CSSL.Examples.WaferFab.Utilities;
 using CSSL.Modeling;
 using CSSL.Reporting;
 using CSSL.Utilities.Distributions;
@@ -10,9 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using WaferFabSim;
 using WaferFabSim.InputDataConversion;
+using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
+using WaferFabSim.WaferFabElements.Observers;
+using WaferFabSim.WaferFabElements.Utilities;
 
 namespace WaferAreaSim
 {
@@ -43,7 +42,7 @@ namespace WaferAreaSim
             #region Make starting lots
             AutoDataReader reader = new AutoDataReader(Path.Combine(inputDir, "Auto"), Path.Combine(inputDir, "SerializedFiles"));
 
-            WaferFabSettings waferfabsettings = reader.ReadWaferFabSettings("WaferFabSettings_PHOTOLITH_WithLotStarts.dat");
+            WaferFabSettings waferfabsettings = reader.DeserializeWaferFabSettings("WaferFabSettings_PHOTOLITH_WithLotStarts.dat");
 
             #endregion
 
@@ -104,7 +103,6 @@ namespace WaferAreaSim
             reporter.PrintSummaryToConsole();
             #endregion
 
-            int stop = 0;
         }
     }
 }

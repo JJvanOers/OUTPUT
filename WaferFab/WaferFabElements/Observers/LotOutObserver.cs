@@ -1,4 +1,4 @@
-﻿using CSSL.Examples.WaferFab.Dispatchers;
+﻿using WaferFabSim.WaferFabElements.Dispatchers;
 using CSSL.Modeling;
 using CSSL.Modeling.Elements;
 using CSSL.Observer;
@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CSSL.Examples.WaferFab.Observers
+namespace WaferFabSim.WaferFabElements.Observers
 {
     /// <summary>
     /// Observer to report lot-out data when a lot is finished with production. Subscribe this to 

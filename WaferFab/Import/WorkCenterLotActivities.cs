@@ -14,7 +14,6 @@ namespace WaferFabSim.InputDataConversion
 
     public class WorkCenterLotActivities
     {
-
         public string WorkCenter { get; set; }
 
         public List<LotActivity> LotActivities { get; set; }

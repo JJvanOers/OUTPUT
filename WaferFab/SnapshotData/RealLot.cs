@@ -1,8 +1,8 @@
-﻿using CSSL.Examples.WaferFab;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using WaferFabSim.Import;
+using WaferFabSim.WaferFabElements;
 using static WaferFabSim.Import.LotTraces;
 
 namespace WaferFabSim.SnapshotData

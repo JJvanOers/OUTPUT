@@ -1,18 +1,11 @@
-﻿using CSSL.Examples.WaferFab;
-using CSSL.Examples.WaferFab.Dispatchers;
-using CSSL.Examples.WaferFab.Utilities;
-using CSSL.Utilities.Distributions;
+﻿using CSSL.Utilities.Distributions;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Utilities;
 
 namespace WaferFabSim
 {

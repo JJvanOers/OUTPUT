@@ -1,10 +1,9 @@
-﻿using CSSL.Examples.WaferFab;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Text;
-using static WaferFabSim.InputDataConversion.AutoDataReader;
+using WaferFabSim.WaferFabElements;
 
 namespace WaferFabSim.Import
 {
