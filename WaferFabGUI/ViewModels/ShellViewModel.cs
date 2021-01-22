@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace WaferFabGUI.ViewModels
             string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
             string outputDir = @"C:\CSSLWaferFab\";
 
-            WaferFabSim = new ShellModel(inputDir + @"\SerializedFiles", outputDir);
+            WaferFabSim = new ShellModel(outputDir);
             WaferFabSim.ReadSimulationResults();
             WaferFabSim.PropertyChanged += ShellModel_PropertyChanged;
 
@@ -63,8 +64,8 @@ namespace WaferFabGUI.ViewModels
             Settings.Output = true;
 
             // Initialize Waferfab Settings
-            waferFabReader = new AutoDataReader(inputDirectory + @"\Auto");
-            waferFabSettings = waferFabReader.ReadWaferFabSettings(false, true);
+            this.reader = new AutoDataReader(inputDirectory + @"\Auto", inputDir + @"\SerializedFiles");
+            waferFabSettings = this.reader.ReadWaferFabSettings(false, true);
             initializeGUIWaferFabSettings(waferFabSettings);
 
             // TEMPORARY
@@ -108,7 +109,7 @@ namespace WaferFabGUI.ViewModels
         private WIPSnapshotBase _snapshotSelected;
         private RealSnapshot _startState;
         private IDialogCoordinator dialogCoordinator;
-        private DataReaderBase waferFabReader;
+        private DataReaderBase reader;
 
         public bool AnimationPaused = false;
         public bool AnimationResumed = false;
@@ -286,13 +287,14 @@ namespace WaferFabGUI.ViewModels
         }
         private void updateWaferFabSettings()
         {
-            //foreach (var wc in WorkCenters)
-            //{
-            //    waferFabSettings.WorkCenterDistributions[wc.Name] = new ExponentialDistribution(wc.ExponentialRate);
-            //}
             foreach (var lotStart in LotStartQtys)
             {
                 waferFabSettings.ManualLotStartQtys[lotStart.LotType] = lotStart.Quantity;
+            }
+
+            if (waferFabSettings.UseRealLotStartsFlag == true && waferFabSettings.RealLotStarts == null)
+            {
+                waferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(reader.OutputDirectory, "LotStarts_2019_2020.dat"));
             }
 
             if (IsStartStateSelected)
@@ -659,7 +661,6 @@ namespace WaferFabGUI.ViewModels
                 NotifyOfPropertyChange();
             }
         }
-
         public bool IsRealLotStartsSelected
         {
             get { return waferFabSettings.UseRealLotStartsFlag; }
@@ -669,6 +670,7 @@ namespace WaferFabGUI.ViewModels
                 NotifyOfPropertyChange();
             }
         }
+
         public RelayCommand RunSimulationCommand { get; }
         public RelayCommand ClearLastWIPDataCommand { get; }
         public RelayCommand ClearAllWIPDataCommand { get; }

@@ -45,15 +45,7 @@ namespace WaferFabSim.Import
             throw new NotImplementedException();
         }
 
-        //public virtual WaferFabSettings ReadWaferFabSettings()
-        //{
-        //    throw new NotImplementedException();
-        //}
 
-        public virtual WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
-        {
-            throw new NotImplementedException();
-        }
 
         public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string area = "COMPLETE")
         {
@@ -65,38 +57,44 @@ namespace WaferFabSim.Import
             throw new NotImplementedException();
         }
 
-        protected WaferFabSettings ReadWaferFabSettingsDAT(string fileName)
-        {
-            //Console.Write($"Reading {fileName} - ");
-            WaferFabSettings = Tools.ReadFromBinaryFile<WaferFabSettings>(Path.Combine(OutputDirectory, fileName));
-            //Console.Write($"done.\n");
-            return WaferFabSettings;
-        }
 
 
-        public List<Tuple<DateTime, RealLot>> DeserializeRealLotStarts(string fileName)
+        //protected WaferFabSettings ReadWaferFabSettingsDAT(string fileName)
+        //{
+        //    //Console.Write($"Reading {fileName} - ");
+        //    WaferFabSettings = Tools.ReadFromBinaryFile<WaferFabSettings>(Path.Combine(OutputDirectory, fileName));
+        //    //Console.Write($"done.\n");
+        //    return WaferFabSettings;
+        //}
+
+        public virtual WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
         {
-            Console.Write($"Reading {fileName} - ");
-            RealLotStarts = Tools.ReadFromBinaryFile<List<Tuple<DateTime, RealLot>>>(Path.Combine(OutputDirectory, fileName));
-            Console.Write($"done.\n");
-            return RealLotStarts;
+            throw new NotImplementedException();
         }
 
-        public List<WorkCenterLotActivities> DeserializeWorkCenterLotActivities(string fileName)
-        {
-            Console.Write($"Reading {fileName} - ");
-            WorkCenterLotActivities = Tools.ReadFromBinaryFile<List<WorkCenterLotActivities>>(Path.Combine(OutputDirectory, fileName));
-            Console.Write($"done.\n");
-            return WorkCenterLotActivities;
-        }
+        //public List<Tuple<DateTime, RealLot>> DeserializeRealLotStarts(string fileName)
+        //{
+        //    Console.Write($"Reading {fileName} - ");
+        //    RealLotStarts = Tools.ReadFromBinaryFile<List<Tuple<DateTime, RealLot>>>(Path.Combine(OutputDirectory, fileName));
+        //    Console.Write($"done.\n");
+        //    return RealLotStarts;
+        //}
 
-        public LotTraces DeserializeLotTraces(string fileName)
-        {
-            Console.Write($"Reading {fileName} - ");
-            LotTraces = Tools.ReadFromBinaryFile<LotTraces>(Path.Combine(OutputDirectory, fileName));
-            Console.Write($"done.\n");
-            return LotTraces;
-        }
+        //public List<WorkCenterLotActivities> DeserializeWorkCenterLotActivities(string fileName)
+        //{
+        //    Console.Write($"Reading {fileName} - ");
+        //    WorkCenterLotActivities = Tools.ReadFromBinaryFile<List<WorkCenterLotActivities>>(Path.Combine(OutputDirectory, fileName));
+        //    Console.Write($"done.\n");
+        //    return WorkCenterLotActivities;
+        //}
+
+        //public LotTraces DeserializeLotTraces(string fileName)
+        //{
+        //    Console.Write($"Reading {fileName} - ");
+        //    LotTraces = Tools.ReadFromBinaryFile<LotTraces>(Path.Combine(OutputDirectory, fileName));
+        //    Console.Write($"done.\n");
+        //    return LotTraces;
+        //}
 
         public virtual List<RealSnapshot> ReadRealSnapshots(DateTime from, DateTime until, TimeSpan interval, int waferQtyThreshold)
         {

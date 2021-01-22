@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Printing;
 using System.Runtime.Serialization;
 using System.Windows.Documents;
 using WaferFabSim;
@@ -22,21 +23,21 @@ namespace WaferFabDataReader
 
             AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
 
-            //SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
+            SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
 
-            //SerializeWaferFabSettings(reader, false);
+            SerializeWaferFabSettings(reader, false);
 
-            //SerializeLotTraces(reader, "LotActivity2019_2020.csv");
+            SerializeLotTraces(reader, "LotActivity2019_2020.csv");
 
-            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
-            //SerializeWaferFabSettings(reader, true);
+            SerializeWaferFabSettings(reader, true);
 
-            //SerializeWaferFabSettings(reader, true, "PHOTOLITH");
+            SerializeWaferFabSettings(reader, true, "PHOTOLITH");
 
-            //SerializeRealSnaphotsAll(reader);
+            SerializeRealSnaphotsAll(reader);
 
-            //SerializeRealSnapshotsPerMonth(reader);
+            SerializeRealSnapshotsPerMonth(reader);
 
             WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
         }
@@ -97,25 +98,25 @@ namespace WaferFabDataReader
                 reader.ReadWaferFabSettings(false, false);
             }
 
-            reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
 
             reader.GetLotStarts();
 
             reader.SerializeLotStarts("LotStarts_2019_2020");
         }
 
-        public static void WriteLotActivitiesWithEPTsToCSV(AutoDataReader reader, string serializedLotTracesFile, string filenameSerializedOutput)
+        public static void WriteLotActivitiesWithEPTsToCSV(AutoDataReader reader, string serializedLotTracesFile, string filenameCSVOutput)
         {
-            reader.DeserializeLotTraces(serializedLotTracesFile);
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, serializedLotTracesFile));
 
-            reader.WriteLotActivitiesToCSV(filenameSerializedOutput);
+            reader.WriteLotActivitiesToCSV(filenameCSVOutput);
         }
         
         public static void SerializeRealSnaphotsAll(AutoDataReader reader)
         {
             if (reader.LotTraces == null)
             {
-                reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
             }
 
             DateTime start = reader.LotTraces.StartDate;
@@ -134,7 +135,7 @@ namespace WaferFabDataReader
         {
             if (reader.LotTraces == null)
             {
-                reader.DeserializeLotTraces("LotTraces_2019_2020.dat");
+                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
             }
 
             DateTime start = reader.LotTraces.StartDate;

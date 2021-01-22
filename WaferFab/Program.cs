@@ -17,13 +17,12 @@ namespace WaferFabSim
             Settings.Output = true;
             Settings.FixSeed = true;
 
-            ShellModel WaferFabSim = new ShellModel(inputDir, outputDir);
+            ShellModel WaferFabSim = new ShellModel(outputDir);
 
             // Load WaferFab settings
-            //ManualDataReader reader = new ManualDataReader(inputDir + "CSVs");
             AutoDataReader reader = new AutoDataReader(inputDir + "Auto");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(false, true);
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true);
 
             waferFabSettings.SampleInterval = 1 * 60 * 60; // seconds
             waferFabSettings.LotStartsFrequency = 1; // hours

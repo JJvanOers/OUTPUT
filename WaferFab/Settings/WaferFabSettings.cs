@@ -52,6 +52,10 @@ namespace WaferFabSim
             {
                 throw new Exception("Sequences has to be filled before getting lot starts");
             }
+            else if (RealLotStarts == null)
+            {
+                throw new Exception("WaferFabSettings does not contain real lot starts. Either run simulation without real lot starts or load them from a serialized file.");
+            }
 
             List<Tuple<DateTime, Lot>> lotStarts = new List<Tuple<DateTime, Lot>>();
 

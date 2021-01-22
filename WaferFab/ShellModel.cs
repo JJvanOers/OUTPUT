@@ -17,22 +17,16 @@ namespace WaferFabSim
 {
     public class ShellModel : INotifyPropertyChanged
     {
-        public ShellModel(string inputDir, string outputDir)
+        public ShellModel(string outputDir)
         {
-            this.inputDir = inputDir;
             this.outputDir = outputDir;
-
-            DataImporter = new DataImporter();
         }
 
-        private string inputDir { get; set; }
         private string outputDir { get; set; }
 
         public Simulation MySimulation { get; private set; }
 
         public DataReaderBase DataReader { get; set; }
-
-        public DataImporter DataImporter { get; set; }
 
         public WaferFabSettings MyWaferFabSettings { get; set; }
 
@@ -128,7 +122,7 @@ namespace WaferFabSim
                 waferFab.LotStarts = MyWaferFabSettings.GetLotStarts();
             }
 
-            // Add intial lots by translating RealLots (from RealSnapshot) to Lots
+            // Add intial lots (lots present at t = 0) by translating RealLots (from RealSnapshot) to Lots
             if (MyWaferFabSettings.InitialRealLots.Any() != default)
             {
                 waferFab.InitialLots = MyWaferFabSettings.InitialRealLots.Select(x => x.ConvertToLot(0, waferFab.Sequences, false)).Where(x => x != null).ToList();

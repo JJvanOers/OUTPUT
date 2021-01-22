@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using WaferFabSim.Import;
+using WaferFabSim.Import.Distributions;
 using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Utilities;
@@ -68,13 +69,11 @@ namespace WaferFabSim.InputDataConversion
 
             processPlans = getProcessPlans();
 
-            Console.WriteLine("Starting to read lot starts.");
-
             if (includeLotstarts)
             {
                 if (area == "COMPLETE")
                 {
-                    WaferFabSettings.RealLotStarts = DeserializeRealLotStarts("LotStarts_2019_2020.dat");
+                    WaferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(OutputDirectory, "LotStarts_2019_2020.dat"));
                 }
                 else
                 {
@@ -84,12 +83,13 @@ namespace WaferFabSim.InputDataConversion
 
             if (includeDistributions)
             {
-                WaferFabSettings.WCServiceTimeDistributions = getWIPDependentEPTDistributions();
 
-                WaferFabSettings.WCOvertakingDistributions = getOvertakingDistributions();
+                EPTDistributionReader reader = new EPTDistributionReader(InputDirectory, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
+
+                WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
+
+                WaferFabSettings.WCOvertakingDistributions = reader.GetOvertakingDistributions();
             }
-
-            Console.Write(" done.\n");
 
             return WaferFabSettings;
         }
@@ -98,11 +98,13 @@ namespace WaferFabSim.InputDataConversion
         {
             Console.Write("Reading waferfabsettings -");
 
-            WaferFabSettings = ReadWaferFabSettingsDAT(serializedFileName);
+            WaferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(OutputDirectory, serializedFileName));
 
-            WaferFabSettings.WCServiceTimeDistributions = getWIPDependentEPTDistributions();
+            EPTDistributionReader reader = new EPTDistributionReader(InputDirectory, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
 
-            WaferFabSettings.WCOvertakingDistributions = getOvertakingDistributions();
+            WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
+
+            WaferFabSettings.WCOvertakingDistributions = reader.GetOvertakingDistributions();
 
             Console.Write(" done.\n");
 
@@ -243,7 +245,7 @@ namespace WaferFabSim.InputDataConversion
 
             if (WorkCenterLotActivities == null || !WorkCenterLotActivities.Any())
             {
-                DeserializeWorkCenterLotActivities("WorkCenterLotActivities_2019_2020.dat");
+                Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(OutputDirectory, "WorkCenterLotActivities_2019_2020.dat"));
             }
 
             // Make sequences per lotstep. Each sequence contains just 1 lotstep.
@@ -438,55 +440,6 @@ namespace WaferFabSim.InputDataConversion
             return ProcessPlans;
         }
 
-        public Dictionary<string, Distribution> getWIPDependentEPTDistributions()
-        {
-            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution>();
-
-            Dictionary<string, WIPDepDistParameters> parameters = new Dictionary<string, WIPDepDistParameters>();
-
-            // Read fitted WIP dependent EPT parameters from csv
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "FittedEPTParameters.csv")))
-            {
-                string[] headers = reader.ReadLine().Trim(',').Split(',');
-
-                while (!reader.EndOfStream)
-                {
-                    WIPDepDistParameters par = new WIPDepDistParameters();
-
-                    string[] data = reader.ReadLine().Trim(',').Split(',');
-
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        if (headers[i] == "WorkStation")
-                        {
-                            if (!WaferFabSettings.WorkCenters.Contains(data[i]))
-                            {
-                                throw new Exception($"Waferfab does not contain workcenter {data[i]}");
-                            }
-                            par.WorkCenter = data[i];
-                        }
-                        if (headers[i] == "wipmin") { par.LBWIP = (int)double.Parse(data[i]); }
-                        if (headers[i] == "wipmax") { par.UBWIP = (int)double.Parse(data[i]); }
-                        if (headers[i] == "t_wipmin") { par.Twipmin = double.Parse(data[i]); }
-                        if (headers[i] == "t_wipmax") { par.Twipmax = double.Parse(data[i]); }
-                        if (headers[i] == "t_decay") { par.Tdecay = double.Parse(data[i]); }
-                        if (headers[i] == "c_wipmin") { par.Cwipmin = double.Parse(data[i]); }
-                        if (headers[i] == "c_wipmax") { par.Cwipmax = double.Parse(data[i]); }
-                        if (headers[i] == "c_decay") { par.Cdecay = double.Parse(data[i]); }
-                    }
-
-                    parameters.Add(par.WorkCenter, par);
-                }
-            }
-
-            foreach (string wc in WaferFabSettings.WorkCenters)
-            {
-                dict.Add(wc, new EPTDistribution(parameters[wc]));
-            }
-
-            return dict;
-        }
-
         private Dictionary<string, string> getDispatchers()
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -499,57 +452,6 @@ namespace WaferFabSim.InputDataConversion
             return dict;
         }
 
-        /// <summary>
-        /// Gets the LotStep-dependent and WIP-dependent empirical overtaking distributions. Key = workcenter, value = distribution
-        /// </summary>
-        /// <param name="sections">Number of discrete WIP intervals</param>
-        /// <returns></returns>
-        public Dictionary<string, OvertakingDistributionBase> getOvertakingDistributions()
-        {
-            Dictionary<string, OvertakingDistributionBase> distributions = new Dictionary<string, OvertakingDistributionBase>();
-
-            // Read all overtaking records
-            List<OvertakingRecord> records = new List<OvertakingRecord>();
-
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "OvertakingRecords.csv")))
-            {
-                string headerline = reader.ReadLine();
-
-                while (!reader.EndOfStream)
-                {
-                    string dataline = reader.ReadLine();
-
-                    OvertakingRecord rec = new OvertakingRecord();
-
-                    string[] headers = headerline.Trim(',').Split(',');
-                    string[] data = dataline.Trim(',').Split(',');
-
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        if (headers[i] == "WorkStation") { rec.WorkCenter = data[i]; }
-                        else if (headers[i] == "IRDGroup") { rec.LotStep = data[i]; }
-                        else if (headers[i] == "WIPIn") { rec.WIPIn = Convert.ToInt32(data[i]); }
-                        else if (headers[i] == "OvertakenLots") { rec.OvertakenLots = Convert.ToInt32(data[i]); }
-                        else { throw new Exception($"{headers[i]} is unknown"); }
-                    }
-
-                    records.Add(rec);
-                }
-            }
-
-            // Read overtaking distribution parameters
-            OvertakingDistributionParameters parameters = new OvertakingDistributionParameters(10, 100, 1);
-
-            // Select records per workcenter per lotstep
-            foreach (string wc in WaferFabSettings.WorkCenters)
-            {
-                List<OvertakingRecord> recordsWC = records.Where(x => x.WorkCenter == wc).ToList();
-
-                distributions.Add(wc, new LotStepOvertakingDistribution(recordsWC, parameters,  WaferFabSettings.LotStepsPerWorkStation[wc]));
-            }
-
-            return distributions;
-        }
         private List<string> getProductTypes()
         {
             return lotStepsRaw.Select(x => x.Productname).Distinct().ToList();

@@ -31,7 +31,6 @@ namespace WaferFabSim.InputDataConversion
 
         private List<DateTime> wipTraceTimes { get; set; } 
 
-
         public WorkCenterLotActivities(LotTraces lotTraces, string workCenter)
         {
             WorkCenter = workCenter;

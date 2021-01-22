@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using WaferFabSim;
+using WaferFabSim.Import;
+using WaferFabSim.Import.Distributions;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Dispatchers;
@@ -23,50 +25,58 @@ namespace WaferAreaSim
             #region Parameters
             string wc = "PHOTOLITH";
 
-            string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
+            string inputDirectory = @"C:\CSSLWaferFabArea\Input";
 
-            string outputDir = @"C:\CSSLWaferFabArea\";
+            string outputDirectory = @"C:\CSSLWaferFabArea\Output";
             #endregion
 
             #region Initializing simulation
-            Simulation simulation = new Simulation("CSSLWaferFabArea", outputDir);
+            Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
             #endregion
 
-            #region Experimemt settings
+            #region Experiment settings
             simulation.MyExperiment.NumberOfReplications = 1;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 30;
             DateTime intialDateTime = new DateTime(2019, 10, 30);
             #endregion
 
-            #region Make starting lots
-            AutoDataReader reader = new AutoDataReader(Path.Combine(inputDir, "Auto"), Path.Combine(inputDir, "SerializedFiles"));
+            #region WaferFab settings
+            WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", "WaferFabSettings_PHOTOLITH_WithLotStarts.dat"));
 
-            WaferFabSettings waferfabsettings = reader.DeserializeWaferFabSettings("WaferFabSettings_PHOTOLITH_WithLotStarts.dat");
+            EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
+
+            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
+
+            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
+            #endregion
+
+            #region Make starting lots
+            AutoDataReader dataReader = new AutoDataReader(Path.Combine(inputDirectory, "Auto"), Path.Combine(inputDirectory, "SerializedFiles"));
 
             #endregion
 
             #region Building the model
             WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), intialDateTime);
 
-            WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferfabsettings.WCServiceTimeDistributions[wc], waferfabsettings.LotStepsPerWorkStation[wc]);
+            WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
 
             // Connect workcenter to WIPDependentDistribution
-            EPTDistribution distr = (EPTDistribution)waferfabsettings.WCServiceTimeDistributions[wc];
+            EPTDistribution distr = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
 
             distr.WorkCenter = workCenter;
 
-            EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferfabsettings.WCOvertakingDistributions[wc]);
+            EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferFabSettings.WCOvertakingDistributions[wc]);
 
             workCenter.SetDispatcher(dispatcher);
 
             // Connect workcenter to OvertakingDistribution
-            waferfabsettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
+            waferFabSettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
 
             waferFab.AddWorkCenter(workCenter.Name, workCenter);
 
             // Sequences
-            foreach (var sequence in waferfabsettings.Sequences)
+            foreach (var sequence in waferFabSettings.Sequences)
             {
                 waferFab.AddSequence(sequence.Key, sequence.Value);
             }
@@ -78,7 +88,7 @@ namespace WaferAreaSim
             waferFab.SetLotGenerator(new LotGenerator(waferFab, "LotGenerator", new ConstantDistribution(60), true));
 
             // Add lotstarts
-            waferFab.LotStarts = waferfabsettings.LotStarts;
+            waferFab.LotStarts = waferFabSettings.LotStarts;
 
             // Add observers
             LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
@@ -93,7 +103,6 @@ namespace WaferAreaSim
             workCenter.Subscribe(totalQueueObs);
             workCenter.Subscribe(seperateQueueObs);
             #endregion
-
 
             simulation.Run();
 
