@@ -82,6 +82,16 @@ namespace WaferFabSim
         // Processing Time History
         public Dictionary<string, WorkCenterLotActivities> ProcessingTimeHistories { get; set; }
 
+
+        public string GetWorkCenterNameForLotstep(LotStep lotstep)
+        {
+            foreach (var wc in LotStepsPerWorkStation)
+            {
+                if (wc.Value.Contains(lotstep)) return wc.Key;
+            }
+
+            return "No workcenter found";
+        }
     }
 
 }

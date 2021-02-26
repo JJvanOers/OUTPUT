@@ -76,7 +76,7 @@ namespace WaferFabGUI.ViewModels
             SimulationSnapshots = new ObservableCollection<SimulationSnapshot>(WaferFabSim.MySimResults.SimulationSnapshots);
             foreach (var step in waferFabSettings.LotSteps.OrderBy(x => x.Value.Id))
             {
-                XAxisLotSteps.Add(new CheckBoxLotStep(settings.LotSteps.ContainsKey(step.Key), step.Key));
+                XAxisLotSteps.Add(new CheckBoxLotStep(settings.LotSteps.ContainsKey(step.Key), $"{step.Key}"));
             }
             xAxis = new CategoryAxis() { Angle = 60, ItemsSource = XAxisLotSteps.Where(x => x.Selected).Select(x => x.Name) };
             WIPBarChart.Axes.Add(xAxis);

@@ -245,7 +245,7 @@ namespace WaferFabSim.InputDataConversion
 
             if (WorkCenterLotActivities == null || !WorkCenterLotActivities.Any())
             {
-                Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(OutputDirectory, "WorkCenterLotActivities_2019_2020.dat"));
+                WorkCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(OutputDirectory, "WorkCenterLotActivities_2019_2020.dat"));
             }
 
             // Make sequences per lotstep. Each sequence contains just 1 lotstep.

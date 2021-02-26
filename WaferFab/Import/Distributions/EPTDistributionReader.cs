@@ -55,13 +55,13 @@ namespace WaferFabSim.Import.Distributions
                             }
                             par.WorkCenter = data[i];
                         }
-                        if (headers[i] == "wipmin") { par.LBWIP = (int)double.Parse(data[i]); }
-                        if (headers[i] == "wipmax") { par.UBWIP = (int)double.Parse(data[i]); }
-                        if (headers[i] == "t_wipmin") { par.Twipmin = double.Parse(data[i]); }
-                        if (headers[i] == "t_wipmax") { par.Twipmax = double.Parse(data[i]); }
+                        if (headers[i] == "wip_min") { par.LBWIP = (int)double.Parse(data[i]); }
+                        if (headers[i] == "wip_max") { par.UBWIP = (int)double.Parse(data[i]); }
+                        if (headers[i] == "t_min") { par.Twipmin = double.Parse(data[i]); }
+                        if (headers[i] == "t_max") { par.Twipmax = double.Parse(data[i]); }
                         if (headers[i] == "t_decay") { par.Tdecay = double.Parse(data[i]); }
-                        if (headers[i] == "c_wipmin") { par.Cwipmin = double.Parse(data[i]); }
-                        if (headers[i] == "c_wipmax") { par.Cwipmax = double.Parse(data[i]); }
+                        if (headers[i] == "c_min") { par.Cwipmin = double.Parse(data[i]); }
+                        if (headers[i] == "c_max") { par.Cwipmax = double.Parse(data[i]); }
                         if (headers[i] == "c_decay") { par.Cdecay = double.Parse(data[i]); }
                     }
 

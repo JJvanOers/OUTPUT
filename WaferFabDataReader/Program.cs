@@ -23,23 +23,26 @@ namespace WaferFabDataReader
 
             AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
 
-            SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
+            //SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
 
-            SerializeWaferFabSettings(reader, false);
+            //SerializeWaferFabSettings(reader, false);
 
-            SerializeLotTraces(reader, "LotActivity2019_2020.csv");
+            //SerializeLotTraces(reader, "LotActivity2019_2020.csv");
 
-            SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
             SerializeWaferFabSettings(reader, true);
 
-            SerializeWaferFabSettings(reader, true, "PHOTOLITH");
+            //foreach (string wc in reader.WaferFabSettings.WorkCenters)
+            //{
+            //    SerializeWaferFabSettings(reader, true, wc);
+            //}
 
-            SerializeRealSnaphotsAll(reader);
+            //SerializeRealSnaphotsAll(reader);
 
-            SerializeRealSnapshotsPerMonth(reader);
+            //SerializeRealSnapshotsPerMonth(reader);
 
-            WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
+            //WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
         }
 
         /// <summary>

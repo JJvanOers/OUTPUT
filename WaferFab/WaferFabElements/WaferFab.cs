@@ -41,7 +41,7 @@ namespace WaferFabSim.WaferFabElements
             InitialDateTime = initialTime == null ? DateTime.Now : (DateTime)initialTime;
         }
 
-        public DateTime GetDateTime => InitialDateTime + new TimeSpan (0,0,(int)GetTime);
+        public DateTime GetDateTime => InitialDateTime + new TimeSpan(0,0,(int)GetTime);
 
         public void SetLotGenerator(LotGenerator lotGenerator)
         {
@@ -69,8 +69,6 @@ namespace WaferFabSim.WaferFabElements
         /// <param name="e"></param>
         protected override void HandleGeneration(CSSLEvent e)
         {
-            Console.WriteLine($"Date: {GetDateTime}");
-
             NotifyObservers(this);
 
             ScheduleEvent(NextEventTime(), HandleGeneration);

@@ -1,7 +1,9 @@
-﻿using CSSL.Modeling.Elements;
+﻿using CSSL.Modeling;
+using CSSL.Modeling.Elements;
 using CSSL.Utilities.Distributions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -16,7 +18,12 @@ namespace WaferFabSim.WaferFabElements
             waferFab = (WaferFab)parent;
             UseRealLotStartsFlag = useRealLotStartsFlag;
             previousEventTime = waferFab.InitialDateTime;
+            sw1 = new Stopwatch();
+            sw2 = new Stopwatch();
+            sw3 = new Stopwatch();
         }
+
+        private List<DateTime> dates { get; set; }
 
         private WaferFab waferFab { get; }
 
@@ -26,6 +33,11 @@ namespace WaferFabSim.WaferFabElements
 
         private int indexUntil { get; set; } = 0;
 
+        private Stopwatch sw1;
+
+        private Stopwatch sw2;
+
+        private Stopwatch sw3;
 
         public bool UseRealLotStartsFlag { get; }
 
@@ -64,8 +76,7 @@ namespace WaferFabSim.WaferFabElements
         {
             DateTime currentEventTime = waferFab.GetDateTime;
 
-            // Find from and until indexes
-            List<DateTime> dates = waferFab.LotStarts.Select(x => x.Item1).ToList();
+            sw2.Start();
 
             indexFrom = dates.BinarySearch(previousEventTime);
             if (indexFrom < 0) indexFrom = ~indexFrom;
@@ -73,17 +84,30 @@ namespace WaferFabSim.WaferFabElements
             indexUntil = dates.BinarySearch(currentEventTime);
             if (indexUntil < 0) indexUntil = ~indexUntil;
 
+            sw2.Stop();
+            sw3.Start();
+
+            var selectedLotstarts = waferFab.LotStarts.Skip(indexFrom).Take(indexUntil - indexFrom);
+
+            
+
             // Create lots according to preset quantities in LotStarts and send all lots to first workstation
-            foreach (Tuple<DateTime, Lot> lot in waferFab.LotStarts.Skip(indexFrom).Take(indexUntil - indexFrom))
+            foreach (Tuple<DateTime, Lot> lot in selectedLotstarts)
             {
+                sw1.Start();
                 Lot newLot = lot.Item2;
 
                 Lot deepCopiedLot = new Lot(newLot);
 
                 deepCopiedLot.SendToNextWorkCenter();
+
+                sw1.Stop();
             }
 
+            sw3.Stop();
             previousEventTime = currentEventTime;
+
+            
         }
 
         protected override void OnExperimentStart()
@@ -92,7 +116,10 @@ namespace WaferFabSim.WaferFabElements
             if (waferFab.LotStarts != null)
             {
                 waferFab.LotStarts = waferFab.LotStarts.OrderBy(x => x.Item1).ToList();
+
+                dates = waferFab.LotStarts.Select(x => x.Item1).ToList();
             }
         }
+
     }
 }

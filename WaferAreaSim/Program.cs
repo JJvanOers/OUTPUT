@@ -35,7 +35,7 @@ namespace WaferAreaSim
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 1;
+            simulation.MyExperiment.NumberOfReplications = 10;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 30;
             DateTime intialDateTime = new DateTime(2019, 10, 30);
