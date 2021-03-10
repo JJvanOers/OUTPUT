@@ -13,14 +13,14 @@ namespace WaferFabSim.WaferFabElements.Utilities
     /// </summary>
     public class EPTDistribution : Distribution
     {
-        // Mean and variance set in base are wrong and should nog be used. This distribution does not have a single mean and variance, since it is WIP-dependent
-        public EPTDistribution(WIPDepDistParameters parameters) : base(parameters.Twipmax, parameters.Cwipmax)
+        // Mean and variance set in base are wrong and should not be used. This distribution does not have a single mean and variance, since it is WIP-dependent
+        public EPTDistribution(WIPDepDistParameters parameters) : base(parameters.Tmax, parameters.Cmax)
         {
-            par = parameters;
+            Par = parameters;
 
             Distributions = new Dictionary<int, Distribution>();
 
-            for (int WIP = 1; WIP <= par.UBWIP; WIP++)
+            for (int WIP = 1; WIP <= Par.UBWIP; WIP++)
             {
                 // TEMP
                 // if (WIP < par.LBWIP) Distributions.Add(WIP, new GammaDistribution(2 * MeanAtWIP(WIP), VarianceAtWIP(WIP)));
@@ -33,9 +33,8 @@ namespace WaferFabSim.WaferFabElements.Utilities
 
         public WorkCenter WorkCenter { get; set; }
 
-        private WIPDepDistParameters par { get; }
+        public WIPDepDistParameters Par { get; }
         
-
         public override double Next()
         {
             int WIP = WorkCenter.TotalQueueLength;
@@ -45,9 +44,9 @@ namespace WaferFabSim.WaferFabElements.Utilities
             {
                 throw new Exception("WIP should always be bigger than 0");
             }
-            else if (WIP > par.UBWIP)
+            else if (WIP > Par.UBWIP)
             {
-                return Distributions[par.UBWIP].Next();
+                return Distributions[Par.UBWIP].Next();
             }
             else
             {
@@ -57,12 +56,12 @@ namespace WaferFabSim.WaferFabElements.Utilities
 
         private double MeanAtWIP(int WIP)
         {
-            return exponentialFunction(WIP, par.Twipmin, par.Twipmax, par.Tdecay);
+            return exponentialFunction(WIP, Par.Tmin, Par.Tmax, Par.Tdecay);
         }
 
         private double VarianceAtWIP(int WIP)
         {
-            double Cv = exponentialFunction(WIP, par.Cwipmin, par.Cwipmax, par.Cdecay);
+            double Cv = exponentialFunction(WIP, Par.Cmin, Par.Cmax, Par.Cdecay);
             double mean = MeanAtWIP(WIP);
 
             return Cv * Cv * mean * mean;
@@ -87,11 +86,11 @@ namespace WaferFabSim.WaferFabElements.Utilities
             public string WorkCenter { get; set; }
             public int LBWIP { get; set; }
             public int UBWIP { get; set; }
-            public double Twipmin { get; set; }
-            public double Twipmax { get; set; }
+            public double Tmin { get; set; }
+            public double Tmax { get; set; }
             public double Tdecay { get; set; }
-            public double Cwipmin { get; set; }
-            public double Cwipmax { get; set; }
+            public double Cmin { get; set; }
+            public double Cmax { get; set; }
             public double Cdecay { get; set; }
 
         }

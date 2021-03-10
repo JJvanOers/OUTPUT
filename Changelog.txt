@@ -1,0 +1,12 @@
+03/03
+totalQueueObs --> commented reset on replication
+
+
+01/03
+Made project WaferAreaOptimiser
+Each iteration it varies the parameters
+
+EPTDistribution.cs
+36: private WIPDepDistParameters par { get; } -> public WIPDepDistParameters par { get; }
+
+=> distr.par.LBWIP om parameters te checken
