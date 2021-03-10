@@ -21,13 +21,12 @@ namespace WaferAreaSim
     {
         static void Main(string[] args)
         {
-
             #region Parameters
             string wc = "PHOTOLITH";
 
-            string inputDirectory = @"C:\CSSLWaferFabArea\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFabArea\Output";
+            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
             #endregion
 
             #region Initializing simulation
@@ -111,7 +110,6 @@ namespace WaferAreaSim
 
             reporter.PrintSummaryToConsole();
             #endregion
-
         }
     }
 }

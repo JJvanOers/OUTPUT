@@ -29,8 +29,8 @@ namespace WaferFabGUI.ViewModels
     {
         public ShellViewModel()
         {
-            string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
-            string outputDir = @"C:\CSSLWaferFab\";
+            string inputDir = @"C:\CSSLWaferFab\Input\";
+            string outputDir = @"C:\CSSLWaferFab\Output\WaferFabGUI";
 
             WaferFabSim = new ShellModel(outputDir);
             WaferFabSim.ReadSimulationResults();
@@ -64,7 +64,7 @@ namespace WaferFabGUI.ViewModels
             Settings.Output = true;
 
             // Initialize Waferfab Settings
-            this.reader = new AutoDataReader(inputDirectory + @"\Auto", inputDir + @"\SerializedFiles");
+            this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
             waferFabSettings = this.reader.ReadWaferFabSettings(false, true);
             initializeGUIWaferFabSettings(waferFabSettings);
 
@@ -294,7 +294,7 @@ namespace WaferFabGUI.ViewModels
 
             if (waferFabSettings.UseRealLotStartsFlag == true && waferFabSettings.RealLotStarts == null)
             {
-                waferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(reader.OutputDirectory, "LotStarts_2019_2020.dat"));
+                waferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(reader.DirectorySerializedFiles, "LotStarts_2019_2020.dat"));
             }
 
             if (IsStartStateSelected)

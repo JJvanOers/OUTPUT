@@ -10,9 +10,9 @@ namespace WaferFabSim
     {
         static void Main(string[] args)
         {
-            string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\";
+            string inputDir = @"C:\CSSLWaferFab\Input\";
 
-            string outputDir = @"C:\CSSLWaferFab\";
+            string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
             Settings.Output = true;
             Settings.FixSeed = true;
@@ -20,12 +20,12 @@ namespace WaferFabSim
             ShellModel WaferFabSim = new ShellModel(outputDir);
 
             // Load WaferFab settings
-            AutoDataReader reader = new AutoDataReader(inputDir + "Auto");
+            AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
 
             WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true);
 
-            waferFabSettings.SampleInterval = 1 * 60 * 60; // seconds
-            waferFabSettings.LotStartsFrequency = 1; // hours
+            waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
+            waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
 
             // Read Initial Lots
