@@ -24,12 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CSSL">
-      <HintPath>..\CSSL.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="MatchingIcon.ico" />
   </ItemGroup>
 

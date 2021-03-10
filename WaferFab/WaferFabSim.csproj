@@ -16,13 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CSSL">
-      <HintPath>..\CSSL.dll</HintPath>
-    </Reference>
+    <Folder Include="WaferFabElements\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="WaferFabElements\" />
+    <ProjectReference Include="..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
   </ItemGroup>
 
 </Project>

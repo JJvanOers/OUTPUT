@@ -8,11 +8,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
 	</ItemGroup>
-	
-	<ItemGroup>
-		<Reference Include="CSSL">
-			<HintPath>..\CSSL.dll</HintPath>
-		</Reference>
-	</ItemGroup>
 
 </Project>
