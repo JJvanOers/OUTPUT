@@ -101,7 +101,7 @@ namespace WaferFabDataReader
                 reader.ReadWaferFabSettings(false, false);
             }
 
-            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, "LotTraces_2019_2020.dat"));
 
             reader.GetLotStarts();
 
@@ -110,7 +110,7 @@ namespace WaferFabDataReader
 
         public static void WriteLotActivitiesWithEPTsToCSV(AutoDataReader reader, string serializedLotTracesFile, string filenameCSVOutput)
         {
-            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, serializedLotTracesFile));
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, serializedLotTracesFile));
 
             reader.WriteLotActivitiesToCSV(filenameCSVOutput);
         }
@@ -119,7 +119,7 @@ namespace WaferFabDataReader
         {
             if (reader.LotTraces == null)
             {
-                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
+                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, "LotTraces_2019_2020.dat"));
             }
 
             DateTime start = reader.LotTraces.StartDate;
@@ -138,7 +138,7 @@ namespace WaferFabDataReader
         {
             if (reader.LotTraces == null)
             {
-                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.OutputDirectory, "LotTraces_2019_2020.dat"));
+                reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, "LotTraces_2019_2020.dat"));
             }
 
             DateTime start = reader.LotTraces.StartDate;

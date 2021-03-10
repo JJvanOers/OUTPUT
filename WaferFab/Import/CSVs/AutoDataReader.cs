@@ -16,15 +16,8 @@ namespace WaferFabSim.InputDataConversion
 {
     public class AutoDataReader : DataReaderBase
     {
-        public AutoDataReader(string directory) : base(directory)
-        {
-            lotStepsRaw = new List<SingleStep>();
-            irdMappings = new List<IRDMapping>();
-            irdNumbering = new Dictionary<string, int>();
-            lotActivitiesRaw = new List<LotActivityRaw>();
-        }
 
-        public AutoDataReader(string inputDirectory, string outputDirectory) : base(inputDirectory, outputDirectory)
+        public AutoDataReader(string csvsDirectory, string serializedDirectory) : base(csvsDirectory, serializedDirectory)
         {
             lotStepsRaw = new List<SingleStep>();
             irdMappings = new List<IRDMapping>();
@@ -73,7 +66,7 @@ namespace WaferFabSim.InputDataConversion
             {
                 if (area == "COMPLETE")
                 {
-                    WaferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(OutputDirectory, "LotStarts_2019_2020.dat"));
+                    WaferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(DirectorySerializedFiles, "LotStarts_2019_2020.dat"));
                 }
                 else
                 {
@@ -84,7 +77,7 @@ namespace WaferFabSim.InputDataConversion
             if (includeDistributions)
             {
 
-                EPTDistributionReader reader = new EPTDistributionReader(InputDirectory, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
+                EPTDistributionReader reader = new EPTDistributionReader(DirectoryInputCSVs, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
 
                 WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
 
@@ -98,9 +91,9 @@ namespace WaferFabSim.InputDataConversion
         {
             Console.Write("Reading waferfabsettings -");
 
-            WaferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(OutputDirectory, serializedFileName));
+            WaferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(DirectorySerializedFiles, serializedFileName));
 
-            EPTDistributionReader reader = new EPTDistributionReader(InputDirectory, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
+            EPTDistributionReader reader = new EPTDistributionReader(DirectoryInputCSVs, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
 
             WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
 
@@ -118,7 +111,7 @@ namespace WaferFabSim.InputDataConversion
             WorkCenterLotActivities = new List<WorkCenterLotActivities>();
 
             // Fill lot activites raw
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, fileName)))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, fileName)))
             {
                 string headerLine = reader.ReadLine();
 
@@ -245,7 +238,7 @@ namespace WaferFabSim.InputDataConversion
 
             if (WorkCenterLotActivities == null || !WorkCenterLotActivities.Any())
             {
-                WorkCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(OutputDirectory, "WorkCenterLotActivities_2019_2020.dat"));
+                WorkCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
             }
 
             // Make sequences per lotstep. Each sequence contains just 1 lotstep.
@@ -272,7 +265,7 @@ namespace WaferFabSim.InputDataConversion
 
         public void WriteLotActivitiesToCSV(string fileName)
         {
-            LotTraces.WriteLotActivitiesToCSV(Path.Combine(OutputDirectory, fileName));
+            LotTraces.WriteLotActivitiesToCSV(Path.Combine(DirectorySerializedFiles, fileName));
         }
 
         /// <summary>
@@ -296,7 +289,7 @@ namespace WaferFabSim.InputDataConversion
             irdNumbering.Clear();
 
             // Read steps from process plans
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "ProcessPlans.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "ProcessPlans.csv")))
             {
                 string headerLine = reader.ReadLine();
 
@@ -309,7 +302,7 @@ namespace WaferFabSim.InputDataConversion
             }
 
             // Read IRD Mappings
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "IRDMapping.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "IRDMapping.csv")))
             {
                 string headerLine = reader.ReadLine();
 
@@ -344,7 +337,7 @@ namespace WaferFabSim.InputDataConversion
             }
 
             // Read IRD Numbering
-            using (StreamReader reader = new StreamReader(Path.Combine(InputDirectory, "IRDNumbering.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "IRDNumbering.csv")))
             {
                 string headerLine = reader.ReadLine(); // not used
 

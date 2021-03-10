@@ -52,7 +52,7 @@ namespace WaferFabSim.InputDataConversion
 
         private void readLotStarts()
         {
-            using (var reader = new StreamReader(Path.Combine(InputDirectory, "LotStarts.csv")))
+            using (var reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "LotStarts.csv")))
             {
                 int row = 1;
 
@@ -76,7 +76,7 @@ namespace WaferFabSim.InputDataConversion
 
         public void readWorkCenters()
         {
-            using (var reader = new StreamReader(Path.Combine(InputDirectory, "WorkCenters.csv")))
+            using (var reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "WorkCenters.csv")))
             {
                 int row = 1;
 
@@ -97,7 +97,7 @@ namespace WaferFabSim.InputDataConversion
 
         public void readLotSteps()
         {
-            using (var reader = new StreamReader(Path.Combine(InputDirectory, "LotSteps.csv")))
+            using (var reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "LotSteps.csv")))
             {
                 int row = 1;
 
@@ -120,7 +120,7 @@ namespace WaferFabSim.InputDataConversion
 
         public void readSequences()
         {
-            using (var reader = new StreamReader(Path.Combine(InputDirectory, "Sequences.csv")))
+            using (var reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "Sequences.csv")))
             {
                 var header = reader.ReadLine().Split(',');
 
