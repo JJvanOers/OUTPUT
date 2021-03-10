@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferFabDataReader", "Wafer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferFabGUI", "WaferFabGUI\WaferFabGUI.csproj", "{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{6B788CD2-78A2-46BD-AD23-7FBFB5EA5924}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferAreaOptimiser", "WaferAreaOptimiser\WaferAreaOptimiser.csproj", "{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D654BA2-C7DA-48FE-9B35-C193DBF05C86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B788CD2-78A2-46BD-AD23-7FBFB5EA5924}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B788CD2-78A2-46BD-AD23-7FBFB5EA5924}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B788CD2-78A2-46BD-AD23-7FBFB5EA5924}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B788CD2-78A2-46BD-AD23-7FBFB5EA5924}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
