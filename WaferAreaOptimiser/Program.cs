@@ -37,51 +37,57 @@ namespace WaferAreaOptimiser
             // SA parameters
             double temp = 25;
 
-            double cooldown = 0.999;
+            double cooldown = 0.9;
 
-            double objective = 701.8146597028681;
+            double meanObj = 701.8146597028681;
+
+            double stdObj = 200;
 
             // Variables and functions
             Dictionary<string, Distribution> currentPar, nextPar, bestPar;
 
-            WeightedStatistic currentRes, nextRes, bestRes;
+            Tuple<double, double> currentRes, nextRes, bestRes;
 
             double currentCost, nextCost, bestCost, deltaCost;
 
-            Dictionary<WIPDepDistParameters, WeightedStatistic> results = new Dictionary<WIPDepDistParameters, WeightedStatistic>(); // Save all solutions
+            Dictionary<WIPDepDistParameters, Tuple<double, double>> results = new Dictionary<WIPDepDistParameters, Tuple<double, double>>(); // Save all solutions
 
             UniformDistribution uDist = new UniformDistribution(0, 1);
 
             // Initial model parameters and results
-            currentPar = bestPar = waferAreaSim.initialParameters;
+            currentPar = waferAreaSim.initialParameters;
+            bestPar = optimiser.CopyParameters(currentPar);
 
             currentRes = bestRes = waferAreaSim.RunSim(currentPar);
+            bestRes = optimiser.CopyResults(currentRes);
 
-            currentCost = bestCost = Math.Abs(currentRes.Average() - objective);
+            currentCost = Math.Abs(currentRes.Item1 - meanObj) + Math.Abs(currentRes.Item2 - stdObj);
+            bestCost = currentCost;
 
             optimiser.AddResult(results, currentPar, currentRes);
-                      
+
             // Iterate and evaluate solutions until sufficiently cooled down
-            while (temp > 0.1)
+            int i = 0;
+            while (temp > 1)
             {
                 nextPar = optimiser.GenerateNeighbour(currentPar);
                 
                 nextRes = waferAreaSim.RunSim(nextPar);
 
-                nextCost = Math.Abs(nextRes.Average() - objective);
+                nextCost = Math.Abs(nextRes.Item1 - meanObj) + Math.Abs(nextRes.Item2 - stdObj);
 
                 optimiser.AddResult(results, nextPar, nextRes);
 
                 if (nextCost < currentCost) // New solution is better than current, accept new solution
                 {
-                    currentPar = nextPar;
-                    currentRes = nextRes;
+                    currentPar = optimiser.CopyParameters(nextPar);
+                    currentRes = optimiser.CopyResults(nextRes);
                     currentCost = nextCost;
 
                     if (nextCost < bestCost) // New solution is better best, accept new best solution
                     {
-                        bestPar = nextPar;
-                        bestRes = nextRes;
+                        bestPar = optimiser.CopyParameters(nextPar);
+                        bestRes = optimiser.CopyResults(nextRes);
                         bestCost = nextCost;
                     }
                 } else
@@ -90,31 +96,56 @@ namespace WaferAreaOptimiser
 
                     if (uDist.Next() < Math.Pow(Math.E, -deltaCost / temp)) // Accept solution if u ~ U[0,1] < e^-(dC/T)
                     {
-                        currentPar = nextPar;
-                        currentRes = nextRes;
+                        currentPar = optimiser.CopyParameters(nextPar);
+                        currentRes = optimiser.CopyResults(nextRes);
                         currentCost = nextCost;
                     }
                 }
 
                 temp = temp * cooldown; // Reduce temperature
+                i++;
+
+                Console.WriteLine("\nIteration: {0}. Temperature {1}", i, temp);
+                Console.WriteLine("Evaluated solution {0}, {1}", nextRes.Item1, nextRes.Item2);
+                Console.WriteLine("Current solution {0}, {1}", currentRes.Item1, currentRes.Item2);
+                Console.WriteLine("Best solution {0}, {1}\n", bestRes.Item1, bestRes.Item2);
             }
 
-            //Dictionary<string, Distribution> parameters = optimiser.GenerateParameters();
-
-            //Console.WriteLine("Average: {0} and standard deviation: {1}", results.Average(), results.StandardDeviation());
-
+            #region Write results to file
+            // Write all results to a text file
             using StreamWriter outputFile = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_parameters.txt"));
 
             outputFile.WriteLine("LBWIP,UBWIP,Tmin,Tmax,Tdecay,Cmin,Cmax,Cdecay,AverageQL,StdQL");
 
-            foreach (KeyValuePair<WIPDepDistParameters, WeightedStatistic> entry in results)
+            foreach (KeyValuePair<WIPDepDistParameters, Tuple<double, double>> entry in results)
             {
-                WIPDepDistParameters x = entry.Key;
-                WeightedStatistic y = entry.Value;
-                outputFile.WriteLine(x.LBWIP + "," + x.UBWIP + "," + x.Tmin + "," + x.Tmax + "," + x.Tdecay + "," + x.Cmin + "," + x.Cmax + "," + x.Cdecay
-                    + "," + y.Average() + "," + y.StandardDeviation());
+                WIPDepDistParameters pars = entry.Key;
+                Tuple<double, double> result = entry.Value;
+                outputFile.WriteLine(pars.LBWIP + "," + pars.UBWIP + "," + pars.Tmin + "," + pars.Tmax + "," + pars.Tdecay + "," + pars.Cmin + "," + pars.Cmax + "," + pars.Cdecay
+                    + "," + result.Item1 + "," + result.Item2);
             }
-            
-        }     
+
+            // Write the best and current solution to a text file
+            using StreamWriter outputFileBest = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_best_parameters.txt"));
+
+            outputFileBest.WriteLine("Solution,LBWIP,UBWIP,Tmin,Tmax,Tdecay,Cmin,Cmax,Cdecay,AverageQL,StdQL");
+
+            var first = currentPar.First();
+            Distribution value = first.Value;
+            EPTDistribution dist = (EPTDistribution)value;
+            WIPDepDistParameters par = dist.Par;
+
+            outputFileBest.WriteLine("Current," + par.LBWIP + "," + par.UBWIP + "," + par.Tmin + "," + par.Tmax + "," + par.Tdecay + "," + par.Cmin + "," + par.Cmax + "," + par.Cdecay
+                    + "," + currentRes.Item1 + "," + currentRes.Item2);
+
+            first = bestPar.First();
+            value = first.Value;
+            dist = (EPTDistribution)value;
+            par = dist.Par;
+
+            outputFileBest.WriteLine("Best," + par.LBWIP + "," + par.UBWIP + "," + par.Tmin + "," + par.Tmax + "," + par.Tdecay + "," + par.Cmin + "," + par.Cmax + "," + par.Cdecay
+                    + "," + bestRes.Item1 + "," + bestRes.Item2);
+            #endregion
+        }
     }
 }

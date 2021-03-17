@@ -46,7 +46,7 @@ namespace WaferAreaOptimiser
         {
             double pTmax = 0.3; // Probability to create neighbour by changing Tmax. Equal prob, pTmax = 1/8
 
-            double pOthers = (1 - pTmax ) / 7;
+            double pOthers = (1 - pTmax) / 7;
 
             double u = uDist.Next();
 
@@ -84,7 +84,40 @@ namespace WaferAreaOptimiser
             return newValue;
         }
 
-        public void AddResult(Dictionary<WIPDepDistParameters, WeightedStatistic> results, Dictionary<string, Distribution> parameters, WeightedStatistic result)
+        public Dictionary<string, Distribution> CopyParameters(Dictionary<string, Distribution> parameters)
+        {
+            var first = parameters.First();
+            Distribution value = first.Value;
+            EPTDistribution dist = (EPTDistribution)value;
+            WIPDepDistParameters x = dist.Par;
+
+            WIPDepDistParameters pars = new WIPDepDistParameters
+            {
+                LBWIP = x.LBWIP,
+                UBWIP = x.UBWIP,
+                Tmin = x.Tmin,
+                Tmax = x.Tmax,
+                Tdecay = x.Tdecay,
+                Cmin = x.Cmin,
+                Cmax = x.Cmax,
+                Cdecay = x.Cdecay
+            };
+
+            Dictionary<string, Distribution> copiedParameters = new Dictionary<string, Distribution>();
+
+            copiedParameters.Add(wc, new EPTDistribution(pars));
+
+            return copiedParameters;
+        }
+
+        public Tuple<double, double> CopyResults(Tuple<double, double> result)
+        {
+            Tuple<double, double> copiedResult = new Tuple<double, double>(result.Item1, result.Item2);
+
+            return copiedResult;
+        }
+
+        public void AddResult(Dictionary<WIPDepDistParameters, Tuple<double, double>> results, Dictionary<string, Distribution> parameters, Tuple<double, double> result)
         {
             var first = parameters.First();
             Distribution value = first.Value;

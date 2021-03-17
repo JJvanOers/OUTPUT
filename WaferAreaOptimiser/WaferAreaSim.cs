@@ -31,8 +31,6 @@ namespace WaferAreaOptimiser
 
         public Dictionary<string, Distribution> initialParameters;
 
-        //Settings.Output = false; // Observer data is not written to text files
-
         public WaferAreaSim(string wc, string inputDirectory, string outputDirectory)
         {
             this.wc = wc;
@@ -49,10 +47,12 @@ namespace WaferAreaOptimiser
             initialParameters = distributionReader.GetServiceTimeDistributions();
 
             waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
+
+            Settings.WriteOutput = false;
             #endregion
         }
 
-        public WeightedStatistic RunSim(Dictionary<string, Distribution> dict)
+        public Tuple<double, double> RunSim(Dictionary<string, Distribution> dict)
         {
             waferFabSettings.WCServiceTimeDistributions = dict;
 
@@ -113,15 +113,13 @@ namespace WaferAreaOptimiser
 
             simulation.Run();
 
-            /*
             #region Reporting
             SimulationReporter reporter = simulation.MakeSimulationReporter();
 
             reporter.PrintSummaryToConsole();
             #endregion
-            */
 
-            WeightedStatistic results = optimiserObs.QueueLengthStatistic;
+            Tuple<double, double> results = new Tuple<double, double>(optimiserObs.QueueLengthStatistic.Average(), optimiserObs.QueueLengthStatistic.StandardDeviation());
 
             return results;
         }
