@@ -14,7 +14,7 @@ namespace WaferFabSim
 
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
-            Settings.Output = true;
+            Settings.WriteOutput = true;
             Settings.FixSeed = true;
 
             ShellModel WaferFabSim = new ShellModel(outputDir);

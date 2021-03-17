@@ -6,13 +6,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="CSSL">
-			<HintPath>..\CSSL.dll</HintPath>
-		</Reference>
+	  <ProjectReference Include="..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
+	  <ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
 	</ItemGroup>
 
 </Project>

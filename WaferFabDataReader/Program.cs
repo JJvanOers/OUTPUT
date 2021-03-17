@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Printing;
 using System.Runtime.Serialization;
-using System.Windows.Documents;
 using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.InputDataConversion;

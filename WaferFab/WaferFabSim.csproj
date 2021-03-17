@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,11 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="15.0.5" />
+    <Folder Include="WaferFabElements\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="WaferFabElements\" />
+    <PackageReference Include="CsvHelper" Version="26.0.1" />
   </ItemGroup>
 
   <ItemGroup>

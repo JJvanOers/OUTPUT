@@ -61,7 +61,7 @@ namespace WaferFabGUI.ViewModels
             experimentSettings.NumberOfReplications = 1;
             experimentSettings.LengthOfReplication = 100 * 24 * 60 * 60;
             experimentSettings.LengthOfWarmUp = 12 * 60 * 60;
-            Settings.Output = true;
+            Settings.WriteOutput = true;
 
             // Initialize Waferfab Settings
             this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
