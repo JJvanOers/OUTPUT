@@ -11,6 +11,7 @@ using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
 using WaferFabSim.InputDataConversion;
+using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Observers;
@@ -23,56 +24,50 @@ namespace Test
     {
         static void Main(string[] args)
         {
+            bool isFitted = false;
+
+            Console.WriteLine(isFitted ? "FittedEPTParameters.csv" : "OptimisedEPTParameters.csv");
+
+
+
+
+
             /*
-            double currentCost, nextCost, temp, deltaCost;
-            UniformDistribution uDist = new UniformDistribution(0, 1);
-            currentCost = 10;
-            nextCost = 20;
-            deltaCost = nextCost - currentCost;
-            temp = 10;
-            double u = uDist.Next();
-            double term = Math.Pow(Math.E, -deltaCost / temp);
+            List<RealLot> notInitialRealLots = realSnapShot.RealLots.Where(x => !lotSteps.Contains(x.IRDGroup)).ToList();
 
-            Console.WriteLine("{0} {1}", u, term);
-            Console.WriteLine(u < term);
-            */
-           
-            
-            
-            string wc = "PHOTOLITH";
-
-            UniformDistribution uniDist = new UniformDistribution(0, 1);
-
-            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution>();
-
-            WIPDepDistParameters Parameters;
-
-            Parameters = new WIPDepDistParameters
+            foreach (RealLot lot in initialRealLots)
             {
-                WorkCenter = wc,
-                LBWIP = (int)(uniDist.Next() * 60 + 194), // int
-                UBWIP = (int)(uniDist.Next() * 400 + 1300), // int
-                Tmin = uniDist.Next() * 400 + 1440, // double, Minimum flow time empty system
-                Tmax = uniDist.Next() * 30 + 96, // EPT full system
-                Tdecay = uniDist.Next() * 0.01 + 0.02,
-                Cmin = uniDist.Next() * 0.075 + 0.1,
-                Cmax = uniDist.Next() * 0.2 + 0.78,
-                Cdecay = uniDist.Next() * 0.005 + 0.014,
-            };
+                Console.Write(lot.IRDGroup + "  ");
+            }
 
-            dict.Add(wc, new EPTDistribution(Parameters));
+            foreach (RealLot lot in notInitialRealLots)
+            {
+                Console.Write(lot.IRDGroup + "  ");
+            }
+            */
 
-            var first = dict.First();
-            Distribution value = first.Value;
+            //Console.WriteLine(workCenter.LotSteps.ForEach)
 
-            EPTDistribution value2 = (EPTDistribution)value;
+            //RealSnapshot wcRealSnapshot = realSnapshot.
 
-            Console.WriteLine(value2.Par.LBWIP);
+            /*
+            var firstItem = mylist.ElementAt(0);
+            Console.WriteLine(firstItem.Time);
 
-            Console.WriteLine((int)0.0001);
+            var secondItem = mylist.ElementAt(1);
+            Console.WriteLine(secondItem.Time);
 
-            //Console.WriteLine(value.)
+            var thridItem = mylist.ElementAt(2);
+            Console.WriteLine(thridItem.Time);
+            */
 
+
+
+
+
+
+            ////////////////////////////////////////////////////////////////////////
+            // Random search ///////////////////////////////////////////////////////
 
 
             /*#region Parameters

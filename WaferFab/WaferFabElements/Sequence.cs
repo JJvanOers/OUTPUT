@@ -31,8 +31,8 @@ namespace WaferFabSim.WaferFabElements
 
         public string ProductGroup { get; }
 
-        public string ProductType { get; 
-        }
+        public string ProductType { get; }
+
         private List<LotStep> lotSteps { get; set; }
 
         public int stepCount => lotSteps.Count;

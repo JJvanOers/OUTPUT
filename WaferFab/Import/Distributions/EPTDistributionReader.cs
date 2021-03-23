@@ -28,14 +28,14 @@ namespace WaferFabSim.Import.Distributions
             this.lotStepsPerWorkStation = lotStepsPerWorkStation;
         }
 
-        public Dictionary<string, Distribution> GetServiceTimeDistributions()
+        public Dictionary<string, Distribution> GetServiceTimeDistributions(bool isFitted = true)
         {
             Dictionary<string, Distribution> dict = new Dictionary<string, Distribution>();
 
             Dictionary<string, WIPDepDistParameters> parameters = new Dictionary<string, WIPDepDistParameters>();
 
             // Read fitted WIP dependent EPT parameters from csv
-            using (StreamReader reader = new StreamReader(Path.Combine(directory, "FittedEPTParameters.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(directory, isFitted ? "FittedEPTParameters.csv" : "OptimisedEPTParameters.csv")))
             {
                 string[] headers = reader.ReadLine().Trim(',').Split(',');
 

@@ -1,9 +1,16 @@
-﻿using CSSL.Utilities.Distributions;
+﻿using CSSL.Modeling;
+using CSSL.Utilities.Distributions;
 using CSSL.Utilities.Statistics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using WaferFabSim;
+using WaferFabSim.InputDataConversion;
+using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Utilities;
 using static WaferFabSim.WaferFabElements.Utilities.EPTDistribution;
 
@@ -86,8 +93,7 @@ namespace WaferAreaOptimiser
 
         public Dictionary<string, Distribution> CopyParameters(Dictionary<string, Distribution> parameters)
         {
-            var first = parameters.First();
-            Distribution value = first.Value;
+            Distribution value = parameters.First().Value;
             EPTDistribution dist = (EPTDistribution)value;
             WIPDepDistParameters x = dist.Par;
 
@@ -119,12 +125,62 @@ namespace WaferAreaOptimiser
 
         public void AddResult(Dictionary<WIPDepDistParameters, Tuple<double, double>> results, Dictionary<string, Distribution> parameters, Tuple<double, double> result)
         {
-            var first = parameters.First();
-            Distribution value = first.Value;
+            Distribution value = parameters.First().Value;
             EPTDistribution dist = (EPTDistribution)value;
             WIPDepDistParameters x = dist.Par;
 
             results.Add(x, result);
+        }
+
+        public List<Lot> copyInitialLots(List<Lot> initialLots)
+        {
+            List<Lot> copiedInitialLots = new List<Lot>();
+
+            Lot deepCopiedLot;
+
+            foreach (Lot lot in initialLots)
+            {
+                deepCopiedLot = new Lot(lot);
+
+                copiedInitialLots.Add(lot);
+            }
+
+            return copiedInitialLots;
+        }
+
+        public List<Lot> GetInitialLots(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, WaferFabSettings waferFabSettings)
+        {
+            Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
+
+            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
+
+            WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
+
+            // Sequences
+            foreach (var sequence in waferFabSettings.Sequences)
+            {
+                waferFab.AddSequence(sequence.Key, sequence.Value);
+            }
+
+            // LotSteps
+            waferFab.LotSteps = waferFab.Sequences.Select(x => x.Value).Select(x => x.GetCurrentStep(0)).ToDictionary(x => x.Name);
+
+            #region Read initial lots
+            RealSnapshotReader reader = new RealSnapshotReader();
+
+            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 25);
+
+            RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
+
+            List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
+            //List<string> lotSteps = waferFabSettings.Sequences.Select(x => x.Value.GetCurrentStep(0).Name).ToList();
+
+            List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+
+            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences)).ToList();
+            #endregion
+
+            return initialLots;
         }
     }
 }

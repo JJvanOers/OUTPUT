@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using WaferFabSim.Import;
 using WaferFabSim.WaferFabElements;
@@ -109,5 +110,21 @@ namespace WaferFabSim.SnapshotData
                 throw new Exception($"Process plans does not contain {DeviceType}");
             }
         }
+
+        public Lot ConvertToLotArea(double creationTime, Dictionary<string, Sequence> sequences)
+        {
+            Lot lot = new Lot(creationTime, sequences[IRDGroup]);
+
+            lot.LotID = LotID;
+            lot.PlanDayReal = PlanDay;
+            lot.ClipWeekReal = ClipWeek;
+            lot.ArrivalReal = arrival;
+            lot.WIPInReal = wipIn;
+
+            lot.SetCurrentStepCount(0);
+                
+            return lot;
+        }
+        
     }
 }

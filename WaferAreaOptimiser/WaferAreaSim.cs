@@ -11,8 +11,10 @@ using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
 using WaferFabSim.InputDataConversion;
+using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Dispatchers;
+using WaferFabSim.WaferFabElements.Observers;
 using WaferFabSim.WaferFabElements.Utilities;
 
 namespace WaferAreaOptimiser
@@ -25,19 +27,29 @@ namespace WaferAreaOptimiser
 
         private string outputDirectory;
 
+        private DateTime initialDateTime;
+
         WaferFabSettings waferFabSettings;
 
         EPTDistributionReader distributionReader;
 
         public Dictionary<string, Distribution> initialParameters;
 
-        public WaferAreaSim(string wc, string inputDirectory, string outputDirectory)
+        private List<Lot> initialLots;
+
+        Optimiser optimiser;
+
+        public WaferAreaSim(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, Optimiser optimiser)
         {
             this.wc = wc;
 
             this.inputDirectory = inputDirectory;
 
             this.outputDirectory = outputDirectory;
+
+            this.initialDateTime = initialDateTime;
+
+            this.optimiser = optimiser;
 
             #region WaferFab settings
             waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
@@ -46,10 +58,12 @@ namespace WaferAreaOptimiser
 
             initialParameters = distributionReader.GetServiceTimeDistributions();
 
-            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
+            waferFabSettings.WCServiceTimeDistributions = initialParameters;
 
-            Settings.WriteOutput = false;
+            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
             #endregion
+
+            initialLots = optimiser.GetInitialLots(wc, inputDirectory, outputDirectory, initialDateTime, waferFabSettings);
         }
 
         public Tuple<double, double> RunSim(Dictionary<string, Distribution> dict)
@@ -63,8 +77,7 @@ namespace WaferAreaOptimiser
             #region Experiment settings
             simulation.MyExperiment.NumberOfReplications = 10;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
-            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 30;
-            DateTime intialDateTime = new DateTime(2019, 10, 30);
+            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
             #endregion
 
             #region Make starting lots
@@ -72,7 +85,7 @@ namespace WaferAreaOptimiser
             #endregion
 
             #region Building the model
-            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), intialDateTime);
+            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
 
             WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
 
@@ -104,6 +117,10 @@ namespace WaferAreaOptimiser
 
             // Add lotstarts
             waferFab.LotStarts = waferFabSettings.LotStarts;
+
+            // Add initial lots
+            List<Lot> copiedInitialLots = optimiser.copyInitialLots(initialLots);
+            waferFab.InitialLots = initialLots;
 
             // Add observers
             OptimiserObserver optimiserObs = new OptimiserObserver(simulation, wc + "_TotalQueueObserver");

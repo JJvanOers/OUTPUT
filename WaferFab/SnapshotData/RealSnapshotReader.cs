@@ -90,6 +90,29 @@ namespace WaferFabSim.SnapshotData
 
             return allLots;
         }
+
+        //Method that returns the correct RealSnapshot string based on DateTime
+        public string GetRealSnapshotString(DateTime dateTime)
+        {
+            int startYear = dateTime.Year;
+            int startMonth = dateTime.Month;
+            int endYear, endMonth;
+
+            if (startMonth != 12)
+            {
+                endMonth = startMonth + 1;
+                endYear = startYear;
+            }
+            else
+            {
+                endMonth = 1;
+                endYear = startYear + 1;
+            }
+
+            string snapshot = $"RealSnapshots_{startYear}-{startMonth}-1_{endYear}-{endMonth}-1_1h.dat";
+
+            return snapshot;
+        }
     }
 
 }

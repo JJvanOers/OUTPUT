@@ -28,13 +28,13 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void writeToFile(WorkCenter workCenter)
         {
-            Writer.Write(workCenter.GetTime + "," + workCenter.GetWallClockTime + ",");
+            Writer?.Write(workCenter.GetTime + "," + workCenter.GetWallClockTime + ",");
 
             foreach (LotStep step in workCenter.LotSteps)
             {
-                Writer.Write(queueLengths[step].Value + ",");
+                Writer?.Write(queueLengths[step].Value + ",");
             }
-            Writer.Write("\n");
+            Writer?.Write("\n");
         }
 
         private void writeToConsole(WorkCenter workCenter)
@@ -97,15 +97,15 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void headerToFile(WorkCenter workCenter)
         {
-            Writer.Write("Simulation Time,Computational Time,");
+            Writer?.Write("Simulation Time,Computational Time,");
 
             foreach (LotStep step in workCenter.LotSteps)
             {
                 queueLengths[step].UpdateValue(workCenter.Queues[step].Length);
 
-                Writer.Write(step.Name + ",");
+                Writer?.Write(step.Name + ",");
             }
-            Writer.Write("\n");
+            Writer?.Write("\n");
         }
 
         private void headerToConsole(WorkCenter workCenter)

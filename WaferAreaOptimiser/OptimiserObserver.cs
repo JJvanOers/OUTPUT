@@ -27,7 +27,7 @@ namespace WaferAreaOptimiser
             queueLength.UpdateValue(workCenter.TotalQueueLength);
             QueueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
 
-            //Writer.WriteLine(workCenter.GetTime + "," + workCenter.GetWallClockTime + "," + queueLength.Value);
+            Writer?.WriteLine(workCenter.GetTime + "," + workCenter.GetWallClockTime + "," + queueLength.Value);
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)
@@ -36,7 +36,7 @@ namespace WaferAreaOptimiser
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            //Writer.WriteLine("Simulation Time,Computational Time,Queue Length");
+            Writer?.WriteLine("Simulation Time,Computational Time,Queue Length");
 
             WorkCenter workCenter = (WorkCenter)modelElement;
             queueLength.UpdateValue(workCenter.TotalQueueLength);

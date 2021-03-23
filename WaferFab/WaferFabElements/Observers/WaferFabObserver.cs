@@ -92,25 +92,25 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void headerToFile(WaferFab waferFab)
         {
-            Writer.Write("Simulation Time,Computational Time,");
+            Writer?.Write("Simulation Time,Computational Time,");
 
             foreach (LotStep step in waferFab.LotSteps.Values.OrderBy(x => x.Id))
             {
-                Writer.Write($"{step.Name},");
+                Writer?.Write($"{step.Name},");
             }
 
-            Writer.Write("\n");
+            Writer?.Write("\n");
         }
 
         private void writeOutputToFile(WaferFab waferFab)
         {
-            Writer.Write(waferFab.GetTime + "," + waferFab.GetWallClockTime + ",");
+            Writer?.Write(waferFab.GetTime + "," + waferFab.GetWallClockTime + ",");
 
             foreach (LotStep step in orderedLotSteps)
             {
-                Writer.Write(queueLengths[step].Value + ",");
+                Writer?.Write(queueLengths[step].Value + ",");
             }
-            Writer.Write("\n");
+            Writer?.Write("\n");
         }
 
         private void writeOutputToConsole(WaferFab waferFab)

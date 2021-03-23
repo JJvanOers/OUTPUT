@@ -10,6 +10,7 @@ using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
 using WaferFabSim.InputDataConversion;
+using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Observers;
@@ -22,11 +23,13 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "PHOTOLITH";
+            string wc = "FURNACING";
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
+            string outputDirectory = @"C:\CSSLWaferFab\Output";
+
+            bool fittedParameters = true; // true = fitted, false = optimised
             #endregion
 
             #region Initializing simulation
@@ -35,17 +38,17 @@ namespace WaferAreaSim
 
             #region Experiment settings
             simulation.MyExperiment.NumberOfReplications = 10;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
-            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 30;
-            DateTime intialDateTime = new DateTime(2019, 10, 30);
+            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60; // September and October
+            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
+            DateTime initialDateTime = new DateTime(2019, 9, 1);
             #endregion
 
             #region WaferFab settings
-            WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", "WaferFabSettings_PHOTOLITH_WithLotStarts.dat"));
+            WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
 
             EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
+            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(fittedParameters);
 
             waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
             #endregion
@@ -56,7 +59,7 @@ namespace WaferAreaSim
             #endregion
 
             #region Building the model
-            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), intialDateTime);
+            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
 
             WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
 
@@ -101,6 +104,22 @@ namespace WaferAreaSim
 
             workCenter.Subscribe(totalQueueObs);
             workCenter.Subscribe(seperateQueueObs);
+            #endregion        
+
+            #region Read initial lots
+            RealSnapshotReader reader = new RealSnapshotReader();
+
+            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 25);
+
+            RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
+
+            List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
+
+            List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+
+            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences)).ToList();
+
+            waferFab.InitialLots = initialLots;
             #endregion
 
             simulation.Run();

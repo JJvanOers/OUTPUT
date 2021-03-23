@@ -26,7 +26,7 @@ namespace WaferFabSim.WaferFabElements.Observers
             queueLength.UpdateValue(workCenter.TotalQueueLength);
             queueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
 
-            Writer.WriteLine(workCenter.GetTime + "," + workCenter.GetWallClockTime + "," + queueLength.Value);
+            Writer?.WriteLine(workCenter.GetTime + "," + workCenter.GetWallClockTime + "," + queueLength.Value);
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)
@@ -35,7 +35,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            Writer.WriteLine("Simulation Time,Computational Time,Queue Length");
+            Writer?.WriteLine("Simulation Time,Computational Time,Queue Length");
 
             WorkCenter workCenter = (WorkCenter)modelElement;
             queueLength.UpdateValue(workCenter.TotalQueueLength);

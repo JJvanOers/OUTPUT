@@ -23,25 +23,31 @@ namespace WaferAreaOptimiser
     {
         static void Main(string[] args)
         {
+            // Paramters
+            // Simulation parameters
             string wc = "PHOTOLITH";
 
-            string inputDirectory = @"C:\CSSLWaferFabArea\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFabArea\Output";
-                    
-            WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory);
+            string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
+
+            DateTime initialDateTime = new DateTime(2019, 9, 1);
+
+            Settings.WriteOutput = false;
+
+            // Simulated Annealing parameters
+            double temp = 25;
+
+            double cooldown = 0.995;
+
+            double meanObj = 671.6519999278748;
+
+            double stdObj = 205.05027868604603;
+
 
             Optimiser optimiser = new Optimiser(wc);
 
-            // Simulated Annealing
-            // SA parameters
-            double temp = 25;
-
-            double cooldown = 0.9;
-
-            double meanObj = 701.8146597028681;
-
-            double stdObj = 200;
+            WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory, initialDateTime, optimiser);            
 
             // Variables and functions
             Dictionary<string, Distribution> currentPar, nextPar, bestPar;
@@ -58,7 +64,7 @@ namespace WaferAreaOptimiser
             currentPar = waferAreaSim.initialParameters;
             bestPar = optimiser.CopyParameters(currentPar);
 
-            currentRes = bestRes = waferAreaSim.RunSim(currentPar);
+            currentRes = waferAreaSim.RunSim(currentPar);
             bestRes = optimiser.CopyResults(currentRes);
 
             currentCost = Math.Abs(currentRes.Item1 - meanObj) + Math.Abs(currentRes.Item2 - stdObj);
@@ -68,7 +74,7 @@ namespace WaferAreaOptimiser
 
             // Iterate and evaluate solutions until sufficiently cooled down
             int i = 0;
-            while (temp > 1)
+            while (temp > 0.1)
             {
                 nextPar = optimiser.GenerateNeighbour(currentPar);
                 
@@ -106,9 +112,9 @@ namespace WaferAreaOptimiser
                 i++;
 
                 Console.WriteLine("\nIteration: {0}. Temperature {1}", i, temp);
-                Console.WriteLine("Evaluated solution {0}, {1}", nextRes.Item1, nextRes.Item2);
-                Console.WriteLine("Current solution {0}, {1}", currentRes.Item1, currentRes.Item2);
-                Console.WriteLine("Best solution {0}, {1}\n", bestRes.Item1, bestRes.Item2);
+                Console.WriteLine("Evaluated solution: {0}, {1}", nextRes.Item1, nextRes.Item2);
+                Console.WriteLine("Current solution:   {0}, {1}", currentRes.Item1, currentRes.Item2);
+                Console.WriteLine("Best solution:      {0}, {1}\n", bestRes.Item1, bestRes.Item2);
             }
 
             #region Write results to file
