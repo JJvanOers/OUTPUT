@@ -48,7 +48,7 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Overtaken lots of original Lotactivity in workcenter
         /// </summary>
-        public int OvertakenLotsReal { get; set; }
+        public int? OvertakenLotsReal { get; set; }
 
         /// <summary>
         /// WIP right before arrival of original lot activity in workcenter. Used for initial lots, for non-initial lot this is -1.

@@ -27,7 +27,7 @@ namespace WaferAreaSim
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFab\Output";
+            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
 
             bool fittedParameters = false; // true = fitted, false = optimised
             #endregion
@@ -37,7 +37,7 @@ namespace WaferAreaSim
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 10;
+            simulation.MyExperiment.NumberOfReplications = 1;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60; // September and October
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
             DateTime initialDateTime = new DateTime(2019, 9, 1);
@@ -96,14 +96,6 @@ namespace WaferAreaSim
             LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
             dispatcher.Subscribe(lotOutObserver);
 
-            WaferFabObserver waferFabObserver = new WaferFabObserver(simulation, "WaferFabObserver", waferFab);
-            waferFab.Subscribe(waferFabObserver);
-
-            TotalQueueObserver totalQueueObs = new TotalQueueObserver(simulation, wc + "_TotalQueueObserver");
-            SeperateQueuesObserver seperateQueueObs = new SeperateQueuesObserver(simulation, workCenter, wc + "_SeperateQueuesObserver");
-
-            workCenter.Subscribe(totalQueueObs);
-            workCenter.Subscribe(seperateQueueObs);
             #endregion        
 
             #region Read initial lots
@@ -118,6 +110,8 @@ namespace WaferAreaSim
             List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
 
             List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences)).ToList();
+
+            Console.WriteLine($"{initialLots.Where(x => x.CycleTimeReal == 0).Count()} total {initialLots.Count()}");
 
             waferFab.InitialLots = initialLots;
             #endregion

@@ -26,6 +26,7 @@ namespace WaferFabSim.SnapshotData
         public string Speed { get; private set; }
         public int ClipWeek { get; private set; }
         private DateTime? arrival => LotActivity.Arrival;
+        private DateTime? departure => LotActivity.Departure;
         private int wipIn => LotActivity.WIPIn;
         public LotActivity LotActivity { get;}
 
@@ -70,7 +71,7 @@ namespace WaferFabSim.SnapshotData
             }
         }
 
-        public Lot ConvertToLot(double creationTime, Dictionary<string, Sequence> sequences, bool isStartLot)
+        public Lot ConvertToLot(double creationTime, Dictionary<string, Sequence> sequences, bool lotYetToStart) // false = isInitialLot
         {
             if (sequences.ContainsKey(DeviceType))
             {
@@ -84,7 +85,7 @@ namespace WaferFabSim.SnapshotData
                 lot.ArrivalReal = arrival;
                 lot.WIPInReal = wipIn;
 
-                if (!isStartLot)
+                if (!lotYetToStart)
                 {   // For intial lots, these have a initial position. Stepcount is set to according step based on Real lot's IRD group.
 
                     for (int i = 0; i < lot.Sequence.stepCount; i++)
@@ -118,13 +119,14 @@ namespace WaferFabSim.SnapshotData
             lot.LotID = LotID;
             lot.PlanDayReal = PlanDay;
             lot.ClipWeekReal = ClipWeek;
-            lot.ArrivalReal = arrival;
+            lot.ArrivalReal = LotActivity.Arrival;
+            lot.DepartureReal = LotActivity.Departure;
+            lot.OvertakenLotsReal = LotActivity?.OvertakenLots;
             lot.WIPInReal = wipIn;
 
             lot.SetCurrentStepCount(0);
                 
             return lot;
         }
-        
     }
 }
