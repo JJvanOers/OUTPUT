@@ -96,17 +96,17 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
         public override void HandleInitialization(List<Lot> lots)
         {
-            Console.WriteLine("lotswitharrival for workcenter " + wc.Name);
+            //Console.WriteLine("lotswitharrival for workcenter " + wc.Name);
 
             if (lots.Any())
             {
                 List<Lot> lotsWithArrival = lots.Where(x => x.ArrivalReal != null).OrderBy(x => x.ArrivalReal).ToList();
                 List<Lot> lotsWithoutArrival = lots.Where(x => x.ArrivalReal == null).ToList();
 
-                foreach (Lot lot in lotsWithArrival)
-                {
-                    Console.WriteLine(lot.LotID);
-                }
+                //foreach (Lot lot in lotsWithArrival)
+                //{
+                //    Console.WriteLine(lot.LotID);
+                //}
 
                 List<Lot> queue = new List<Lot>();
 
@@ -156,7 +156,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
                 List<Lot> finalqueue = queue.Where(x => x != null).ToList();
 
-                Console.WriteLine($"Intialization for {wc.Name}");
+                //Console.WriteLine($"Intialization for {wc.Name}");
 
                 // Finally initialize queue
                 foreach (Lot lot in queue.Where(x => x != null))
@@ -164,7 +164,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
                     wc.Queue.EnqueueLast(lot);
 
-                    Console.WriteLine(lot.LotID);
+                    //Console.WriteLine(lot.LotID);
                 }
 
                 // Departure for first lot in the queue is scheduled.

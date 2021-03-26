@@ -29,7 +29,7 @@ namespace WaferAreaSim
 
             string outputDirectory = @"C:\CSSLWaferFab\Output";
 
-            bool fittedParameters = true; // true = fitted, false = optimised
+            bool fittedParameters = false; // true = fitted, false = optimised
             #endregion
 
             #region Initializing simulation
