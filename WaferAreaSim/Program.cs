@@ -23,13 +23,15 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "FURNACING";
+            string wc = "PHOTOLITH";
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
 
             bool fittedParameters = false; // true = fitted, false = optimised
+
+            bool lotStepOvertaking = true;
             #endregion
 
             #region Initializing simulation
@@ -50,7 +52,7 @@ namespace WaferAreaSim
 
             waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(fittedParameters);
 
-            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
+            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
             #endregion
 
             #region Make starting lots
@@ -109,9 +111,7 @@ namespace WaferAreaSim
 
             List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
 
-            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences)).ToList();
-
-            Console.WriteLine($"{initialLots.Where(x => x.CycleTimeReal == 0).Count()} total {initialLots.Count()}");
+            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
 
             waferFab.InitialLots = initialLots;
             #endregion

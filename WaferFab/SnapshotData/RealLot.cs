@@ -28,7 +28,7 @@ namespace WaferFabSim.SnapshotData
         private DateTime? arrival => LotActivity.Arrival;
         private DateTime? departure => LotActivity.Departure;
         private int wipIn => LotActivity.WIPIn;
-        public LotActivity LotActivity { get;}
+        public LotActivity LotActivity { get; }
 
         public RealLot(LotActivity activity, LotActivityRaw raw, DateTime time)
         {
@@ -78,7 +78,7 @@ namespace WaferFabSim.SnapshotData
                 Sequence sequence = sequences[DeviceType];
 
                 Lot lot = new Lot(creationTime, sequence);
-                
+
                 lot.LotID = LotID;
                 lot.PlanDayReal = PlanDay;
                 lot.ClipWeekReal = ClipWeek;
@@ -112,7 +112,13 @@ namespace WaferFabSim.SnapshotData
             }
         }
 
-        public Lot ConvertToLotArea(double creationTime, Dictionary<string, Sequence> sequences)
+        /// <summary>
+        /// Use this for initial lots only, not for yet-to-start lots, in WaferAreaSim
+        /// </summary>
+        /// <param name="creationTime"></param>
+        /// <param name="sequences"></param>
+        /// <returns></returns>
+        public Lot ConvertToLotArea(double creationTime, Dictionary<string, Sequence> sequences, DateTime initialDateTime)
         {
             Lot lot = new Lot(creationTime, sequences[IRDGroup]);
 
@@ -124,8 +130,11 @@ namespace WaferFabSim.SnapshotData
             lot.OvertakenLotsReal = LotActivity?.OvertakenLots;
             lot.WIPInReal = wipIn;
 
+            // Initial lots have start time < 0
+            lot.StartTime = lot.ArrivalReal != null ? ((DateTime)lot.ArrivalReal - initialDateTime).TotalSeconds : 0;
+
             lot.SetCurrentStepCount(0);
-                
+
             return lot;
         }
     }

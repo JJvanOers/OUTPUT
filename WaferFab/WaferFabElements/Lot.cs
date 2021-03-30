@@ -26,7 +26,7 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Simulation time which the lot got released in the fab.
         /// </summary>
-        public double StartTime { get; private set; }
+        public double StartTime { get; set; }
         public double EndTime { get; private set; }
 
         /// <summary>

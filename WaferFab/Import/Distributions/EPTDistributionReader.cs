@@ -78,7 +78,7 @@ namespace WaferFabSim.Import.Distributions
         }
 
 
-        public Dictionary<string, OvertakingDistributionBase> GetOvertakingDistributions()
+        public Dictionary<string, OvertakingDistributionBase> GetOvertakingDistributions(bool isLotStepOvertaking = true)
         {
             Dictionary<string, OvertakingDistributionBase> distributions = new Dictionary<string, OvertakingDistributionBase>();
 
@@ -119,7 +119,14 @@ namespace WaferFabSim.Import.Distributions
             {
                 List<OvertakingRecord> recordsWC = records.Where(x => x.WorkCenter == wc).ToList();
 
-                distributions.Add(wc, new LotStepOvertakingDistribution(recordsWC, parameters, lotStepsPerWorkStation[wc]));
+                if (isLotStepOvertaking)
+                {
+                    distributions.Add(wc, new LotStepOvertakingDistribution(recordsWC, parameters, lotStepsPerWorkStation[wc]));
+                }
+                else
+                {
+                    distributions.Add(wc, new OvertakingDistribution(recordsWC, parameters));
+                }
             }
 
             return distributions;

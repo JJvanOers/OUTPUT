@@ -11,6 +11,6 @@ namespace WaferFabSim.Import.Distributions
 
         Dictionary<string, Distribution> GetServiceTimeDistributions(bool isFitted);
 
-        Dictionary<string, OvertakingDistributionBase> GetOvertakingDistributions();
+        Dictionary<string, OvertakingDistributionBase> GetOvertakingDistributions(bool isLotStepOvertaking);
     }
 }
