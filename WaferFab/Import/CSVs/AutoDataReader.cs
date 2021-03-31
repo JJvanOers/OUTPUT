@@ -251,6 +251,13 @@ namespace WaferFabSim.InputDataConversion
 
             WorkCenterLotActivities selected = WorkCenterLotActivities.Where(x => x.WorkCenter == workcenter).First();
 
+            var tmp = selected.LotActivities.Where(x => x.Arrival != null && x.IRDGroup != null).Count();
+
+
+            var tmp2 = selected.LotActivities.Count();
+
+            Console.WriteLine($"{tmp} {tmp2} {tmp2 - tmp}");
+
             foreach (LotActivity activity in selected.LotActivities.Where(x => x.Arrival != null && x.IRDGroup != null))
             {
                 starts.Add(new Tuple<DateTime,Lot>((DateTime)activity.Arrival, activity.ConvertToLot(0, sequences[activity.IRDGroup])));

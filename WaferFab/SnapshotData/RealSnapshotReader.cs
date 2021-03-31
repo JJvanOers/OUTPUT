@@ -57,7 +57,7 @@ namespace WaferFabSim.SnapshotData
         private void ReadDAT()
         {
             RealSnapshots = Tools.ReadFromBinaryFile<List<RealSnapshot>>(Filename);
-            RealLots = RealSnapshots.SelectMany(x => x.RealLots).ToList();
+            RealLots = RealSnapshots.SelectMany(x => x.GetRealLots(WaferQtyThreshold)).ToList();
         }
 
         private List<RealSnapshot> constructRealSnapshots()

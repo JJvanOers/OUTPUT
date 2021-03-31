@@ -23,7 +23,7 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "PHOTOLITH";
+            string wc = "DRY ETCH";
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
@@ -31,7 +31,7 @@ namespace WaferAreaSim
 
             bool fittedParameters = false; // true = fitted, false = optimised
 
-            bool lotStepOvertaking = true;
+            bool lotStepOvertaking = false;
             #endregion
 
             #region Initializing simulation
@@ -115,6 +115,8 @@ namespace WaferAreaSim
 
             waferFab.InitialLots = initialLots;
             #endregion
+
+            Console.WriteLine($"total {waferFabSettings.LotStarts.Count} production {waferFabSettings.LotStarts.Select(x => x.Item2).Where(y => y.LotID.StartsWith("M1")).Count()}");
 
             simulation.Run();
 

@@ -25,20 +25,20 @@ namespace WaferFabDataReader
 
             //SerializeWaferFabSettings(reader, false);
 
-            //SerializeLotTraces(reader, "LotActivity2019_2020.csv");
+            ////SerializeLotTraces(reader, "LotActivity2019_2020.csv");
 
-            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            ////SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
-            SerializeWaferFabSettings(reader, true);
+            ////SerializeWaferFabSettings(reader, true);
 
             //foreach (string wc in reader.WaferFabSettings.WorkCenters)
             //{
             //    SerializeWaferFabSettings(reader, true, wc);
             //}
 
-            //SerializeRealSnaphotsAll(reader);
+            SerializeRealSnaphotsAll(reader, 1);
 
-            //SerializeRealSnapshotsPerMonth(reader);
+            SerializeRealSnapshotsPerMonth(reader, 1);
 
             //WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
         }
@@ -113,7 +113,7 @@ namespace WaferFabDataReader
             reader.WriteLotActivitiesToCSV(filenameCSVOutput);
         }
         
-        public static void SerializeRealSnaphotsAll(AutoDataReader reader)
+        public static void SerializeRealSnaphotsAll(AutoDataReader reader, int waferQtyThreshold)
         {
             if (reader.LotTraces == null)
             {
@@ -127,12 +127,12 @@ namespace WaferFabDataReader
             DateTime until = new DateTime(end.Year, end.Month, end.Day, end.Hour, 0, 0, 0);
             TimeSpan frequency = new TimeSpan(1, 0, 0);
 
-            reader.ReadRealSnapshots(from, until, frequency, 25);
+            reader.ReadRealSnapshots(from, until, frequency, waferQtyThreshold);
 
             reader.SerializeRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
         }
 
-        public static void SerializeRealSnapshotsPerMonth(AutoDataReader reader)
+        public static void SerializeRealSnapshotsPerMonth(AutoDataReader reader, int waferQtyThreshold)
         {
             if (reader.LotTraces == null)
             {
@@ -148,7 +148,7 @@ namespace WaferFabDataReader
 
             while (until < end.AddMonths(1))
             {
-                reader.ReadRealSnapshots(from, until, frequency, 25);
+                reader.ReadRealSnapshots(from, until, frequency, waferQtyThreshold);
 
                 reader.SerializeRealSnapshots($"{from.Year}-{from.Month}-{from.Day}_{until.Year}-{until.Month}-{until.Day}_{frequency.Hours}h");
 
