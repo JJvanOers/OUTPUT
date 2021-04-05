@@ -23,7 +23,7 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "PHOTOLITH";
+            string wc = "FURNACING";
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
