@@ -31,7 +31,7 @@ namespace WaferFabSim
             // Read Initial Lots
             WaferFabSim.ReadRealSnaphots(inputDir + @"SerializedFiles\RealSnapshots_2019-12-1_2020-1-1_1h.dat");
 
-            waferFabSettings.InitialRealLots = WaferFabSim.RealSnapshotReader.RealSnapshots.First().RealLots;
+            waferFabSettings.InitialRealLots = WaferFabSim.RealSnapshotReader.RealSnapshots.First().GetRealLots(1);
 
             // Experiment settings
             ExperimentSettings experimentSettings = new ExperimentSettings();

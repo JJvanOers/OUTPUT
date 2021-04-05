@@ -23,15 +23,15 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "DRY ETCH";
+            string wc = "PHOTOLITH";
 
             string inputDirectory = @"C:\CSSLWaferFab\Input";
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
 
-            bool fittedParameters = false; // true = fitted, false = optimised
+            bool fittedParameters = true; // true = fitted, false = optimised
 
-            bool lotStepOvertaking = false;
+            bool lotStepOvertaking = true;
             #endregion
 
             #region Initializing simulation
@@ -103,22 +103,21 @@ namespace WaferAreaSim
             #region Read initial lots
             RealSnapshotReader reader = new RealSnapshotReader();
 
-            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 25);
+            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
             List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
 
-            List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
 
             List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
 
             waferFab.InitialLots = initialLots;
             #endregion
 
-            Console.WriteLine($"total {waferFabSettings.LotStarts.Count} production {waferFabSettings.LotStarts.Select(x => x.Item2).Where(y => y.LotID.StartsWith("M1")).Count()}");
-
             simulation.Run();
+
 
             #region Reporting
             SimulationReporter reporter = simulation.MakeSimulationReporter();
