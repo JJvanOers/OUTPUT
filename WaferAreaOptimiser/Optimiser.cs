@@ -19,19 +19,45 @@ namespace WaferAreaOptimiser
     public class Optimiser
     {
         private string wc;
-        
+
         public Optimiser(string wc)
         {
             this.wc = wc;
-        }        
+        }
 
         UniformDistribution uDist = new UniformDistribution(0, 1);
 
+        public Dictionary<string, Tuple<double, double>> GetRealQueueLengths(string directory)
+        {
+            Dictionary<string, Tuple<double, double>> realQueueLengths = new Dictionary<string, Tuple<double, double>>();
+
+            using (StreamReader reader = new StreamReader(Path.Combine(directory, "CSVs", "RealQueueLengths.csv")))
+            {
+                string[] headers = reader.ReadLine().Trim(',').Split(',');
+                string workCenter = "";
+                double mean = -1;
+                double std = -1;
+
+                while (!reader.EndOfStream)
+                {
+                    string[] data = reader.ReadLine().Trim(',').Split(',');
+
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        if (headers[i] == "WorkStation") { workCenter = data[i]; }
+                        if (headers[i] == "Mean") { mean = double.Parse(data[i]); }
+                        if (headers[i] == "Std") { std = double.Parse(data[i]); }
+                    }
+                    realQueueLengths.Add(workCenter, new Tuple<double, double>(mean, std));
+                }
+            }
+
+            return realQueueLengths;
+        }
+
         public Dictionary<string, Distribution> GenerateRandomParameters()
         {
-            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution>();
-
-            WIPDepDistParameters Parameters = new WIPDepDistParameters
+            WIPDepDistParameters par = new WIPDepDistParameters
             {
                 WorkCenter = wc,
                 LBWIP = (int)(uDist.Next() * 60 + 194), // int
@@ -44,47 +70,43 @@ namespace WaferAreaOptimiser
                 Cdecay = uDist.Next() * 0.005 + 0.014,
             };
 
-            dict.Add(wc, new EPTDistribution(Parameters));
+            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution> { { wc, new EPTDistribution(par) } };
 
             return dict;
         }
 
         public Dictionary<string, Distribution> GenerateNeighbour(Dictionary<string, Distribution> currentPar)
         {
-            double pTmax = 0.3; // Probability to create neighbour by changing Tmax. Equal prob, pTmax = 1/8
+            double pTmax = 0.5; // Probability to create neighbour by changing Tmax.
 
-            double pOthers = (1 - pTmax) / 7;
+            double pOthers = (1 - pTmax) / 3;
 
             double u = uDist.Next();
 
-            var first = currentPar.First();
-            Distribution value = first.Value;
-            EPTDistribution dist = (EPTDistribution)value;
+            EPTDistribution dist = (EPTDistribution)currentPar.First().Value;
             WIPDepDistParameters x = dist.Par;
 
             WIPDepDistParameters par = new WIPDepDistParameters { WorkCenter = wc };
 
-            // x is the original set of parameters (input), par is a neighbouring set of parameters
+            // x is the original parameter set (input), par is a neighbouring parameter set
             // Change one parameter based on a probability
-            if (u < pOthers)                            { par.LBWIP = (int)Math.Max(1, newValue(x.LBWIP)); } else { par.LBWIP = x.LBWIP; }
-            if (u >= pOthers && u < 2 * pOthers)        { par.UBWIP = (int)Math.Max(1, newValue(x.UBWIP)); } else { par.UBWIP = x.UBWIP; }
-            if (u >= 2 * pOthers && u < 3 * pOthers)    { par.Tmin = newValue(x.Tmin); }                     else { par.Tmin = x.Tmin; }
-            if (u >= 3 * pOthers && u < 4 * pOthers)    { par.Tdecay = newValue(x.Tdecay); }                 else { par.Tdecay = x.Tdecay; }
-            if (u >= 4 * pOthers && u < 5 * pOthers)    { par.Cmin = newValue(x.Cmin); }                     else { par.Cmin = x.Cmin; }
-            if (u >= 5 * pOthers && u < 6 * pOthers)    { par.Cmax = newValue(x.Cmax); }                     else { par.Cmax = x.Cmax; }
-            if (u >= 6 * pOthers && u < 7 * pOthers)    { par.Cdecay = newValue(x.Cdecay); }                 else { par.Cdecay = x.Cdecay; }
-            if (u >= 7 * pOthers)                       { par.Tmax = newValue(x.Tmax); }                     else { par.Tmax = x.Tmax; }
+            if (/*u < pOthers*/ false) { par.LBWIP = (int)Math.Max(1, newValue(x.LBWIP)); } else { par.LBWIP = x.LBWIP; }
+            if (/* u >= pOthers && u < 2 * pOthers */ false) { par.UBWIP = (int)Math.Max(1, newValue(x.UBWIP)); } else { par.UBWIP = x.UBWIP; }
+            if (/* u >= 0 * pOthers && u < 1 * pOthers */ false) { par.Tmin = newValue(x.Tmin); } else { par.Tmin = x.Tmin; }
+            if (u >= 0 * pOthers && u < 1 * pOthers) { par.Tdecay = newValue(x.Tdecay); } else { par.Tdecay = x.Tdecay; }
+            if (u >= 1 * pOthers && u < 2 * pOthers) { par.Cmin = newValue(x.Cmin); } else { par.Cmin = x.Cmin; }
+            if (/* u >= 3 * pOthers && u < 4 * pOthers */ false) { par.Cmax = newValue(x.Cmax); } else { par.Cmax = x.Cmax; }
+            if (u >= 2 * pOthers && u < 3 * pOthers) { par.Cdecay = newValue(x.Cdecay); } else { par.Cdecay = x.Cdecay; }
+            if (u >= 3 * pOthers) { par.Tmax = newValue(x.Tmax); } else { par.Tmax = x.Tmax; }
 
-            Dictionary<string, Distribution> nextPar = new Dictionary<string, Distribution>();
+            Dictionary<string, Distribution> neighbour = new Dictionary<string, Distribution> { { wc, new EPTDistribution(par) } };
 
-            nextPar.Add(wc, new EPTDistribution(par));
-
-            return nextPar;
+            return neighbour;
         }
 
         private double newValue(double value)
         {
-            double newValue = value - 0.1 * value + 0.2 * value * uDist.Next();
+            double newValue = value - 0.15 * value + 0.3 * value * uDist.Next();
 
             newValue = Math.Max(0.0001, newValue);
 
@@ -93,8 +115,7 @@ namespace WaferAreaOptimiser
 
         public Dictionary<string, Distribution> CopyParameters(Dictionary<string, Distribution> parameters)
         {
-            Distribution value = parameters.First().Value;
-            EPTDistribution dist = (EPTDistribution)value;
+            EPTDistribution dist = (EPTDistribution)parameters.First().Value;
             WIPDepDistParameters x = dist.Par;
 
             WIPDepDistParameters pars = new WIPDepDistParameters
@@ -125,14 +146,13 @@ namespace WaferAreaOptimiser
 
         public void AddResult(Dictionary<WIPDepDistParameters, Tuple<double, double>> results, Dictionary<string, Distribution> parameters, Tuple<double, double> result)
         {
-            Distribution value = parameters.First().Value;
-            EPTDistribution dist = (EPTDistribution)value;
+            EPTDistribution dist = (EPTDistribution)parameters.First().Value;
             WIPDepDistParameters x = dist.Par;
 
             results.Add(x, result);
         }
 
-        public List<Lot> copyInitialLots(List<Lot> initialLots)
+        public List<Lot> CopyInitialLots(List<Lot> initialLots)
         {
             List<Lot> copiedInitialLots = new List<Lot>();
 
@@ -165,20 +185,20 @@ namespace WaferAreaOptimiser
             // LotSteps
             waferFab.LotSteps = waferFab.Sequences.Select(x => x.Value).Select(x => x.GetCurrentStep(0)).ToDictionary(x => x.Name);
 
-            #region Read initial lots
+            // Read initial lots
             RealSnapshotReader reader = new RealSnapshotReader();
 
-            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 25);
+            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
             List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
-            //List<string> lotSteps = waferFabSettings.Sequences.Select(x => x.Value.GetCurrentStep(0).Name).ToList();
 
-            List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
 
-            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences)).ToList();
-            #endregion
+            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
+
+            waferFab.InitialLots = initialLots;
 
             return initialLots;
         }
