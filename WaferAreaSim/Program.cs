@@ -23,11 +23,11 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "FURNACING";
+            string wc = "DRY ETCH";
 
-            string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFab\Output";
+            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
 
             bool fittedParameters = false; // true = fitted, false = optimised
 
@@ -39,10 +39,10 @@ namespace WaferAreaSim
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 30;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61; // (2019, 8, 1) - (2019, 10, 1) = 61 days | (2019, 10, 1) - (2019, 12, 1) = 61 days
+            simulation.MyExperiment.NumberOfReplications = 1;
+            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60; // September and October
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
-            DateTime initialDateTime = new DateTime(2019, 10, 1);
+            DateTime initialDateTime = new DateTime(2019, 9, 1);
             #endregion
 
             #region WaferFab settings
@@ -98,26 +98,25 @@ namespace WaferAreaSim
             LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
             dispatcher.Subscribe(lotOutObserver);
 
-            TotalQueueObserver totalQueueObserver = new TotalQueueObserver(simulation, wc + "_TotalQueueObserver");
-            workCenter.Subscribe(totalQueueObserver);
-
             #endregion        
 
             #region Read initial lots
             RealSnapshotReader reader = new RealSnapshotReader();
 
-            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
+            List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 25);
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
             List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
 
-            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+            List<RealLot> initialRealLots = realSnapShot.RealLots.Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
 
             List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
-            
+
             waferFab.InitialLots = initialLots;
             #endregion
+
+            Console.WriteLine($"total {waferFabSettings.LotStarts.Count} production {waferFabSettings.LotStarts.Select(x => x.Item2).Where(y => y.LotID.StartsWith("M1")).Count()}");
 
             simulation.Run();
 

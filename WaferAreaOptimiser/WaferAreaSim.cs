@@ -33,7 +33,7 @@ namespace WaferAreaOptimiser
 
         EPTDistributionReader distributionReader;
 
-        public Dictionary<string, Distribution> InitialParameters { get; }
+        public Dictionary<string, Distribution> initialParameters;
 
         private List<Lot> initialLots;
 
@@ -56,11 +56,9 @@ namespace WaferAreaOptimiser
 
             distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
-            // Get initial parameters
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
-            
-            EPTDistribution initialDist = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
-            InitialParameters = new Dictionary<string, Distribution> { { wc, initialDist } };            
+            initialParameters = distributionReader.GetServiceTimeDistributions();
+
+            waferFabSettings.WCServiceTimeDistributions = initialParameters;
 
             waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
             #endregion
@@ -78,7 +76,7 @@ namespace WaferAreaOptimiser
 
             #region Experiment settings
             simulation.MyExperiment.NumberOfReplications = 10;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61;
+            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
             #endregion
 
@@ -121,11 +119,12 @@ namespace WaferAreaOptimiser
             waferFab.LotStarts = waferFabSettings.LotStarts;
 
             // Add initial lots
-            List<Lot> copiedInitialLots = optimiser.CopyInitialLots(initialLots);
+            List<Lot> copiedInitialLots = optimiser.copyInitialLots(initialLots);
             waferFab.InitialLots = initialLots;
 
             // Add observers
             OptimiserObserver optimiserObs = new OptimiserObserver(simulation, wc + "_TotalQueueObserver");
+
             workCenter.Subscribe(optimiserObs); // Total queue for workcenter
             #endregion
 

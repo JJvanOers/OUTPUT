@@ -24,51 +24,45 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            DateTime initialDateTime = new DateTime(2019, 6, 1);
+            bool isFitted = false;
 
-            DateTime finalDateTime = new DateTime(2019, 10, 1);
+            Console.WriteLine(isFitted ? "FittedEPTParameters.csv" : "OptimisedEPTParameters.csv");
 
-            string DirectorySerializedFiles = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\SerializedFiles";
 
-            string outputDirectory = $@"C:\CSSLWaferFab\LotActivities\{initialDateTime.ToString("yyyy-MM-dd")}";
 
-            List<WorkCenterLotActivities> workCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
 
-            //string wc = "PHOTOLITH";
-
-            List<string> workCenters = new List<string>()
-            {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
-                "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
-                "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
-
-            workCenters = new List<string>()
-            {"FURNACING"};
-
-            foreach (string wc in workCenters) {
-                List <Tuple<DateTime, int>> queueLengths = workCenterLotActivities.Where(x => x.WorkCenter == wc).First()
-                    .WIPTrace.Where(x => x.Item1 >= initialDateTime && x.Item1 <= finalDateTime).OrderBy(x => x.Item1).ToList();
-
-                // Write all results to a text file
-                using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_QueueLength.txt")))
-                {
-                    writer.WriteLine("Time,QueueLength");
-
-                    foreach (Tuple<DateTime, int> queueLength in queueLengths)
-                    {
-                        writer.WriteLine(queueLength.Item1 + "," + queueLength.Item2);
-                    }
-                }
-            }
-
-            ////////////////////////////////////////////////////////////////////////
-            // List of wcs /////////////////////////////////////////////////////////
 
             /*
-            List<string> workCenters = new List<string>()
-            {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
-                "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
-                "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
+            List<RealLot> notInitialRealLots = realSnapShot.RealLots.Where(x => !lotSteps.Contains(x.IRDGroup)).ToList();
+
+            foreach (RealLot lot in initialRealLots)
+            {
+                Console.Write(lot.IRDGroup + "  ");
+            }
+
+            foreach (RealLot lot in notInitialRealLots)
+            {
+                Console.Write(lot.IRDGroup + "  ");
+            }
             */
+
+            //Console.WriteLine(workCenter.LotSteps.ForEach)
+
+            //RealSnapshot wcRealSnapshot = realSnapshot.
+
+            /*
+            var firstItem = mylist.ElementAt(0);
+            Console.WriteLine(firstItem.Time);
+
+            var secondItem = mylist.ElementAt(1);
+            Console.WriteLine(secondItem.Time);
+
+            var thridItem = mylist.ElementAt(2);
+            Console.WriteLine(thridItem.Time);
+            */
+
+
+
 
 
 
