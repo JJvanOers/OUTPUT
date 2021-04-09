@@ -23,14 +23,14 @@ namespace WaferAreaOptimiser
     {
         static void Main(string[] args)
         {
-            Optimiser initialOpt = new Optimiser("initial");
+            Optimiser initialOpt = new Optimiser("initial", 25);
 
             Dictionary<string, Tuple<double, double>> realQueueLengths = initialOpt.GetRealQueueLengths(@"E:\OneDrive - Nexperia\CSSLWaferFab\Input");
 
             List<string> workCenters = realQueueLengths.Keys.ToList();
 
             workCenters = new List<string>() // Remove to evaluate all work centers
-            {"FURNACING", "PHOTOLITH", "DRY ETCH"};
+            {"DRY ETCH"};
 
             foreach (string workCenter in workCenters)
             {
@@ -42,14 +42,14 @@ namespace WaferAreaOptimiser
 
                 string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
 
-                DateTime initialDateTime = new DateTime(2019, 9, 1);
+                DateTime initialDateTime = new DateTime(2019, 8, 1);
 
                 Settings.WriteOutput = false;
 
                 // Simulated annealing parameters
                 double temp = 25;
 
-                double cooldown = 0.995; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
+                double cooldown = 0.996; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
 
                 double meanObj = realQueueLengths[wc].Item1;
 
@@ -57,7 +57,7 @@ namespace WaferAreaOptimiser
                 #endregion
 
                 #region Variables and instances
-                Optimiser optimiser = new Optimiser(wc);
+                Optimiser optimiser = new Optimiser(wc, temp);
 
                 WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory, initialDateTime, optimiser);
 
@@ -89,7 +89,7 @@ namespace WaferAreaOptimiser
                 int i = 0;
                 while (temp > 0.1)
                 {
-                    nextPar = optimiser.GenerateNeighbour(currentPar);
+                    nextPar = optimiser.GenerateNeighbour(currentPar, temp);
                     nextRes = waferAreaSim.RunSim(nextPar);
 
                     nextCost = Math.Abs(nextRes.Item1 - meanObj) + Math.Abs(nextRes.Item2 - stdObj);

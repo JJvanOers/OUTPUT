@@ -77,7 +77,7 @@ namespace WaferAreaOptimiser
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 10;
+            simulation.MyExperiment.NumberOfReplications = 5;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61;
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
             #endregion

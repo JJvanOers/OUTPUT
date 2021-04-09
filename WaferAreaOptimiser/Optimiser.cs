@@ -20,9 +20,13 @@ namespace WaferAreaOptimiser
     {
         private string wc;
 
-        public Optimiser(string wc)
+        private double maxTemp;
+
+        public Optimiser(string wc, double maxTemp)
         {
             this.wc = wc;
+
+            this.maxTemp = maxTemp;
         }
 
         UniformDistribution uDist = new UniformDistribution(0, 1);
@@ -75,7 +79,7 @@ namespace WaferAreaOptimiser
             return dict;
         }
 
-        public Dictionary<string, Distribution> GenerateNeighbour(Dictionary<string, Distribution> currentPar)
+        public Dictionary<string, Distribution> GenerateNeighbour(Dictionary<string, Distribution> currentPar, double temp)
         {
             double pTmax = 0.5; // Probability to create neighbour by changing Tmax.
 
@@ -90,27 +94,31 @@ namespace WaferAreaOptimiser
 
             // x is the original parameter set (input), par is a neighbouring parameter set
             // Change one parameter based on a probability
-            if (/*u < pOthers*/ false) { par.LBWIP = (int)Math.Max(1, newValue(x.LBWIP)); } else { par.LBWIP = x.LBWIP; }
-            if (/* u >= pOthers && u < 2 * pOthers */ false) { par.UBWIP = (int)Math.Max(1, newValue(x.UBWIP)); } else { par.UBWIP = x.UBWIP; }
-            if (/* u >= 0 * pOthers && u < 1 * pOthers */ false) { par.Tmin = newValue(x.Tmin); } else { par.Tmin = x.Tmin; }
-            if (u >= 0 * pOthers && u < 1 * pOthers) { par.Tdecay = newValue(x.Tdecay); } else { par.Tdecay = x.Tdecay; }
-            if (u >= 1 * pOthers && u < 2 * pOthers) { par.Cmin = newValue(x.Cmin); } else { par.Cmin = x.Cmin; }
-            if (/* u >= 3 * pOthers && u < 4 * pOthers */ false) { par.Cmax = newValue(x.Cmax); } else { par.Cmax = x.Cmax; }
-            if (u >= 2 * pOthers && u < 3 * pOthers) { par.Cdecay = newValue(x.Cdecay); } else { par.Cdecay = x.Cdecay; }
-            if (u >= 3 * pOthers) { par.Tmax = newValue(x.Tmax); } else { par.Tmax = x.Tmax; }
+            if (/*u < pOthers*/ false)                              { par.LBWIP = (int)Math.Max(1, newValue(x.LBWIP)); } else { par.LBWIP = x.LBWIP; }
+            if (/* u >= pOthers && u < 2 * pOthers */ false)        { par.UBWIP = (int)Math.Max(1, newValue(x.UBWIP)); } else { par.UBWIP = x.UBWIP; }
+            if (/* u >= 0 * pOthers && u < 1 * pOthers */ false)    { par.Tmin = newValue(x.Tmin); } else { par.Tmin = x.Tmin; }
+            if (u >= 0 * pOthers && u < 1 * pOthers)                { par.Tdecay = newValue(x.Tdecay); } else { par.Tdecay = x.Tdecay; }
+            if (u >= 1 * pOthers && u < 2 * pOthers)                { par.Cmin = newValue(x.Cmin); } else { par.Cmin = x.Cmin; }
+            if (/* u >= 3 * pOthers && u < 4 * pOthers */ false)    { par.Cmax = newValue(x.Cmax); } else { par.Cmax = x.Cmax; }
+            if (u >= 2 * pOthers && u < 3 * pOthers)                { par.Cdecay = newValue(x.Cdecay); } else { par.Cdecay = x.Cdecay; }
+            if (u >= 3 * pOthers)                                   { par.Tmax = newValue(x.Tmax); } else { par.Tmax = x.Tmax; }
 
             Dictionary<string, Distribution> neighbour = new Dictionary<string, Distribution> { { wc, new EPTDistribution(par) } };
 
             return neighbour;
-        }
 
-        private double newValue(double value)
-        {
-            double newValue = value - 0.15 * value + 0.3 * value * uDist.Next();
+            double newValue(double value) 
+            {
+                // Use Min-max feature scaling to determine the range of the new value
+                // Large range at high temps, small range at low temps
+                double range = ((0.5 - 0.1) * temp) / maxTemp + 0.1;
+                
+                double newValue = value - range * value + 2 * range * value * uDist.Next();
+                
+                newValue = Math.Max(0.0001, newValue);
 
-            newValue = Math.Max(0.0001, newValue);
-
-            return newValue;
+                return newValue;
+            }
         }
 
         public Dictionary<string, Distribution> CopyParameters(Dictionary<string, Distribution> parameters)
@@ -130,9 +138,10 @@ namespace WaferAreaOptimiser
                 Cdecay = x.Cdecay
             };
 
-            Dictionary<string, Distribution> copiedParameters = new Dictionary<string, Distribution>();
-
-            copiedParameters.Add(wc, new EPTDistribution(pars));
+            Dictionary<string, Distribution> copiedParameters = new Dictionary<string, Distribution>
+            {
+                { wc, new EPTDistribution(pars) }
+            };
 
             return copiedParameters;
         }
