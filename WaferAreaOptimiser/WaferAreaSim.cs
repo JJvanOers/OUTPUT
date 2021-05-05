@@ -57,7 +57,7 @@ namespace WaferAreaOptimiser
             distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
             // Get initial parameters
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
+            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(true);
 
             EPTDistribution initialDist = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
             InitialParameters = new Dictionary<string, Distribution> { { wc, initialDist } };
@@ -77,9 +77,9 @@ namespace WaferAreaOptimiser
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 10;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61;
-            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
+            simulation.MyExperiment.NumberOfReplications = 3;
+            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 92;
+            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 31;
             #endregion
 
             #region Make starting lots

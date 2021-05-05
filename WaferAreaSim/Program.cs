@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using WaferAreaOptimiser;
 using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
@@ -23,13 +24,13 @@ namespace WaferAreaSim
         static void Main(string[] args)
         {
             #region Parameters
-            string wc = "PHOTOLITH";
+            string wc = "FURNACING";
 
-            string inputDirectory = @"C:\CSSLWaferFab\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input\WSC2021paper";
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
 
-            bool fittedParameters = true; // true = fitted, false = optimised
+            bool fittedParameters = false; // true = fitted, false = optimised
 
             bool lotStepOvertaking = true;
             #endregion
@@ -39,10 +40,10 @@ namespace WaferAreaSim
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 1;
+            simulation.MyExperiment.NumberOfReplications = 10;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60; // September and October
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
-            DateTime initialDateTime = new DateTime(2019, 9, 1);
+            DateTime initialDateTime = new DateTime(2019, 12, 1);
             #endregion
 
             #region WaferFab settings
@@ -97,6 +98,8 @@ namespace WaferAreaSim
             // Add observers
             LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
             dispatcher.Subscribe(lotOutObserver);
+            OptimiserObserver optimiserObserver = new OptimiserObserver(simulation, "_TotalQueueObserver");
+            workCenter.Subscribe(optimiserObserver);
 
             #endregion        
 

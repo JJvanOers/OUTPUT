@@ -22,10 +22,8 @@ namespace WaferFabSim.WaferFabElements.Utilities
 
             for (int WIP = 1; WIP <= Par.UBWIP; WIP++)
             {
-                // TEMP
-                // if (WIP < par.LBWIP) Distributions.Add(WIP, new GammaDistribution(2 * MeanAtWIP(WIP), VarianceAtWIP(WIP)));
-                //else 
                 Distributions.Add(WIP, new GammaDistribution(MeanAtWIP(WIP), VarianceAtWIP(WIP)));
+                //Console.WriteLine($"WIP: {WIP}, {MeanAtWIP(WIP)} \t {Math.Sqrt(VarianceAtWIP(WIP)/ (MeanAtWIP(WIP) * MeanAtWIP(WIP)))}");
             }
         }
 

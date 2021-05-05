@@ -54,12 +54,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
             //Console.WriteLine($"{Parent.GetTime} lot {lot.LotID} leaves workstation {wc.Name}. LotStepInService {wc.LotStepInService.Name} and Lotstep is {lot.GetCurrentStep.Name}");
 
-            int sizebefore = wc.Queues[wc.LotStepInService].Length;
-
             // Remove same lot from seperate queue
             wc.Queues[wc.LotStepInService].Dequeue(DepartingLot);
-
-            int sizeafter = wc.Queues[wc.LotStepInService].Length;
 
             //// For performance reasons this can be changed to:
             //wc.Queues[wc.LotStepInService].DequeueFirst();
@@ -172,6 +168,16 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
                 wc.LotStepInService = wc.Queue.PeekFirst().GetCurrentStep;
             }
+
+            foreach (Lot lot in lots)
+            {
+                lot.SetCurrentStepCount(0);
+                wc.Queue.EnqueueLast(lot);
+                wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
+            }
+
+            wc.LotStepInService = wc.Queue.PeekFirst().GetCurrentStep;
+
         }
 
         private List<Lot> addNullLots(List<Lot> list, int count)

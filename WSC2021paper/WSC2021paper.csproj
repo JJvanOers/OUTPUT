@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WaferAreaOptimiser\WaferAreaOptimiser.csproj" />
-    <ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
+    <ProjectReference Include="..\WaferAreaSim\WaferAreaSim.csproj" />
   </ItemGroup>
 
 </Project>

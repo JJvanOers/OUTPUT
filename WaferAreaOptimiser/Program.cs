@@ -25,12 +25,13 @@ namespace WaferAreaOptimiser
         {
             Optimiser initialOpt = new Optimiser("initial");
 
-            Dictionary<string, Tuple<double, double>> realQueueLengths = initialOpt.GetRealQueueLengths(@"E:\OneDrive - Nexperia\CSSLWaferFab\Input");
+            Dictionary<string, Tuple<double, double>> realQueueLengths = initialOpt.GetRealQueueLengths(@"C:\CSSLWaferFab\Input\WSC2021paper");
 
             List<string> workCenters = realQueueLengths.Keys.ToList();
 
             workCenters = new List<string>() // Remove to evaluate all work centers
-            {"FURNACING", "PHOTOLITH", "DRY ETCH"};
+            { "FURNACING", "DRY ETCH",  "PHOTOLITH"};
+
 
             foreach (string workCenter in workCenters)
             {
@@ -38,11 +39,11 @@ namespace WaferAreaOptimiser
                 // Simulation parameters
                 string wc = workCenter;
 
-                string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
+                string inputDirectory = @"C:\CSSLWaferFab\Input\WSC2021paper";
 
-                string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
+                string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaOptimiser";
 
-                DateTime initialDateTime = new DateTime(2019, 9, 1);
+                DateTime initialDateTime = new DateTime(2019, 8, 1);
 
                 Settings.WriteOutput = false;
 
