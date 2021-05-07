@@ -22,14 +22,18 @@ namespace WaferAreaOptimiser
 
         private double maxTemp;
 
-        public Optimiser(string wc, double maxTemp)
+        public Dictionary<string, Parameter> ParConfig;
+
+        public Optimiser(string wc, double maxTemp, Dictionary<string, Parameter> parConfig)
         {
             this.wc = wc;
 
             this.maxTemp = maxTemp;
+
+            ParConfig = parConfig;
         }
 
-        UniformDistribution uDist = new UniformDistribution(0, 1);
+        public Optimiser() { }
 
         public Dictionary<string, Tuple<double, double>> GetRealQueueLengths(string directory)
         {
@@ -59,65 +63,122 @@ namespace WaferAreaOptimiser
             return realQueueLengths;
         }
 
-        public Dictionary<string, Distribution> GenerateRandomParameters()
+        public void SetBounds(string directory)
         {
-            WIPDepDistParameters par = new WIPDepDistParameters
+            using (StreamReader reader = new StreamReader(Path.Combine(directory, "CSVs", "Bounds.csv")))
             {
-                WorkCenter = wc,
-                LBWIP = (int)(uDist.Next() * 60 + 194), // int
-                UBWIP = (int)(uDist.Next() * 400 + 1300), // int
-                Tmin = uDist.Next() * 400 + 1440, // double, Minimum flow time empty system
-                Tmax = uDist.Next() * 30 + 96, // EPT full system
-                Tdecay = uDist.Next() * 0.01 + 0.02,
-                Cmin = uDist.Next() * 0.075 + 0.1,
-                Cmax = uDist.Next() * 0.2 + 0.78,
-                Cdecay = uDist.Next() * 0.005 + 0.014,
-            };
+                string[] headers = reader.ReadLine().Trim(',').Split(',');
+                
+                while (!reader.EndOfStream)
+                {
+                    string[] data = reader.ReadLine().Trim(',').Split(',');
 
-            Dictionary<string, Distribution> dict = new Dictionary<string, Distribution> { { wc, new EPTDistribution(par) } };
+                    if (data[0] == wc)
+                    {
+                        for (int i = 1; i < data.Length; i++)
+                        {
+                            if (headers[i] == "Tmin_lb") { ParConfig["Tmin"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Tmin_ub") { ParConfig["Tmin"].UpperBound = double.Parse(data[i]); }
+                            if (headers[i] == "Tmax_lb") { ParConfig["Tmax"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Tmax_ub") { ParConfig["Tmax"].UpperBound = double.Parse(data[i]); }
+                            if (headers[i] == "Tdecay_lb") { ParConfig["Tdecay"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Tdecay_ub") { ParConfig["Tdecay"].UpperBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cmin_lb") { ParConfig["Cmin"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cmin_ub") { ParConfig["Cmin"].UpperBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cmax_lb") { ParConfig["Cmax"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cmax_ub") { ParConfig["Cmax"].UpperBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cdecay_lb") { ParConfig["Cdecay"].LowerBound = double.Parse(data[i]); }
+                            if (headers[i] == "Cdecay_ub") { ParConfig["Cdecay"].UpperBound = double.Parse(data[i]); }
+                        }
+                    }
+                }
+            }
+        }
 
-            return dict;
+        public EPTDistribution CheckInitialDistBounds(EPTDistribution dist)
+        {
+            // For each initial value, check if it is within bounds. If not, take mean of bounds
+            if (dist.Par.Tmin < ParConfig["Tmin"].LowerBound || dist.Par.Tmin > ParConfig["Tmin"].UpperBound)
+            {
+                dist.Par.Tmin = (ParConfig["Tmin"].LowerBound + ParConfig["Tmin"].UpperBound) / 2;
+            }
+
+            if (dist.Par.Tmax < ParConfig["Tmax"].LowerBound || dist.Par.Tmax > ParConfig["Tmax"].UpperBound)
+            {
+                dist.Par.Tmax = (ParConfig["Tmax"].LowerBound + ParConfig["Tmax"].UpperBound) / 2;
+            }
+
+            if (dist.Par.Tdecay < ParConfig["Tdecay"].LowerBound || dist.Par.Tdecay > ParConfig["Tdecay"].UpperBound)
+            {
+                dist.Par.Tdecay = (ParConfig["Tdecay"].LowerBound + ParConfig["Tdecay"].UpperBound) / 2;
+            }
+
+            if (dist.Par.Cmin < ParConfig["Cmin"].LowerBound || dist.Par.Cmin > ParConfig["Cmin"].UpperBound)
+            {
+                dist.Par.Cmin = (ParConfig["Cmin"].LowerBound + ParConfig["Cmin"].UpperBound) / 2;
+            }
+
+            if (dist.Par.Cmax < ParConfig["Cmax"].LowerBound || dist.Par.Cmax > ParConfig["Cmax"].UpperBound)
+            {
+                dist.Par.Cmax = (ParConfig["Cmax"].LowerBound + ParConfig["Cmax"].UpperBound) / 2;
+            }
+
+            if (dist.Par.Cdecay < ParConfig["Cdecay"].LowerBound || dist.Par.Cdecay > ParConfig["Cdecay"].UpperBound)
+            {
+                dist.Par.Cdecay = (ParConfig["Cdecay"].LowerBound + ParConfig["Cdecay"].UpperBound) / 2;
+            }
+
+            return dist;
         }
 
         public Dictionary<string, Distribution> GenerateNeighbour(Dictionary<string, Distribution> currentPar, double temp)
         {
-            double pTmax = 0.5; // Probability to create neighbour by changing Tmax.
-
-            double pOthers = (1 - pTmax) / 3;
-
-            double u = uDist.Next();
-
             EPTDistribution dist = (EPTDistribution)currentPar.First().Value;
             WIPDepDistParameters x = dist.Par;
 
             WIPDepDistParameters par = new WIPDepDistParameters { WorkCenter = wc };
 
+            UniformDistribution parDist = new UniformDistribution(0, Parameter.TotalWeight);
+            double u = parDist.Next();
+
             // x is the original parameter set (input), par is a neighbouring parameter set
             // Change one parameter based on a probability
-            if (/*u < pOthers*/ false)                              { par.LBWIP = (int)Math.Max(1, newValue(x.LBWIP)); } else { par.LBWIP = x.LBWIP; }
-            if (/* u >= pOthers && u < 2 * pOthers */ false)        { par.UBWIP = (int)Math.Max(1, newValue(x.UBWIP)); } else { par.UBWIP = x.UBWIP; }
-            if (/* u >= 0 * pOthers && u < 1 * pOthers */ false)    { par.Tmin = newValue(x.Tmin); } else { par.Tmin = x.Tmin; }
-            if (u >= 0 * pOthers && u < 1 * pOthers)                { par.Tdecay = newValue(x.Tdecay); } else { par.Tdecay = x.Tdecay; }
-            if (u >= 1 * pOthers && u < 2 * pOthers)                { par.Cmin = newValue(x.Cmin); } else { par.Cmin = x.Cmin; }
-            if (/* u >= 3 * pOthers && u < 4 * pOthers */ false)    { par.Cmax = newValue(x.Cmax); } else { par.Cmax = x.Cmax; }
-            if (u >= 2 * pOthers && u < 3 * pOthers)                { par.Cdecay = newValue(x.Cdecay); } else { par.Cdecay = x.Cdecay; }
-            if (u >= 3 * pOthers)                                   { par.Tmax = newValue(x.Tmax); } else { par.Tmax = x.Tmax; }
+            if (isInRange("LBWIP", u))  { par.LBWIP = (int)Math.Max(1, newValue("LBWIP", x.LBWIP)); }    else { par.LBWIP = x.LBWIP; }
+            if (isInRange("UBWIP",u ))  { par.UBWIP = (int)Math.Max(1, newValue("UBWIP", x.UBWIP)); }    else { par.UBWIP = x.UBWIP; }
+            if (isInRange("Tmin", u))   { par.Tmin = newValue("Tmin", x.Tmin); }                         else { par.Tmin = x.Tmin; }
+            if (isInRange("Tmax", u))   { par.Tmax = newValue("Tmax", x.Tmax); }                         else { par.Tmax = x.Tmax; }
+            if (isInRange("Tdecay", u)) { par.Tdecay = newValue("Tdecay", x.Tdecay); }                   else { par.Tdecay = x.Tdecay; }            
+            if (isInRange("Cmin", u))   { par.Cmin = newValue("Cmin", x.Cmin); }                         else { par.Cmin = x.Cmin; }
+            if (isInRange("Cmax", u))   { par.Cmax = newValue("Cmax", x.Cmax); }                         else { par.Cmax = x.Cmax; }
+            if (isInRange("Cdecay", u)) { par.Cdecay = newValue("Cdecay", x.Cdecay); }                   else { par.Cdecay = x.Cdecay; }
 
             Dictionary<string, Distribution> neighbour = new Dictionary<string, Distribution> { { wc, new EPTDistribution(par) } };
 
             return neighbour;
 
-            double newValue(double value) 
+            bool isInRange(string parName, double u)
             {
-                // Use Min-max feature scaling to determine the range of the new value
-                // Large range at high temps, small range at low temps
-                double range = ((0.5 - 0.1) * temp) / maxTemp + 0.1;
-                
-                double newValue = value - range * value + 2 * range * value * uDist.Next();
-                
-                newValue = Math.Max(0.0001, newValue);
+                Parameter parameter = ParConfig[parName];
+                double pLower = parameter.CumulativeWeight - parameter.Weight;
+                double pUpper = parameter.CumulativeWeight;
 
-                return newValue;
+                if (u > pLower && u <= pUpper) { return true; } else { return false; }
+            }
+
+            double newValue(string parName, double value) 
+            {                
+                // Use Min-max feature scaling to determine the half width size of the new value
+                // Large range at high temps (50%), small range at low temps (10%)
+                double halfWidth = (0.5 - 0.1) * temp / maxTemp + 0.1;
+
+                Parameter parameter = ParConfig[parName];
+
+                double lowerBound = Math.Max(parameter.LowerBound, value - value * halfWidth);
+                double upperBound = Math.Min(parameter.UpperBound, value + value * halfWidth);
+
+                UniformDistribution valueDist = new UniformDistribution(lowerBound, upperBound);
+
+                return valueDist.Next();
             }
         }
 
@@ -161,24 +222,9 @@ namespace WaferAreaOptimiser
             results.Add(x, result);
         }
 
-        public List<Lot> CopyInitialLots(List<Lot> initialLots)
-        {
-            List<Lot> copiedInitialLots = new List<Lot>();
-
-            Lot deepCopiedLot;
-
-            foreach (Lot lot in initialLots)
-            {
-                deepCopiedLot = new Lot(lot);
-
-                copiedInitialLots.Add(lot);
-            }
-
-            return copiedInitialLots;
-        }
-
         public List<Lot> GetInitialLots(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, WaferFabSettings waferFabSettings)
         {
+            // Initialise a simulation class to retrieve lot steps
             Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
 
             WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
@@ -210,6 +256,6 @@ namespace WaferAreaOptimiser
             waferFab.InitialLots = initialLots;
 
             return initialLots;
-        }
+        }      
     }
 }

@@ -23,14 +23,18 @@ namespace WaferAreaOptimiser
     {
         static void Main(string[] args)
         {
-            Optimiser initialOpt = new Optimiser("initial", 25);
+            Optimiser qlReader = new Optimiser();
 
-            Dictionary<string, Tuple<double, double>> realQueueLengths = initialOpt.GetRealQueueLengths(@"E:\OneDrive - Nexperia\CSSLWaferFab\Input");
+            string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
+
+            string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
+
+            Dictionary<string, Tuple<double, double>> realQueueLengths = qlReader.GetRealQueueLengths(inputDirectory);
 
             List<string> workCenters = realQueueLengths.Keys.ToList();
 
             workCenters = new List<string>() // Remove to evaluate all work centers
-            {"DRY ETCH"};
+            {"FURNACING"};
 
             foreach (string workCenter in workCenters)
             {
@@ -38,28 +42,41 @@ namespace WaferAreaOptimiser
                 // Simulation parameters
                 string wc = workCenter;
 
-                string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
-
-                string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
-
                 DateTime initialDateTime = new DateTime(2019, 8, 1);
+
+                bool useInitialLots = false;
 
                 Settings.WriteOutput = false;
 
                 // Simulated annealing parameters
                 double temp = 25;
 
-                double cooldown = 0.996; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
+                double cooldown = 0.995; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
 
                 double meanObj = realQueueLengths[wc].Item1;
 
                 double stdObj = realQueueLengths[wc].Item2;
+
+                // Dictionary with parameters to optimise and optional weights
+                Dictionary<string, Parameter> parameterConfiguration = new Dictionary<string, Parameter>()
+                {
+                    {"LBWIP",   new Parameter("LBWIP", false)},
+                    {"UBWIP",   new Parameter("UBWIP", false)},
+                    {"Tmin",    new Parameter("Tmin", false)},                    
+                    {"Tmax",    new Parameter("Tmax", true)},
+                    {"Tdecay",  new Parameter("Tdecay", true)},
+                    {"Cmin",    new Parameter("Cmin", true)},
+                    {"Cmax",    new Parameter("Cmax", true)},
+                    {"Cdecay",  new Parameter("Cdecay", true)}
+                };
                 #endregion
 
                 #region Variables and instances
-                Optimiser optimiser = new Optimiser(wc, temp);
+                Optimiser optimiser = new Optimiser(wc, temp, parameterConfiguration);
 
-                WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory, initialDateTime, optimiser);
+                optimiser.SetBounds(inputDirectory);
+
+                WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory, initialDateTime, optimiser, useInitialLots);
 
                 Dictionary<string, Distribution> currentPar, nextPar, bestPar;
 
@@ -124,7 +141,7 @@ namespace WaferAreaOptimiser
                     temp = temp * cooldown; // Reduce temperature
                     i++;
 
-                    Console.WriteLine("\nResults for work center {0}.", wc);
+                    Console.WriteLine("\nResults for area {0}.", wc);
                     Console.WriteLine("Iteration: {0}. Temperature {1}", i, temp);
                     Console.WriteLine("Evaluated solution: {0}, {1}", nextRes.Item1, nextRes.Item2);
                     Console.WriteLine("Current solution:   {0}, {1}", currentRes.Item1, currentRes.Item2);

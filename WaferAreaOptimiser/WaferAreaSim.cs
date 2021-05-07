@@ -37,9 +37,11 @@ namespace WaferAreaOptimiser
 
         private List<Lot> initialLots;
 
-        Optimiser optimiser;
+        private Optimiser optimiser;
 
-        public WaferAreaSim(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, Optimiser optimiser)
+        private bool useInitialLots;
+
+        public WaferAreaSim(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, Optimiser optimiser, bool useInitialLots = false)
         {
             this.wc = wc;
 
@@ -51,6 +53,8 @@ namespace WaferAreaOptimiser
 
             this.optimiser = optimiser;
 
+            this.useInitialLots = useInitialLots;
+
             #region WaferFab settings
             waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
 
@@ -60,12 +64,12 @@ namespace WaferAreaOptimiser
             waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
 
             EPTDistribution initialDist = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
-            InitialParameters = new Dictionary<string, Distribution> { { wc, initialDist } };
+            InitialParameters = new Dictionary<string, Distribution> { { wc, optimiser.CheckInitialDistBounds(initialDist) } };
 
             waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
             #endregion
 
-            initialLots = optimiser.GetInitialLots(wc, inputDirectory, outputDirectory, initialDateTime, waferFabSettings);
+            if (useInitialLots) { initialLots = optimiser.GetInitialLots(wc, inputDirectory, outputDirectory, initialDateTime, waferFabSettings); }            
         }
 
         public Tuple<double, double> RunSim(Dictionary<string, Distribution> dict)
@@ -121,8 +125,11 @@ namespace WaferAreaOptimiser
             waferFab.LotStarts = waferFabSettings.LotStarts;
 
             // Add initial lots
-            List<Lot> copiedInitialLots = optimiser.CopyInitialLots(initialLots);
-            waferFab.InitialLots = initialLots;
+            if (useInitialLots)
+            {
+                List<Lot> initialLotsDeepCopy = initialLots.ConvertAll(x => new Lot(x));
+                waferFab.InitialLots = initialLotsDeepCopy;
+            }
 
             // Add observers
             OptimiserObserver optimiserObs = new OptimiserObserver(simulation, wc + "_TotalQueueObserver");
@@ -132,9 +139,9 @@ namespace WaferAreaOptimiser
             simulation.Run();
 
             #region Reporting
-            SimulationReporter reporter = simulation.MakeSimulationReporter();
+            //SimulationReporter reporter = simulation.MakeSimulationReporter();
 
-            reporter.PrintSummaryToConsole();
+            //reporter.PrintSummaryToConsole();
             #endregion
 
             Tuple<double, double> results = new Tuple<double, double>(optimiserObs.QueueLengthStatistic.Average(), optimiserObs.QueueLengthStatistic.StandardDeviation());

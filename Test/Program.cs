@@ -24,42 +24,88 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            DateTime initialDateTime = new DateTime(2019, 6, 1);
+            bool write = true;            
+            
+            GammaDistribution gammaDistribution = new GammaDistribution(90, 72900);
+            double alpha = 0.11;
+            double beta = 0.001235;
 
-            DateTime finalDateTime = new DateTime(2019, 10, 1);
+            Console.WriteLine("{0}, {1}", gammaDistribution.Alpha, gammaDistribution.Beta);
+            List<double> values = new List<double>();
+            double sumx = 0;
+            double sumxx = 0;
+            double sumw = 0;
 
-            string DirectorySerializedFiles = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\SerializedFiles";
-
-            string outputDirectory = $@"C:\CSSLWaferFab\LotActivities\{initialDateTime.ToString("yyyy-MM-dd")}";
-
-            List<WorkCenterLotActivities> workCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
-
-            //string wc = "PHOTOLITH";
-
-            List<string> workCenters = new List<string>()
-            {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
-                "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
-                "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
-
-            workCenters = new List<string>()
-            {"FURNACING"};
-
-            foreach (string wc in workCenters)
+            for (int i = 0; i < 1000000; i++)
             {
-                List<Tuple<DateTime, int>> queueLengths = workCenterLotActivities.Where(x => x.WorkCenter == wc).First()
-                    .WIPTrace.Where(x => x.Item1 >= initialDateTime && x.Item1 <= finalDateTime).OrderBy(x => x.Item1).ToList();
+                double value = gammaDistribution.Next();
+                values.Add(value);
+                sumx += value;
+                sumxx += value * value;
+                sumw += 1;
+            }
 
-                // Write all results to a text file
-                using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_QueueLength.txt")))
+            double mean = sumx / sumw;
+            double variance = sumxx / sumw - sumx / sumw * sumx / sumw;
+            double stdev = Math.Sqrt(variance);
+
+            Console.WriteLine("{0}, {1}, {2}", mean, variance, stdev);
+            Console.WriteLine("{0}, {1}", gammaDistribution.Alpha, gammaDistribution.Beta);
+            if (write)
+            {
+                using (StreamWriter writer = new StreamWriter(@$"E:\OneDrive - Nexperia\OUTPUT\Python\Gamma Test\Alpha = {alpha}, Beta = {beta}.txt"))
                 {
-                    writer.WriteLine("Time,QueueLength");
+                    writer.WriteLine("Gamma rvs");
 
-                    foreach (Tuple<DateTime, int> queueLength in queueLengths)
+                    foreach (double i in values)
                     {
-                        writer.WriteLine(queueLength.Item1 + "," + queueLength.Item2);
+                        writer.WriteLine(i);
                     }
                 }
             }
+            /// ///////////////////////////////////////////////////
+            /// Read Queue lengths ///////////////////////////////
+
+            /*
+
+                DateTime initialDateTime = new DateTime(2019, 4, 1);
+
+                DateTime finalDateTime = new DateTime(2020, 4, 1);
+
+                string DirectorySerializedFiles = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\SerializedFiles";
+
+                string outputDirectory = $@"C:\CSSLWaferFab\LotActivities\{initialDateTime.ToString("yyyy-MM-dd")}";
+
+                List<WorkCenterLotActivities> workCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
+
+                //string wc = "PHOTOLITH";
+
+                List<string> workCenters = new List<string>()
+                {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
+                    "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
+                    "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
+
+
+
+                foreach (string wc in workCenters)
+                {
+                    List<Tuple<DateTime, int>> queueLengths = workCenterLotActivities.Where(x => x.WorkCenter == wc).First()
+                        .WIPTrace.Where(x => x.Item1 >= initialDateTime && x.Item1 <= finalDateTime).OrderBy(x => x.Item1).ToList();
+
+                    // Write all results to a text file
+                    using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_QueueLength.txt")))
+                    {
+                        writer.WriteLine("Time,QueueLength");
+
+                        foreach (Tuple<DateTime, int> queueLength in queueLengths)
+                        {
+                            writer.WriteLine(queueLength.Item1 + "," + queueLength.Item2);
+                        }
+                    }
+                }            
+                */
+
+
 
             ////////////////////////////////////////////////////////////////////////
             // List of wcs /////////////////////////////////////////////////////////
