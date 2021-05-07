@@ -86,7 +86,7 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Total WIP at workstation, including lot in service.
         /// </summary>
-        public int TotalQueueLength { get; private set; }
+        public int TotalQueueLength => Queue.Length;
 
         public DateTime GetDateTime => WaferFab.GetDateTime;
 
@@ -114,8 +114,6 @@ namespace WaferFabSim.WaferFabElements
 
             NotifyObservers(this);
 
-            TotalQueueLength++;
-
             dispatcher.HandleArrival(lot);
         }
 
@@ -131,8 +129,6 @@ namespace WaferFabSim.WaferFabElements
 
                 NotifyObservers(this);
 
-                TotalQueueLength--;
-
                 dispatcher.HandleDeparture();
             }
         }
@@ -141,18 +137,13 @@ namespace WaferFabSim.WaferFabElements
         {
             LotStepInService = null;
 
-            TotalQueueLength = 0;
-
             // Initialize queues with deep copy of initial lots (such that stepcount does not change in original lot, which is then used for next replication)
             if (InitialLots.Any())
             {
                 List<Lot> initialLotsDeepCopy = InitialLots.ConvertAll(x => new Lot(x));
 
-                TotalQueueLength += initialLotsDeepCopy.Count();
-
                 dispatcher.HandleInitialization(initialLotsDeepCopy);
             }
         }
-
     }
 }

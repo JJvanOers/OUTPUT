@@ -28,27 +28,28 @@ namespace WSC2021paper
 
             List<string> workcenters = new List<string> { "PHOTOLITH", "FURNACING", "DRY ETCH" };
             //List<string> workcenters = new List<string> { "FURNACING" };
-            List<string> SOvsLDO = new List<string> { "SO", "LDO" };
-            //List<string> SOvsLDO = new List<string> { "LDO" };
+            //List<string> SOvsLDO = new List<string> { "SO", "LDO" };
+            List<string> SOvsLDO = new List<string> { "LDO"};
+
+            Settings.FixSeed = true;
 
             foreach (string wc in workcenters)
             {
                 WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
-
 
                 foreach (string overtaking in SOvsLDO)
                 {
                     bool lotStepOvertaking = overtaking == "SO" ? false : true;
 
                     #region Initializing simulation
-                    Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
+                    Simulation simulation = new Simulation(wc, outputDirectory);
                     #endregion
 
                     #region Experiment settings
                     simulation.MyExperiment.NumberOfReplications = 10;
-                    simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 92; // September and October
-                    simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 31;
-                    DateTime initialDateTime = new DateTime(2019, 8, 1);
+                    simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 30; // September and October
+                    simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
+                    DateTime initialDateTime = new DateTime(2019, 09, 01);
                     #endregion
 
                     #region WaferFab settings
@@ -104,6 +105,22 @@ namespace WSC2021paper
                     dispatcher.Subscribe(lotOutObserver);
                     OptimiserObserver optimiserObserver = new OptimiserObserver(simulation, "_TotalQueueObserver");
                     workCenter.Subscribe(optimiserObserver);
+                    #endregion
+
+                    #region Read initial lots
+                    //RealSnapshotReader reader = new RealSnapshotReader();
+
+                    //List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
+
+                    //RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
+
+                    //List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
+
+                    //List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+
+                    //List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
+
+                    //waferFab.InitialLots = initialLots;
                     #endregion
 
                     simulation.Run();

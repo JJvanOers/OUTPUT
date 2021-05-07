@@ -67,7 +67,7 @@ namespace WaferFabSim.WaferFabElements.Utilities
         public override double Next()
         {
             // Get WIP right before arrival. TotalQueueLength includes this arrived lot, so this has to be substracted.
-            int WIP = WorkCenter.TotalQueueLength - 1;
+            int WIP = WorkCenter.TotalQueueLength;
 
             double sample = distributions[getWIPKey(WIP)].Next();
 
