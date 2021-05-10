@@ -81,13 +81,9 @@ namespace WaferAreaOptimiser
             #endregion
 
             #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 5;
+            simulation.MyExperiment.NumberOfReplications = 10;
             simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61;
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
-            #endregion
-
-            #region Make starting lots
-            AutoDataReader dataReader = new AutoDataReader(Path.Combine(inputDirectory, "Auto"), Path.Combine(inputDirectory, "SerializedFiles"));
             #endregion
 
             #region Building the model
@@ -101,7 +97,6 @@ namespace WaferAreaOptimiser
             distr.WorkCenter = workCenter;
 
             EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferFabSettings.WCOvertakingDistributions[wc]);
-
             workCenter.SetDispatcher(dispatcher);
 
             // Connect workcenter to OvertakingDistribution
@@ -139,9 +134,9 @@ namespace WaferAreaOptimiser
             simulation.Run();
 
             #region Reporting
-            //SimulationReporter reporter = simulation.MakeSimulationReporter();
+            SimulationReporter reporter = simulation.MakeSimulationReporter();
 
-            //reporter.PrintSummaryToConsole();
+            reporter.PrintSummaryToConsole();
             #endregion
 
             Tuple<double, double> results = new Tuple<double, double>(optimiserObs.QueueLengthStatistic.Average(), optimiserObs.QueueLengthStatistic.StandardDeviation());

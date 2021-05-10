@@ -33,36 +33,6 @@ namespace WaferAreaOptimiser
             ParConfig = parConfig;
         }
 
-        public Optimiser() { }
-
-        public Dictionary<string, Tuple<double, double>> GetRealQueueLengths(string directory)
-        {
-            Dictionary<string, Tuple<double, double>> realQueueLengths = new Dictionary<string, Tuple<double, double>>();
-
-            using (StreamReader reader = new StreamReader(Path.Combine(directory, "CSVs", "RealQueueLengths.csv")))
-            {
-                string[] headers = reader.ReadLine().Trim(',').Split(',');
-                string workCenter = "";
-                double mean = -1;
-                double std = -1;
-
-                while (!reader.EndOfStream)
-                {
-                    string[] data = reader.ReadLine().Trim(',').Split(',');
-
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        if (headers[i] == "WorkStation") { workCenter = data[i]; }
-                        if (headers[i] == "Mean") { mean = double.Parse(data[i]); }
-                        if (headers[i] == "Std") { std = double.Parse(data[i]); }
-                    }
-                    realQueueLengths.Add(workCenter, new Tuple<double, double>(mean, std));
-                }
-            }
-
-            return realQueueLengths;
-        }
-
         public void SetBounds(string directory)
         {
             using (StreamReader reader = new StreamReader(Path.Combine(directory, "CSVs", "Bounds.csv")))
@@ -224,7 +194,7 @@ namespace WaferAreaOptimiser
 
         public List<Lot> GetInitialLots(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, WaferFabSettings waferFabSettings)
         {
-            // Initialise a simulation class to retrieve lot steps
+            // Create an instance of a simulation class to retrieve lot steps
             Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
 
             WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);

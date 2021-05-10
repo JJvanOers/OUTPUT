@@ -22,36 +22,36 @@ namespace WaferAreaOptimiser
     public class Program
     {
         static void Main(string[] args)
-        {
-            Optimiser qlReader = new Optimiser();
-
+        {           
             string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
 
             string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
 
-            Dictionary<string, Tuple<double, double>> realQueueLengths = qlReader.GetRealQueueLengths(inputDirectory);
+            ReaderWriter readerWriter = new ReaderWriter(inputDirectory, outputDirectory);
 
-            List<string> workCenters = realQueueLengths.Keys.ToList();
+            Dictionary<string, Tuple<double, double>> realQueueLengths = readerWriter.GetRealQueueLengths();
 
-            workCenters = new List<string>() // Remove to evaluate all work centers
-            {"FURNACING"};
+            List<string> workCenters = realQueueLengths.Keys.ToList(); // All work centers
+
+            //workCenters = new List<string>() // Remove to evaluate all work centers
+            //{"FURNACING", "PHOTOLITH", "DRY ETCH", "WET ETCH"};
 
             foreach (string workCenter in workCenters)
             {
                 #region Parameters
-                // Simulation parameters
+                // Model parameters
                 string wc = workCenter;
 
                 DateTime initialDateTime = new DateTime(2019, 8, 1);
 
-                bool useInitialLots = false;
+                bool useInitialLots = true;
 
                 Settings.WriteOutput = false;
 
                 // Simulated annealing parameters
                 double temp = 25;
 
-                double cooldown = 0.995; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
+                double cooldown = 0.997; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
 
                 double meanObj = realQueueLengths[wc].Item1;
 
@@ -151,38 +151,14 @@ namespace WaferAreaOptimiser
 
                 #region Write results to file
                 // Write all results to a text file
-                using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_parameters.txt")))
-                {
-                    writer.WriteLine("LBWIP,UBWIP,Tmin,Tmax,Tdecay,Cmin,Cmax,Cdecay,AverageQL,StdQL");
-
-                    foreach (KeyValuePair<WIPDepDistParameters, Tuple<double, double>> entry in results)
-                    {
-                        WIPDepDistParameters pars = entry.Key;
-                        Tuple<double, double> result = entry.Value;
-                        writer.WriteLine(pars.LBWIP + "," + pars.UBWIP + "," + pars.Tmin + "," + pars.Tmax + "," + pars.Tdecay + "," + pars.Cmin + "," + pars.Cmax + "," + pars.Cdecay
-                            + "," + result.Item1 + "," + result.Item2);
-                    }
-                }
+                readerWriter.WriteAllSolutions(results, wc);
 
                 // Write the best and current solution to a text file
-                using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_best_parameters.txt")))
-                {
-                    writer.WriteLine("Solution,LBWIP,UBWIP,Tmin,Tmax,Tdecay,Cmin,Cmax,Cdecay,AverageQL,StdQL");
+                readerWriter.WriteFinalSolutions(currentPar, currentRes, bestPar, bestRes, wc);
 
-                    EPTDistribution dist = (EPTDistribution)currentPar.First().Value;
-                    WIPDepDistParameters par = dist.Par;
-
-                    writer.WriteLine("Current," + par.LBWIP + "," + par.UBWIP + "," + par.Tmin + "," + par.Tmax + "," + par.Tdecay + "," + par.Cmin + "," + par.Cmax + "," + par.Cdecay
-                            + "," + currentRes.Item1 + "," + currentRes.Item2);
-
-                    dist = (EPTDistribution)bestPar.First().Value;
-                    par = dist.Par;
-
-                    writer.WriteLine("Best," + par.LBWIP + "," + par.UBWIP + "," + par.Tmin + "," + par.Tmax + "," + par.Tdecay + "," + par.Cmin + "," + par.Cmax + "," + par.Cdecay
-                            + "," + bestRes.Item1 + "," + bestRes.Item2);
-                }
+                EPTDistribution dist = (EPTDistribution)currentPar.First().Value;
+                WIPDepDistParameters par = dist.Par;
                 #endregion
-
             }
         }
     }
