@@ -151,7 +151,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                 }
 
                 List<Lot> finalqueue = queue.Where(x => x != null).ToList();
-
+                
                 //Console.WriteLine($"Intialization for {wc.Name}");
 
                 // Finally initialize queue
@@ -162,22 +162,14 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
                     //Console.WriteLine(lot.LotID);
                 }
-
+                
                 // Departure for first lot in the queue is scheduled.
                 ScheduleEvent(GetTime + wc.ServiceTimeDistribution.Next(), wc.HandleDeparture);
 
                 wc.LotStepInService = wc.Queue.PeekFirst().GetCurrentStep;
             }
 
-            foreach (Lot lot in lots)
-            {
-                lot.SetCurrentStepCount(0);
-                wc.Queue.EnqueueLast(lot);
-                wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
-            }
-
             wc.LotStepInService = wc.Queue.PeekFirst().GetCurrentStep;
-
         }
 
         private List<Lot> addNullLots(List<Lot> list, int count)
