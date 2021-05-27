@@ -22,8 +22,8 @@ namespace WaferAreaOptimiser
     public class Program
     {
         static void Main(string[] args)
-        {           
-            string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
+        {
+            string inputDirectory = @"C:\Users\nx015953\OneDrive - Nexperia\CSSLWaferFab\Input";
 
             string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
 
@@ -33,8 +33,8 @@ namespace WaferAreaOptimiser
 
             List<string> workCenters = realQueueLengths.Keys.ToList(); // All work centers
 
-            //workCenters = new List<string>() // Remove to evaluate all work centers
-            //{"FURNACING", "PHOTOLITH", "DRY ETCH", "WET ETCH"};
+            workCenters = new List<string>() // Remove to evaluate all work centers
+            {"LPCVD"};
 
             foreach (string workCenter in workCenters)
             {
@@ -51,7 +51,7 @@ namespace WaferAreaOptimiser
                 // Simulated annealing parameters
                 double temp = 25;
 
-                double cooldown = 0.997; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
+                double cooldown = 0.99; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
 
                 double meanObj = realQueueLengths[wc].Item1;
 
@@ -62,7 +62,7 @@ namespace WaferAreaOptimiser
                 {
                     {"LBWIP",   new Parameter("LBWIP", false)},
                     {"UBWIP",   new Parameter("UBWIP", false)},
-                    {"Tmin",    new Parameter("Tmin", false)},                    
+                    {"Tmin",    new Parameter("Tmin", false)},                   
                     {"Tmax",    new Parameter("Tmax", true)},
                     {"Tdecay",  new Parameter("Tdecay", true)},
                     {"Cmin",    new Parameter("Cmin", true)},
@@ -97,19 +97,19 @@ namespace WaferAreaOptimiser
                 currentRes = waferAreaSim.RunSim(currentPar);
                 bestRes = optimiser.CopyResults(currentRes);
 
-                currentCost = Math.Abs(currentRes.Item1 - meanObj) + Math.Abs(currentRes.Item2 - stdObj);
+                currentCost = Math.Abs(currentRes.Item1 - meanObj) + 0.5 * Math.Abs(currentRes.Item2 - stdObj);
                 bestCost = currentCost;
 
                 optimiser.AddResult(results, currentPar, currentRes);
 
                 // Iterate and evaluate solutions until sufficiently cooled down
                 int i = 0;
-                while (temp > 0.1)
+                while (temp > 0.1 && currentCost > Math.Min(1, 0.1 * (meanObj + stdObj))) // If a good solution is found, stop searching
                 {
                     nextPar = optimiser.GenerateNeighbour(currentPar, temp);
                     nextRes = waferAreaSim.RunSim(nextPar);
 
-                    nextCost = Math.Abs(nextRes.Item1 - meanObj) + Math.Abs(nextRes.Item2 - stdObj);
+                    nextCost = Math.Abs(nextRes.Item1 - meanObj) + 0.5 * Math.Abs(nextRes.Item2 - stdObj);
 
                     optimiser.AddResult(results, nextPar, nextRes);
 
@@ -155,9 +155,6 @@ namespace WaferAreaOptimiser
 
                 // Write the best and current solution to a text file
                 readerWriter.WriteFinalSolutions(currentPar, currentRes, bestPar, bestRes, wc);
-
-                EPTDistribution dist = (EPTDistribution)currentPar.First().Value;
-                WIPDepDistParameters par = dist.Par;
                 #endregion
             }
         }
