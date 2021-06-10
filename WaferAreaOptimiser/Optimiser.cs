@@ -67,38 +67,31 @@ namespace WaferAreaOptimiser
 
         public EPTDistribution CheckInitialDistBounds(EPTDistribution dist)
         {
-            // For each initial value, check if it is within bounds. If not, take mean of bounds
-            if (dist.Par.Tmin < ParConfig["Tmin"].LowerBound || dist.Par.Tmin > ParConfig["Tmin"].UpperBound)
-            {
-                dist.Par.Tmin = (ParConfig["Tmin"].LowerBound + ParConfig["Tmin"].UpperBound) / 2;
-            }
+            WIPDepDistParameters x = dist.Par;
 
-            if (dist.Par.Tmax < ParConfig["Tmax"].LowerBound || dist.Par.Tmax > ParConfig["Tmax"].UpperBound)
-            {
-                dist.Par.Tmax = (ParConfig["Tmax"].LowerBound + ParConfig["Tmax"].UpperBound) / 2;
-            }
+            // For each initial value, check if it is within bounds. If not, set to closest bound
+            if      (x.Tmin < ParConfig["Tmin"].LowerBound) { x.Tmin = ParConfig["Tmin"].LowerBound; }
+            else if (x.Tmin > ParConfig["Tmin"].UpperBound) { x.Tmin = ParConfig["Tmin"].UpperBound; }
 
-            if (dist.Par.Tdecay < ParConfig["Tdecay"].LowerBound || dist.Par.Tdecay > ParConfig["Tdecay"].UpperBound)
-            {
-                dist.Par.Tdecay = (ParConfig["Tdecay"].LowerBound + ParConfig["Tdecay"].UpperBound) / 2;
-            }
+            if      (x.Tmax < ParConfig["Tmax"].LowerBound) { x.Tmax = ParConfig["Tmax"].LowerBound; }
+            else if (x.Tmax > ParConfig["Tmax"].UpperBound) { x.Tmax = ParConfig["Tmax"].UpperBound; }
 
-            if (dist.Par.Cmin < ParConfig["Cmin"].LowerBound || dist.Par.Cmin > ParConfig["Cmin"].UpperBound)
-            {
-                dist.Par.Cmin = (ParConfig["Cmin"].LowerBound + ParConfig["Cmin"].UpperBound) / 2;
-            }
+            if      (x.Tdecay < ParConfig["Tdecay"].LowerBound) { x.Tdecay = ParConfig["Tdecay"].LowerBound; }
+            else if (x.Tdecay > ParConfig["Tdecay"].UpperBound) { x.Tdecay = ParConfig["Tdecay"].UpperBound; }
 
-            if (dist.Par.Cmax < ParConfig["Cmax"].LowerBound || dist.Par.Cmax > ParConfig["Cmax"].UpperBound)
-            {
-                dist.Par.Cmax = (ParConfig["Cmax"].LowerBound + ParConfig["Cmax"].UpperBound) / 2;
-            }
 
-            if (dist.Par.Cdecay < ParConfig["Cdecay"].LowerBound || dist.Par.Cdecay > ParConfig["Cdecay"].UpperBound)
-            {
-                dist.Par.Cdecay = (ParConfig["Cdecay"].LowerBound + ParConfig["Cdecay"].UpperBound) / 2;
-            }
+            if      (x.Cmin < ParConfig["Cmin"].LowerBound) { x.Cmin = ParConfig["Cmin"].LowerBound; }
+            else if (x.Cmin > ParConfig["Cmin"].UpperBound) { x.Cmin = ParConfig["Cmin"].UpperBound; }
 
-            return dist;
+            if      (x.Cmax < ParConfig["Cmax"].LowerBound) { x.Cmax = ParConfig["Cmax"].LowerBound; }
+            else if (x.Cmax > ParConfig["Cmax"].UpperBound) { x.Cmax = ParConfig["Cmax"].UpperBound; }
+
+            if      (x.Cdecay < ParConfig["Cdecay"].LowerBound) { x.Cdecay = ParConfig["Cdecay"].LowerBound; }
+            else if (x.Cdecay > ParConfig["Cdecay"].UpperBound) { x.Cdecay = ParConfig["Cdecay"].UpperBound; }
+
+            EPTDistribution newDist = new EPTDistribution(x);
+
+            return newDist;
         }
 
         public Dictionary<string, Distribution> GenerateNeighbour(Dictionary<string, Distribution> currentPar, double temp)
@@ -114,10 +107,10 @@ namespace WaferAreaOptimiser
             // x is the original parameter set (input), par is a neighbouring parameter set
             // Change one parameter based on a probability
             if (isInRange("LBWIP", u))  { par.LBWIP = (int)Math.Max(1, newValue("LBWIP", x.LBWIP)); }    else { par.LBWIP = x.LBWIP; }
-            if (isInRange("UBWIP",u ))  { par.UBWIP = (int)Math.Max(1, newValue("UBWIP", x.UBWIP)); }    else { par.UBWIP = x.UBWIP; }
+            if (isInRange("UBWIP", u))  { par.UBWIP = (int)Math.Max(1, newValue("UBWIP", x.UBWIP)); }    else { par.UBWIP = x.UBWIP; }
             if (isInRange("Tmin", u))   { par.Tmin = newValue("Tmin", x.Tmin); }                         else { par.Tmin = x.Tmin; }
             if (isInRange("Tmax", u))   { par.Tmax = newValue("Tmax", x.Tmax); }                         else { par.Tmax = x.Tmax; }
-            if (isInRange("Tdecay", u)) { par.Tdecay = newValue("Tdecay", x.Tdecay); }                   else { par.Tdecay = x.Tdecay; }            
+            if (isInRange("Tdecay", u)) { par.Tdecay = newValue("Tdecay", x.Tdecay); }                   else { par.Tdecay = x.Tdecay; }
             if (isInRange("Cmin", u))   { par.Cmin = newValue("Cmin", x.Cmin); }                         else { par.Cmin = x.Cmin; }
             if (isInRange("Cmax", u))   { par.Cmax = newValue("Cmax", x.Cmax); }                         else { par.Cmax = x.Cmax; }
             if (isInRange("Cdecay", u)) { par.Cdecay = newValue("Cdecay", x.Cdecay); }                   else { par.Cdecay = x.Cdecay; }
@@ -135,7 +128,7 @@ namespace WaferAreaOptimiser
                 if (u > pLower && u <= pUpper) { return true; } else { return false; }
             }
 
-            double newValue(string parName, double value) 
+            double newValue(string parName, double value)
             {                
                 // Use Min-max feature scaling to determine the half width size of the new value
                 // Large range at high temps (50%), small range at low temps (10%)
@@ -217,13 +210,9 @@ namespace WaferAreaOptimiser
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
-            List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
-
-            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => x.LotActivity.WorkStation == wc).ToList();
 
             List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
-
-            waferFab.InitialLots = initialLots;
 
             return initialLots;
         }      

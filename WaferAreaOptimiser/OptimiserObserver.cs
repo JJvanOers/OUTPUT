@@ -4,6 +4,7 @@ using CSSL.Observer;
 using CSSL.Utilities.Statistics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using WaferFabSim.WaferFabElements;
 
@@ -27,7 +28,7 @@ namespace WaferAreaOptimiser
             queueLength.UpdateValue(workCenter.TotalQueueLength);
             QueueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
 
-            Writer?.WriteLine($"{workCenter.GetTime},{workCenter.GetWallClockTime},{queueLength.Value}");
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)
@@ -36,10 +37,12 @@ namespace WaferAreaOptimiser
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            Writer?.WriteLine("Simulation Time,Computational Time,Queue Length");
+            Writer?.WriteLine("Simulation Time,Queue Length");
 
             WorkCenter workCenter = (WorkCenter)modelElement;
-            queueLength.UpdateValue(workCenter.TotalQueueLength);
+            queueLength.UpdateValue(workCenter.InitialLots.Count());
+
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         protected override void OnReplicationStart(ModelElementBase modelElement)
@@ -51,6 +54,11 @@ namespace WaferAreaOptimiser
 
         protected override void OnReplicationEnd(ModelElementBase modelElement)
         {
+            WorkCenter workCenter = (WorkCenter)modelElement;
+            queueLength.UpdateValue(workCenter.TotalQueueLength);
+            QueueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
+
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         public override void OnError(Exception error)

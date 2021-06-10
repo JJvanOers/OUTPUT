@@ -16,6 +16,7 @@ using WaferFabSim.WaferFabElements;
 using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Observers;
 using WaferFabSim.WaferFabElements.Utilities;
+using static WaferFabSim.WaferFabElements.Utilities.EPTDistribution;
 
 namespace WaferAreaOptimiser
 {
@@ -74,7 +75,10 @@ namespace WaferAreaOptimiser
 
         public Tuple<double, double> RunSim(Dictionary<string, Distribution> dict)
         {
-            waferFabSettings.WCServiceTimeDistributions = dict;
+            EPTDistribution dist = (EPTDistribution)dict.First().Value;
+            WIPDepDistParameters x = dist.Par;
+
+            waferFabSettings.WCServiceTimeDistributions = new Dictionary<string, Distribution> { { wc, new EPTDistribution(x) } };
 
             #region Initializing simulation
             Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
@@ -82,7 +86,10 @@ namespace WaferAreaOptimiser
 
             #region Experiment settings
             simulation.MyExperiment.NumberOfReplications = 10;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 61;
+
+            DateTime finalDateTime = new DateTime(2019, initialDateTime.Month + 2, 1);
+            simulation.MyExperiment.LengthOfReplication = (finalDateTime - initialDateTime).TotalSeconds; // Number of seconds between two months
+
             simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
             #endregion
 

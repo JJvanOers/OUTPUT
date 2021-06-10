@@ -84,6 +84,7 @@ namespace WaferFabSim.SnapshotData
                 lot.ClipWeekReal = ClipWeek;
                 lot.ArrivalReal = arrival;
                 lot.WIPInReal = wipIn;
+                lot.QtyReal = Qty;
 
                 if (!lotYetToStart)
                 {   // For intial lots, these have a initial position. Stepcount is set to according step based on Real lot's IRD group.
