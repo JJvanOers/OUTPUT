@@ -43,6 +43,11 @@ namespace WaferFabSim.WaferFabElements
             return currentStepCount + 1 < lotSteps.Count;
         }
 
+        public bool HasRelativeStep(int currentStepCount, int relativeStepCount)
+        {
+            return currentStepCount + relativeStepCount >= 0 && currentStepCount + relativeStepCount < lotSteps.Count;
+        }
+
         public LotStep GetCurrentStep(int currentStepCount)
         {
             return lotSteps[currentStepCount];
@@ -53,6 +58,18 @@ namespace WaferFabSim.WaferFabElements
             if (HasNextStep(currentStepCount))
             {
                 return lotSteps[currentStepCount + 1];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public LotStep GetRelativeStep(int currentStepCount, int relativeStepCount)
+        {
+            if (HasRelativeStep(currentStepCount, relativeStepCount))
+            {
+                return lotSteps[currentStepCount + relativeStepCount];
             }
             else
             {
@@ -76,7 +93,18 @@ namespace WaferFabSim.WaferFabElements
                 return null;
             }
         }
-               
+        public WorkCenter GetRelativeWorkCenter(int currentStepCount, int relativeStepCount)
+        {
+            if (HasRelativeStep(currentStepCount, relativeStepCount))
+            {
+                return GetRelativeStep(currentStepCount, relativeStepCount).WorkCenter;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public void AddStep(LotStep lotstep)
         {
             lotSteps.Add(lotstep);

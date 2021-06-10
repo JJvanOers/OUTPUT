@@ -49,7 +49,7 @@ namespace WaferFabDataReader
         /// <param name="lotActivitiesFilename"></param>
         public static void SerializeWorkCenterLotActivities(AutoDataReader reader, string filenameLotActivities, string filenameSerializedOutput, bool onlyProductionLots)
         {
-            reader.ReadWaferFabSettings(false, true);
+            reader.ReadWaferFabSettings(false, true, "EPTOvertaking");
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, onlyProductionLots);
 
@@ -64,7 +64,7 @@ namespace WaferFabDataReader
         /// <param name="withLotStarts">With or without real lot starts</param>
         public static void SerializeWaferFabSettings(AutoDataReader reader, bool withLotStarts, string area = "COMPLETE")
         {
-            reader.ReadWaferFabSettings(withLotStarts, false, area);
+            reader.ReadWaferFabSettings(withLotStarts, false, "EPTOvertaking", area);
 
             string fileName = withLotStarts ? $"WaferFabSettings_{area}_WithLotStarts" : $"WaferFabSettings_{area}_NoLotStarts";
 
@@ -80,7 +80,7 @@ namespace WaferFabDataReader
         {
             if (reader.WaferFabSettings == null)
             {
-                reader.ReadWaferFabSettings(false, false);
+                reader.ReadWaferFabSettings(false, false, "EPTOvertaking");
             }
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, true);
@@ -96,7 +96,7 @@ namespace WaferFabDataReader
         {
             if (reader.WaferFabSettings == null)
             {
-                reader.ReadWaferFabSettings(false, false);
+                reader.ReadWaferFabSettings(false, false, "EPTOvertaking");
             }
 
             reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, "LotTraces_2019_2020.dat"));

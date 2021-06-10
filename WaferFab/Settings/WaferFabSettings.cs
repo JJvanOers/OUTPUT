@@ -79,8 +79,8 @@ namespace WaferFabSim
         public Dictionary<string, List<LotStep>> LotStepsPerWorkStation { get; set; }
         public Dictionary<string, Sequence> Sequences { get; set; }
 
-        // Processing Time History
-        public Dictionary<string, WorkCenterLotActivities> ProcessingTimeHistories { get; set; }
+        // Control
+        public Dictionary<LotStep, double> WIPTargets { get; set; }
 
 
         public string GetWorkCenterNameForLotstep(LotStep lotstep)

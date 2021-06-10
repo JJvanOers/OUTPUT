@@ -6,7 +6,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\OneDrive - TU Eindhoven\Documents\Thesis\C#\CSSL-master\CSSL\CSSL.csproj" />
 		<ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
 	</ItemGroup>
 

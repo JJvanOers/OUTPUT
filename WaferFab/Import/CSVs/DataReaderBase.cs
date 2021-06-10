@@ -47,7 +47,7 @@ namespace WaferFabSim.Import
         }
 
 
-        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string area = "COMPLETE")
+        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string dispatcherType, string area = "COMPLETE")
         {
             throw new NotImplementedException();
         }

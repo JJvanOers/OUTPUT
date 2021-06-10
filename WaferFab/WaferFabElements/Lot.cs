@@ -75,6 +75,11 @@ namespace WaferFabSim.WaferFabElements
             }
         }
 
+        /// <summary>
+        /// Wafer quantity of original real lot
+        /// </summary>
+        public int QtyReal { get; set; }
+
         public int? PlanDayReal { get; set; }
 
         public int ClipWeekReal { get; set; }
@@ -87,6 +92,12 @@ namespace WaferFabSim.WaferFabElements
         public LotStep GetCurrentStep => Sequence.GetCurrentStep(CurrentStepCount);
 
         public LotStep GetNextStep => Sequence.GetNextStep(CurrentStepCount);
+
+        public bool HasRelativeStep(int relativeStepCount) => Sequence.HasRelativeStep(CurrentStepCount, relativeStepCount);
+
+        public LotStep GetRelativeStep(int relativeStepCount) => Sequence.GetRelativeStep(CurrentStepCount, relativeStepCount);
+
+        public WorkCenter GetRelativeWorkCenter(int relativeStepCount) => Sequence.GetRelativeWorkCenter(CurrentStepCount, relativeStepCount);
 
         public bool HasNextStep => Sequence.HasNextStep(CurrentStepCount);
 
@@ -142,6 +153,7 @@ namespace WaferFabSim.WaferFabElements
             OvertakenLotsReal = lotToDeepCopy.OvertakenLotsReal;
             PlanDayReal = lotToDeepCopy.PlanDayReal;
             ClipWeekReal = lotToDeepCopy.ClipWeekReal;
+            QtyReal = lotToDeepCopy.QtyReal;
         }
 
         public Lot()

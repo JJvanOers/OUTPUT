@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Linq;
 
 namespace WaferFabSim.WaferFabElements
 {
@@ -26,18 +27,22 @@ namespace WaferFabSim.WaferFabElements
 
         public List<Tuple<DateTime, Lot>> LotStarts { get; set; }
 
+        public Dictionary<LotStep, double> WIPTargets { get; private set; }
+
         /// <summary>
         /// Note: the ordering of these lists is used by some dispatchers to determine initial queue
         /// </summary>
         public List<Lot> InitialLots { get; set; }
 
-        public WaferFab(ModelElementBase parent, string name, ConstantDistribution samplingDistribution, DateTime? initialTime = null) : base(parent, name, samplingDistribution)
+        public WaferFab(ModelElementBase parent, string name, ConstantDistribution samplingDistribution, DateTime? initialTime = null)
+            : base(parent, name, samplingDistribution)
         {
             WorkCenters = new Dictionary<string, WorkCenter>();
             Sequences = new Dictionary<string, Sequence>();
             LotSteps = new Dictionary<string, LotStep>();
             ManualLotStarts = new Dictionary<string, int>();
             InitialLots = new List<Lot>();
+            WIPTargets = new Dictionary<LotStep, double>();
             InitialDateTime = initialTime == null ? DateTime.Now : (DateTime)initialTime;
         }
 
@@ -61,6 +66,27 @@ namespace WaferFabSim.WaferFabElements
         public void AddLotStart(string lotType, int quantity)
         {
             ManualLotStarts.Add(lotType, quantity);
+        }
+
+        public void AddWIPTargets(Dictionary<LotStep, double> targets)
+        {
+            if (LotSteps.Values.All(targets.Keys.Contains))
+            {
+                WIPTargets = targets;
+            }
+            else
+            {
+                List<string> missingLotSteps = new List<string>();
+                foreach (LotStep lotStep in LotSteps.Values)
+                {
+                    if (!targets.Keys.Contains(lotStep))
+                    {
+                        missingLotSteps.Add(lotStep.Name);
+                    }
+                }
+
+                throw new Exception($"WIP Targets are not complete for following LotSteps: {missingLotSteps}");
+            }
         }
 
         /// <summary>

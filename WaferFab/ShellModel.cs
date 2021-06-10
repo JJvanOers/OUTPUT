@@ -75,6 +75,12 @@ namespace WaferFabSim
             //// LotSteps
             waferFab.LotSteps = MyWaferFabSettings.LotSteps;
 
+            //// Control
+            if (MyWaferFabSettings.WIPTargets != null)
+            {
+                waferFab.AddWIPTargets(MyWaferFabSettings.WIPTargets);
+            }
+
             //// WorkCenters
             foreach (string wc in MyWaferFabSettings.WorkCenters)
             {
@@ -103,9 +109,15 @@ namespace WaferFabSim
                 {
                     workCenter.SetDispatcher(new RandomDispatcher(workCenter, workCenter.Name + "_RandomDispatcher"));
                 }
+                else if (MyWaferFabSettings.WCDispatchers[wc] == "MIVM")
+                {
+                    workCenter.SetDispatcher(new MIVMDispatcher(workCenter, workCenter.Name + "_MIVMDisptacher", 1, 0));
+                }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);
             }
+
+
 
             //// Sequences
             foreach (var sequence in MyWaferFabSettings.Sequences)
@@ -129,16 +141,21 @@ namespace WaferFabSim
             }
 
             // Add observers
-            WaferFabObserver waferFabObserver = new WaferFabObserver(MySimulation, "WaferFabObserver", waferFab);
-            waferFab.Subscribe(waferFabObserver);
+            // Add observers
+            //WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabObserver", waferFab);
+            //WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabObserverWafers", waferFab);
+            //WaferFabTotalQueueObserver waferFabTotalQueueObserver = new WaferFabTotalQueueObserver(MySimulation, "WaferFabTotalQueueObserver", waferFab);
+            //waferFab.Subscribe(waferFabObserver);
+            //waferFab.Subscribe(waferFabObserverWafers);
+            //waferFab.Subscribe(waferFabTotalQueueObserver);
 
             foreach (var wc in waferFab.WorkCenters)
             {
                 TotalQueueObserver totalQueueObs = new TotalQueueObserver(MySimulation, wc.Key + "_TotalQueueObserver");
-                SeperateQueuesObserver seperateQueueObs = new SeperateQueuesObserver(MySimulation, wc.Value, wc.Key + "_SeperateQueuesObserver");
+                //SeperateQueuesObserver seperateQueueObs = new SeperateQueuesObserver(MySimulation, wc.Value, wc.Key + "_SeperateQueuesObserver");
 
                 wc.Value.Subscribe(totalQueueObs);
-                wc.Value.Subscribe(seperateQueueObs);
+                //wc.Value.Subscribe(seperateQueueObs);
             }
         }
 

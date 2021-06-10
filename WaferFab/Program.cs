@@ -14,6 +14,9 @@ namespace WaferFabSim
 
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
+            DateTime initialDateTime = new DateTime(2019, 8, 1);
+
+
             Settings.WriteOutput = true;
             Settings.FixSeed = true;
 
@@ -22,15 +25,17 @@ namespace WaferFabSim
             // Load WaferFab settings
             AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true);
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, "MIVM");
 
             waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
             waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
 
-            // Read Initial Lots
-            WaferFabSim.ReadRealSnaphots(inputDir + @"SerializedFiles\RealSnapshots_2019-12-1_2020-1-1_1h.dat");
+            waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
+            waferFabSettings.WCDispatchers = waferFabSettings.WCDispatchers.ToDictionary(x => x.Key, x => "MIVM");
 
+            // Read Initial Lots
+            WaferFabSim.ReadRealSnaphots(inputDir + @$"SerializedFiles\RealSnapShots_2019-{initialDateTime.Month}-1_2019-{initialDateTime.Month + 1}-1_1h.dat");
             waferFabSettings.InitialRealLots = WaferFabSim.RealSnapshotReader.RealSnapshots.First().GetRealLots(1);
 
             // Experiment settings

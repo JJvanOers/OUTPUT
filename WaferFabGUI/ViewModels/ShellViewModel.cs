@@ -46,6 +46,8 @@ namespace WaferFabGUI.ViewModels
             LoadRealSnapshotsCommand = new RelayCommand(LoadRealSnapshotsAsync, () => true);
 
             // Initialize properties
+            DispatcherTypes = new ObservableCollection<string>() { "BQF", "EPTOvertaking", "MIVM" };
+            SelectedDispatcherType = DispatcherTypes.Last();
             WorkCenters = new ObservableCollection<WorkCenterData>();
             LotStartQtys = new ObservableCollection<LotStartQty>();
             XAxisLotSteps = new ObservableCollection<CheckBoxLotStep>();
@@ -65,7 +67,9 @@ namespace WaferFabGUI.ViewModels
 
             // Initialize Waferfab Settings
             this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
-            waferFabSettings = this.reader.ReadWaferFabSettings(false, true);
+            waferFabSettings = this.reader.ReadWaferFabSettings(false, true, "EPTOvertaking");
+            waferFabSettings.WIPTargets = this.reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
+
             initializeGUIWaferFabSettings(waferFabSettings);
 
             // TEMPORARY
@@ -93,6 +97,7 @@ namespace WaferFabGUI.ViewModels
         private ExperimentSettings experimentSettings;
         private WaferFabSettings waferFabSettings;
         private string inputDirectory;
+        private string _selectedDispatcherType;
         private bool isAnimationRunning;
         private bool _isRealData;
         private bool _isMultipleSnapshots;
@@ -105,11 +110,12 @@ namespace WaferFabGUI.ViewModels
         private ObservableCollection<LotStartQty> _lotStartQtys;
         private ObservableCollection<SimulationSnapshot> _simulationSnapshots;
         private ObservableCollection<RealSnapshot> _realSnapshots;
+        private ObservableCollection<string> _dispatcherTypes;
         private PlotModel _wipBarChart;
         private WIPSnapshotBase _snapshotSelected;
         private RealSnapshot _startState;
         private IDialogCoordinator dialogCoordinator;
-        private DataReaderBase reader;
+        private AutoDataReader reader;
 
         public bool AnimationPaused = false;
         public bool AnimationResumed = false;
@@ -292,6 +298,11 @@ namespace WaferFabGUI.ViewModels
                 waferFabSettings.ManualLotStartQtys[lotStart.LotType] = lotStart.Quantity;
             }
 
+            foreach (string wc in waferFabSettings.WorkCenters)
+            {
+                waferFabSettings.WCDispatchers[wc] = SelectedDispatcherType;
+            }
+
             if (waferFabSettings.UseRealLotStartsFlag == true && waferFabSettings.RealLotStarts == null)
             {
                 waferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(reader.DirectorySerializedFiles, "LotStarts_2019_2020.dat"));
@@ -378,6 +389,17 @@ namespace WaferFabGUI.ViewModels
                 return allReps;
             }
         }
+
+        public ObservableCollection<string> DispatcherTypes
+        {
+            get { return _dispatcherTypes; }
+            set
+            { 
+                _dispatcherTypes = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public IEnumerable<WIPSnapshotBase> SnapshotsToAnimate
         {
             get
@@ -461,6 +483,15 @@ namespace WaferFabGUI.ViewModels
             }
         }
 
+        public string SelectedDispatcherType
+        {
+            get { return _selectedDispatcherType; }
+            set
+            {
+                _selectedDispatcherType = value;
+                NotifyOfPropertyChange();
+            }
+        }
         public double TotalDailyLotStarts
         {
             get

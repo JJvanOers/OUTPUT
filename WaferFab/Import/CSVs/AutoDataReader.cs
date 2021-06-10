@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
 using WaferFabSim.SnapshotData;
@@ -34,7 +35,7 @@ namespace WaferFabSim.InputDataConversion
         /// because Random class in distributions cannot be serialized.</param>
         /// <param name="area"></param>
         /// <returns></returns>
-        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string area = "COMPLETE")
+        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string dispatcherType, string area = "COMPLETE")
         {
             Console.Write("Reading waferfabsettings -");
 
@@ -56,7 +57,7 @@ namespace WaferFabSim.InputDataConversion
 
             WaferFabSettings.LotStepsPerWorkStation = getLotStepsPerWorkstation();
 
-            WaferFabSettings.WCDispatchers = getDispatchers();
+            WaferFabSettings.WCDispatchers = getDispatchers(dispatcherType);
 
             WaferFabSettings.Sequences = getSequencesPerIRDGroup();
 
@@ -225,6 +226,39 @@ namespace WaferFabSim.InputDataConversion
             return RealSnapshots;
         }
 
+        public Dictionary<LotStep, double> ReadWIPTargets(Dictionary<string, LotStep> lotSteps, string fileName)
+        {
+            Dictionary<LotStep, double> wipTargets = lotSteps.ToDictionary(x => x.Value, x => -1.0);
+
+            // Read steps from process plans
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, fileName)))
+            {
+                string[] headers = reader.ReadLine().Trim(',').Split(',');
+                int irdIndex = -1; int WIPindex = -1;
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    if (headers[i] == "IRD") { irdIndex = i; }
+                    if (headers[i] == "Optimum WIP") { WIPindex = i; }
+                }
+
+                while (!reader.EndOfStream)
+                {
+                    string[] data = reader.ReadLine().Trim(',').Split(',');
+
+                    wipTargets[lotSteps[data[irdIndex]]] = Convert.ToDouble(data[WIPindex]) / 25.0;
+                }
+            }
+
+            // Check if all wip targets have been set
+            if (wipTargets.Where(x => x.Value < 0.0).Any())
+            {
+                throw new Exception("Not all lot steps (IRDs) have WIP targets.");
+            }
+
+            return wipTargets;
+        }
+
         public List<Tuple<DateTime, RealLot>> GetLotStarts()
         {
             RealLotStarts = LotTraces.GetRealLotStarts();
@@ -287,6 +321,8 @@ namespace WaferFabSim.InputDataConversion
         private List<IRDMapping> irdMappings { get; set; }
         private Dictionary<string, int> irdNumbering { get; set; }
         private Dictionary<string, ProcessPlan> processPlans { get; set; }
+
+
 
 
         private void ReadLotStepsRawAndIRDs()
@@ -440,13 +476,13 @@ namespace WaferFabSim.InputDataConversion
             return ProcessPlans;
         }
 
-        private Dictionary<string, string> getDispatchers()
+        private Dictionary<string, string> getDispatchers(string dispatcherType)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
 
             foreach (string wc in WaferFabSettings.WorkCenters)
             {
-                dict.Add(wc, "EPTOvertaking");
+                dict.Add(wc, dispatcherType);
             }
 
             return dict;
