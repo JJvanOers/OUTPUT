@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using WaferAreaOptimiser;
 using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
@@ -23,110 +22,117 @@ namespace WaferAreaSim
     {
         static void Main(string[] args)
         {
-            #region Parameters
-            string wc = "FURNACING";
+            List<string> workcenters = new List<string>()
+            {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
+                "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
+                "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
+            
+            DateTime initialDateTime = new DateTime(2019, 10, 1);
 
-            string inputDirectory = @"C:\CSSLWaferFab\Input\WSC2021paper";
+            string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaSim";
+            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferFabArea";
 
-            bool fittedParameters = false; // true = fitted, false = optimised
-
-            bool lotStepOvertaking = true;
-            #endregion
-
-            #region Initializing simulation
-            Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
-            #endregion
-
-            #region Experiment settings
-            simulation.MyExperiment.NumberOfReplications = 10;
-            simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60; // September and October
-            simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;
-            DateTime initialDateTime = new DateTime(2019, 12, 1);
-            #endregion
-
-            #region WaferFab settings
-            WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
-
-            EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
-
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(fittedParameters);
-
-            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
-            #endregion
-
-            #region Make starting lots
-            AutoDataReader dataReader = new AutoDataReader(Path.Combine(inputDirectory, "Auto"), Path.Combine(inputDirectory, "SerializedFiles"));
-
-            #endregion
-
-            #region Building the model
-            WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
-
-            WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
-
-            // Connect workcenter to WIPDependentDistribution
-            EPTDistribution distr = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
-
-            distr.WorkCenter = workCenter;
-
-            EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferFabSettings.WCOvertakingDistributions[wc]);
-
-            workCenter.SetDispatcher(dispatcher);
-
-            // Connect workcenter to OvertakingDistribution
-            waferFabSettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
-
-            waferFab.AddWorkCenter(workCenter.Name, workCenter);
-
-            // Sequences
-            foreach (var sequence in waferFabSettings.Sequences)
-            {
-                waferFab.AddSequence(sequence.Key, sequence.Value);
-            }
-
-            // LotSteps
-            waferFab.LotSteps = waferFab.Sequences.Select(x => x.Value).Select(x => x.GetCurrentStep(0)).ToDictionary(x => x.Name);
-
-            // LotGenerator
-            waferFab.SetLotGenerator(new LotGenerator(waferFab, "LotGenerator", new ConstantDistribution(60), true));
-
-            // Add lotstarts
-            waferFab.LotStarts = waferFabSettings.LotStarts;
-
-            // Add observers
-            LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
-            dispatcher.Subscribe(lotOutObserver);
-            OptimiserObserver optimiserObserver = new OptimiserObserver(simulation, "_TotalQueueObserver");
-            workCenter.Subscribe(optimiserObserver);
-
-            #endregion        
-
-            #region Read initial lots
             RealSnapshotReader reader = new RealSnapshotReader();
 
             List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
-            List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
+            //workcenters = new List<string>() {"INSPECTION"};
+            foreach (string workcenter in workcenters)
+            {
+                #region Parameters
 
-            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+                string wc = workcenter;
 
-            List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
+                bool isFitted = false; // true = fitted, false = optimised
 
-            waferFab.InitialLots = initialLots;
-            #endregion
+                bool lotStepOvertaking = true;
+                #endregion
 
-            simulation.Run();
+                #region Initializing simulation
+                Simulation simulation = new Simulation(wc, outputDirectory);
+                #endregion
 
+                #region Experiment settings
+                simulation.MyExperiment.NumberOfReplications = 30;
 
-            #region Reporting
-            SimulationReporter reporter = simulation.MakeSimulationReporter();
+                DateTime finalDateTime = new DateTime(2019, initialDateTime.Month + 2, 1);
+                simulation.MyExperiment.LengthOfReplication = (finalDateTime - initialDateTime).TotalSeconds; // Number of seconds between two months
 
-            reporter.PrintSummaryToConsole();
-            #endregion
+                simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 0;                
+                #endregion
+
+                #region WaferFab settings
+                WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
+
+                EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
+
+                waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(isFitted);
+
+                waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
+                #endregion
+
+                #region Make starting lots
+                AutoDataReader dataReader = new AutoDataReader(Path.Combine(inputDirectory, "Auto"), Path.Combine(inputDirectory, "SerializedFiles"));
+                #endregion
+
+                #region Building the model
+                WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), initialDateTime);
+
+                WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
+
+                // Connect workcenter to WIPDependentDistribution
+                EPTDistribution distr = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
+
+                distr.WorkCenter = workCenter;
+
+                EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferFabSettings.WCOvertakingDistributions[wc]);
+
+                workCenter.SetDispatcher(dispatcher);
+
+                // Connect workcenter to OvertakingDistribution
+                waferFabSettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
+
+                waferFab.AddWorkCenter(workCenter.Name, workCenter);
+
+                // Sequences
+                foreach (var sequence in waferFabSettings.Sequences)
+                {
+                    waferFab.AddSequence(sequence.Key, sequence.Value);
+                }
+
+                // LotSteps
+                waferFab.LotSteps = waferFab.Sequences.Select(x => x.Value).Select(x => x.GetCurrentStep(0)).ToDictionary(x => x.Name);
+
+                // LotGenerator
+                waferFab.SetLotGenerator(new LotGenerator(waferFab, "LotGenerator", new ConstantDistribution(60), true));
+
+                // Add lotstarts
+                waferFab.LotStarts = waferFabSettings.LotStarts;
+
+                // Add initial lots             
+                List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => x.LotActivity.WorkStation == wc).ToList();
+
+                waferFab.InitialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
+
+                // Add observers
+                LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
+                dispatcher.Subscribe(lotOutObserver);
+
+                TotalQueueObserver totalQueueObserver = new TotalQueueObserver(simulation, wc + "_TotalQueueObserver");
+                workCenter.Subscribe(totalQueueObserver);
+                #endregion
+
+                simulation.Run();
+
+                #region Reporting
+                SimulationReporter reporter = simulation.MakeSimulationReporter();
+
+                reporter.PrintSummaryToConsole();
+                #endregion
+            }
         }
     }
 }

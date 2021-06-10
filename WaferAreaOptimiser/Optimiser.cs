@@ -210,13 +210,9 @@ namespace WaferAreaOptimiser
 
             RealSnapshot realSnapShot = realSnapshots.Where(x => x.Time == initialDateTime).First();
 
-            List<string> lotSteps = workCenter.LotSteps.Select(x => x.Name).ToList();
-
-            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => lotSteps.Contains(x.IRDGroup)).ToList();
+            List<RealLot> initialRealLots = realSnapShot.GetRealLots(1).Where(x => x.LotActivity.WorkStation == wc).ToList();
 
             List<Lot> initialLots = initialRealLots.Select(x => x.ConvertToLotArea(0, waferFabSettings.Sequences, initialDateTime)).ToList();
-
-            waferFab.InitialLots = initialLots;
 
             return initialLots;
         }      

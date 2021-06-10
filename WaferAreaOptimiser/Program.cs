@@ -25,7 +25,7 @@ namespace WaferAreaOptimiser
         {
             string inputDirectory = @"C:\Users\nx015953\OneDrive - Nexperia\CSSLWaferFab\Input";
 
-            string outputDirectory = @"C:\CSSLWaferFab\OptimiserOutput";
+            string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaOptimiser";
 
             ReaderWriter readerWriter = new ReaderWriter(inputDirectory, outputDirectory);
 
@@ -33,8 +33,8 @@ namespace WaferAreaOptimiser
 
             List<string> workCenters = realQueueLengths.Keys.ToList(); // All work centers
 
-            workCenters = new List<string>() // Remove to evaluate all work centers
-            {"LPCVD"};
+            //workCenters = new List<string>() // Remove to evaluate all work centers
+            //{"INSPECTION"};
 
             foreach (string workCenter in workCenters)
             {
@@ -42,7 +42,7 @@ namespace WaferAreaOptimiser
                 // Model parameters
                 string wc = workCenter;
 
-                DateTime initialDateTime = new DateTime(2019, 8, 1);
+                DateTime initialDateTime = new DateTime(2019, 6, 1);
 
                 bool useInitialLots = true;
 
@@ -51,7 +51,7 @@ namespace WaferAreaOptimiser
                 // Simulated annealing parameters
                 double temp = 25;
 
-                double cooldown = 0.99; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
+                double cooldown = 0.993; //0.995 = 1102 solutions, 0.996 = 1378 solutions, 0.997 = 1834 solutions
 
                 double meanObj = realQueueLengths[wc].Item1;
 

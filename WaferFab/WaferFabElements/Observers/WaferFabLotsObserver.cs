@@ -10,21 +10,20 @@ using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Observers
 {
-    public class WaferFabObserver : ModelElementObserverBase
+    public class WaferFabLotsObserver : ModelElementObserverBase
     {
-        public WaferFabObserver(Simulation mySimulation, string name, WaferFab waferFab) : base(mySimulation, name)
+        public WaferFabLotsObserver(Simulation mySimulation, string name, WaferFab waferFab) : base(mySimulation, name)
         {
             queueLengths = new Dictionary<LotStep, Variable<int>>();
             queueLengthsStatistics = new Dictionary<LotStep, WeightedStatistic>();
 
+            orderedLotSteps = waferFab.LotSteps.Values.OrderBy(x => x.Id).ToList();
 
-            foreach (LotStep step in waferFab.LotSteps.Values.OrderBy(x => x.Id))
+            foreach (LotStep step in orderedLotSteps)
             {
                 queueLengths.Add(step, new Variable<int>(this));
                 queueLengthsStatistics.Add(step, new WeightedStatistic("QueueLength_" + step.Name));
             }
-
-            orderedLotSteps = waferFab.LotSteps.Values.OrderBy(x => x.Id).ToList();
         }
 
         private Dictionary<LotStep, Variable<int>> queueLengths;
@@ -84,6 +83,19 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         protected override void OnReplicationEnd(ModelElementBase modelElement)
         {
+            // Write last system status to file
+            WaferFab waferFab = (WaferFab)modelElement;
+
+            foreach (var workCenter in waferFab.WorkCenters.Values)
+            {
+                foreach (var step in workCenter.LotSteps)
+                {
+                    queueLengths[step].UpdateValue(workCenter.Queues[step].Length);
+                    queueLengthsStatistics[step].Collect(queueLengths[step].PreviousValue, queueLengths[step].Weight);
+                }
+            }
+
+            writeOutputToFile(waferFab);
         }
         protected override void OnExperimentEnd(ModelElementBase modelElement)
         {
@@ -92,9 +104,9 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void headerToFile(WaferFab waferFab)
         {
-            Writer?.Write("Simulation Time,Computational Time,");
+            Writer?.Write("Simulation Time,");
 
-            foreach (LotStep step in waferFab.LotSteps.Values.OrderBy(x => x.Id))
+            foreach (LotStep step in orderedLotSteps)
             {
                 Writer?.Write($"{step.Name},");
             }
@@ -104,7 +116,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void writeOutputToFile(WaferFab waferFab)
         {
-            Writer?.Write(waferFab.GetTime + "," + waferFab.GetWallClockTime + ",");
+            Writer?.Write(waferFab.GetTime + ",");
 
             foreach (LotStep step in orderedLotSteps)
             {

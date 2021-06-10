@@ -4,6 +4,7 @@ using CSSL.Observer;
 using CSSL.Utilities.Statistics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Observers
@@ -26,7 +27,7 @@ namespace WaferFabSim.WaferFabElements.Observers
             queueLength.UpdateValue(workCenter.TotalQueueLength);
             queueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
 
-            Writer?.WriteLine(workCenter.GetTime + "," + workCenter.GetWallClockTime + "," + queueLength.Value);
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)
@@ -35,10 +36,6 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            Writer?.WriteLine("Simulation Time,Computational Time,Queue Length");
-
-            WorkCenter workCenter = (WorkCenter)modelElement;
-            queueLength.UpdateValue(workCenter.TotalQueueLength);
         }
 
         protected override void OnReplicationStart(ModelElementBase modelElement)
@@ -46,10 +43,22 @@ namespace WaferFabSim.WaferFabElements.Observers
             queueLength.Reset();
             // Uncomment below if one want to save across replication statistics
             queueLengthStatistic.Reset();
+
+            Writer?.WriteLine("Simulation Time,Queue Length");
+
+            WorkCenter workCenter = (WorkCenter)modelElement;
+            queueLength.UpdateValue(workCenter.InitialLots.Count());
+
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         protected override void OnReplicationEnd(ModelElementBase modelElement)
         {
+            WorkCenter workCenter = (WorkCenter)modelElement;
+            queueLength.UpdateValue(workCenter.TotalQueueLength);
+            queueLengthStatistic.Collect(queueLength.PreviousValue, queueLength.Weight);
+
+            Writer?.WriteLine($"{workCenter.GetTime},{queueLength.Value}");
         }
 
         public override void OnError(Exception error)

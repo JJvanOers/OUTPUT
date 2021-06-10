@@ -112,9 +112,9 @@ namespace WaferFabSim.WaferFabElements
 
             IsArrivalFlag = true;
 
-            NotifyObservers(this);
-
             dispatcher.HandleArrival(lot);
+
+            NotifyObservers(this);
         }
 
         public void HandleDeparture(CSSLEvent e)
@@ -127,10 +127,10 @@ namespace WaferFabSim.WaferFabElements
             {
                 IsArrivalFlag = false;
 
-                NotifyObservers(this);
-
-                dispatcher.HandleDeparture();
+                dispatcher.HandleDeparture();                
             }
+
+            NotifyObservers(this);
         }
 
         protected override void OnReplicationStart()

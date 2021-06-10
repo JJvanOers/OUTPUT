@@ -24,6 +24,268 @@ namespace Test
     {
         static void Main(string[] args)
         {
+            /// //////////////////////////////////////////////
+            /// SnapShots Workstation Queue Lengths //////////
+            
+            DateTime i = new DateTime(2019, 6, 1);
+            int monthsToEvaluate = 6;
+
+            string inputDir = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\";
+
+            string outputDir = @"C:\CSSLWaferFab\Output";
+
+            AutoDataReader autoDataReader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
+            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(true, false);
+
+            List<string> workCenters = new List<string>();
+            foreach (string workCenter in waferFabSettings.WorkCenters)
+            {
+                workCenters.Add(workCenter);
+            }
+
+            // Write headers
+            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots Workcenter - Complete.txt"));
+            writer.Write("Time,");
+            foreach (string workCenter in workCenters)
+            {
+                if (workCenter != workCenters.Last())
+                {
+                    writer.Write($"{workCenter},");
+                }
+                else
+                {
+                    writer.Write($"{workCenter}\n");
+                }
+            }
+
+            RealSnapshotReader realSnapshotReader = new RealSnapshotReader();
+            for (int j = 0; j < monthsToEvaluate; j++)
+            {
+                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{i.Year}-{i.Month + j}-{i.Day}_{i.Year}-{i.Month + 1 + j}-{i.Day}_1h.dat";
+                realSnapshotReader.Read(filename, 1);
+
+                List<RealSnapshot> realSnaphshots = new List<RealSnapshot>();
+                if (j == 0)
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots;
+                }
+                else
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots.Skip(1).ToList();
+                }
+
+                // Write Data
+                foreach (RealSnapshot realSnapshot in realSnaphshots)
+                {
+                    writer.Write($"{realSnapshot.Time},");
+                    foreach (string workCenter in workCenters)
+                    {
+                        if (workCenter != workCenters.Last())
+                        {
+                            int count = realSnapshot.RealLots.Where(x => x.LotActivity.WorkStation == workCenter).Count();
+                            writer.Write($"{count},");
+                        }
+                        else
+                        {
+                            int count = realSnapshot.RealLots.Where(x => x.LotActivity.WorkStation == workCenter).Count();
+                            writer.Write($"{count}\n");
+                        }
+                    }
+                }
+            }
+
+            writer.Close();
+
+
+            /// //////////////////////////////////////////////
+            /// SnapShots IRD Queue Lengths //////////////////
+            /*
+            DateTime i = new DateTime(2019, 10, 1);
+            int monthsToEvaluate = 2;
+
+            string inputDir = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\";
+
+            string outputDir = $@"C:\CSSLWaferFab\Output";
+
+
+            AutoDataReader autoDataReader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
+            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(true, false);
+            List<string> orderedLotSteps = new List<string>();
+            foreach (var step in waferFabSettings.LotSteps.OrderBy(x => x.Value.Id))
+            {
+                orderedLotSteps.Add(step.Key);
+            }
+
+            // Write headers
+            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots IRD Wafers - {i.Year}-{i.Month}-{i.Day}.txt"));
+            writer.Write("Time,");
+            foreach (string lotStep in orderedLotSteps)
+            {
+                if (lotStep != orderedLotSteps.Last())
+                {
+                    writer.Write($"{lotStep},");
+                }
+                else
+                {
+                    writer.Write($"{lotStep}\n");
+                }
+            }
+
+            RealSnapshotReader realSnapshotReader = new RealSnapshotReader();
+            for (int j = 0; j < monthsToEvaluate; j++)
+            {
+                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{i.Year}-{i.Month + j}-{i.Day}_{i.Year}-{i.Month + 1 + j}-{i.Day}_1h.dat";
+                realSnapshotReader.Read(filename, 1);
+
+                List<RealSnapshot> realSnaphshots = new List<RealSnapshot>();
+                if (j == 0)
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots;
+                }
+                else
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots.Skip(1).ToList();
+                }
+
+                // Write Data
+                foreach (RealSnapshot realSnapshot in realSnaphshots)
+                {
+                    writer.Write($"{realSnapshot.Time},");
+                    foreach (string lotStep in orderedLotSteps)
+                    {
+                        if (lotStep != orderedLotSteps.Last())
+                        {
+                            if (realSnapshot.LotSteps.Contains(lotStep))
+                            {
+                                List<RealLot> realLots = realSnapshot.RealLots.Where(x => x.IRDGroup == lotStep).ToList();
+                                int nrOfWafers = 0;
+                                for (int k = 0; k < realLots.Count(); k++)
+                                {
+                                    nrOfWafers += realLots[k].Qty;
+                                }
+                                writer.Write($"{nrOfWafers},");
+                            }
+                            else
+                            {
+                                writer.Write("0,");
+                            }
+                        }
+                        else
+                        {
+                            if (realSnapshot.LotSteps.Contains(lotStep))
+                            {
+                                List<RealLot> realLots = realSnapshot.RealLots.Where(x => x.IRDGroup == lotStep).ToList();
+                                int nrOfWafers = 0;
+                                for (int k = 0; k < realLots.Count(); k++)
+                                {
+                                    nrOfWafers += realLots[k].Qty;
+                                }
+                                writer.Write($"{nrOfWafers}\n");
+                            }
+                            else
+                            {
+                                writer.Write("0\n");
+                            }
+                        }
+                    }
+                }
+            }
+
+            writer.Close();
+            */
+
+
+
+            /// //////////////////////////////////////////////
+            /// SnapShots IRD Queue Lengths //////////////////
+            /*
+            DateTime i = new DateTime(2019, 10, 1);
+
+            string inputDir = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\";
+
+            string outputDir = $@"C:\CSSLWaferFab\Output";
+
+            
+            AutoDataReader autoDataReader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
+            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(true, false);
+            List<string> orderedLotSteps = new List<string>();
+            foreach (var step in waferFabSettings.LotSteps.OrderBy(x => x.Value.Id))
+            {
+                orderedLotSteps.Add(step.Key);
+            }
+
+            // Write headers
+            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots IRD Lots - {i.Year}-{i.Month}-{i.Day}.txt"));
+            writer.Write("Time,");
+            foreach (string lotStep in orderedLotSteps)
+            {
+                if (lotStep != orderedLotSteps.Last())
+                {
+                    writer.Write($"{lotStep},");
+                }
+                else
+                {
+                    writer.Write($"{lotStep}\n");
+                }
+            }
+
+            RealSnapshotReader realSnapshotReader = new RealSnapshotReader();
+            for (int j = 0; j < 2; j++)
+            {                
+                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{i.Year}-{i.Month + j}-{i.Day}_{i.Year}-{i.Month + 1 + j}-{i.Day}_1h.dat";
+                realSnapshotReader.Read(filename, 1);
+
+                List<RealSnapshot> realSnaphshots = new List<RealSnapshot>();
+                if (j == 0)
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots;
+                }
+                else
+                {
+                    realSnaphshots = realSnapshotReader.RealSnapshots.Skip(1).ToList();
+                }
+
+                // Write Data
+                foreach (RealSnapshot realSnapshot in realSnaphshots)
+                {
+                    writer.Write($"{realSnapshot.Time},");
+                    foreach (string lotStep in orderedLotSteps)
+                    {
+                        if (lotStep != orderedLotSteps.Last())
+                        {
+                            if (realSnapshot.LotSteps.Contains(lotStep))
+                            {
+                                int count = realSnapshot.RealLots.Where(x => x.IRDGroup == lotStep).Count();
+                                writer.Write($"{count},");
+                            }
+                            else
+                            {
+                                writer.Write("0,");
+                            }
+                        }
+                        else
+                        {
+                            if (realSnapshot.LotSteps.Contains(lotStep))
+                            {
+                                int count = realSnapshot.RealLots.Where(x => x.IRDGroup == lotStep).Count();
+                                writer.Write($"{count}\n");
+                            }
+                            else
+                            {
+                                writer.Write("0\n");
+                            }
+                        }
+                    }
+                }
+            }
+
+            writer.Close();
+            */
+
+
+            /// ///////////////////////////////////////////////////
+            /// Gamma analysis ///////////////////////////////            
+            /*
             bool write = true;            
             
             GammaDistribution gammaDistribution = new GammaDistribution(90, 72900);
@@ -63,190 +325,45 @@ namespace Test
                     }
                 }
             }
+            */
+
             /// ///////////////////////////////////////////////////
             /// Read Queue lengths ///////////////////////////////
-
             /*
+            DateTime initialDateTime = new DateTime(2019, 4, 1);
 
-                DateTime initialDateTime = new DateTime(2019, 4, 1);
+            DateTime finalDateTime = new DateTime(2022, 4, 1);
 
-                DateTime finalDateTime = new DateTime(2020, 4, 1);
+            string DirectorySerializedFiles = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\SerializedFiles";
 
-                string DirectorySerializedFiles = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\SerializedFiles";
+            string outputDirectory = $@"C:\CSSLWaferFab\LotActivities\{initialDateTime.ToString("yyyy-MM-dd")}";
 
-                string outputDirectory = $@"C:\CSSLWaferFab\LotActivities\{initialDateTime.ToString("yyyy-MM-dd")}";
+            List<WorkCenterLotActivities> workCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
 
-                List<WorkCenterLotActivities> workCenterLotActivities = Deserializer.DeserializeWorkCenterLotActivities(Path.Combine(DirectorySerializedFiles, "WorkCenterLotActivities_2019_2020.dat"));
+            //string wc = "PHOTOLITH";
 
-                //string wc = "PHOTOLITH";
-
-                List<string> workCenters = new List<string>()
-                {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
-                    "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
-                    "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
-
-
-
-                foreach (string wc in workCenters)
-                {
-                    List<Tuple<DateTime, int>> queueLengths = workCenterLotActivities.Where(x => x.WorkCenter == wc).First()
-                        .WIPTrace.Where(x => x.Item1 >= initialDateTime && x.Item1 <= finalDateTime).OrderBy(x => x.Item1).ToList();
-
-                    // Write all results to a text file
-                    using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_QueueLength.txt")))
-                    {
-                        writer.WriteLine("Time,QueueLength");
-
-                        foreach (Tuple<DateTime, int> queueLength in queueLengths)
-                        {
-                            writer.WriteLine(queueLength.Item1 + "," + queueLength.Item2);
-                        }
-                    }
-                }            
-                */
-
-
-
-            ////////////////////////////////////////////////////////////////////////
-            // List of wcs /////////////////////////////////////////////////////////
-
-            /*
             List<string> workCenters = new List<string>()
             {"BACKGRIND", "BATCH UP", "CMP", "DICE", "DRY ETCH", "ELEC TEST", "EVAPORATION", "FURNACING", "IMPLANT",
                 "INSPECTION", "LPCVD", "MERCURY", "NITRIDE DEP", "OFF LINE INK", "PACK", "PHOTOLITH", "PROBE", "REPORTING",
                 "SAMPLE TEST", "SPUTTERING", "WET ETCH"};
-            */
 
 
-
-            ////////////////////////////////////////////////////////////////////////
-            // Random search ///////////////////////////////////////////////////////
-
-
-            /*#region Parameters
-            string wc = "PHOTOLITH";
-
-            string inputDirectory = @"C:\CSSLWaferFabArea\Input";
-
-            string outputDirectory = @"C:\CSSLWaferFabArea\Output";
-
-            //Settings.Output = false; // Observer data is not written to text files
-            #endregion
-
-            #region WaferFab settings
-            WaferFabSettings waferFabSettings = Deserializer.DeserializeWaferFabSettings(Path.Combine(inputDirectory, "SerializedFiles", $"WaferFabSettings_{wc}_WithLotStarts.dat"));
-
-            EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
-
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
-
-            waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions();
-            #endregion
-
-            Dictionary<WIPDepDistParameters, WeightedStatistic> results = new Dictionary<WIPDepDistParameters, WeightedStatistic>();
-
-            Optimiser optimiser = new Optimiser(wc);
-
-            double delta = 15;
-
-            double RealWip = 701.8146597028681;
-
-            int i = 0;
-            while (delta > 10 & i < 1000) // While distribution is not represenative of reality
+            foreach (string wc in workCenters)
             {
-                if (i > 0)
+                List<Tuple<DateTime, int>> queueLengths = workCenterLotActivities.Where(x => x.WorkCenter == wc).First()
+                    .WIPTrace.Where(x => x.Item1 >= initialDateTime && x.Item1 <= finalDateTime).OrderBy(x => x.Item1).ToList();
+
+                // Write all results to a text file
+                using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_QueueLength.txt")))
                 {
-                    waferFabSettings.WCServiceTimeDistributions = optimiser.GenerateParameters();
+                    writer.WriteLine("Time,QueueLength");
+
+                    foreach (Tuple<DateTime, int> queueLength in queueLengths)
+                    {
+                        writer.WriteLine(queueLength.Item1 + "," + queueLength.Item2);
+                    }
                 }
-                i++;
-
-                #region Initializing simulation
-                Simulation simulation = new Simulation("CSSLWaferFabArea", outputDirectory);
-                #endregion
-
-                #region Experiment settings
-                simulation.MyExperiment.NumberOfReplications = 10;
-                simulation.MyExperiment.LengthOfReplication = 60 * 60 * 24 * 60;
-                simulation.MyExperiment.LengthOfWarmUp = 60 * 60 * 24 * 30;
-                DateTime intialDateTime = new DateTime(2019, 10, 30);
-                #endregion
-
-                #region Make starting lots
-                AutoDataReader dataReader = new AutoDataReader(Path.Combine(inputDirectory, "Auto"), Path.Combine(inputDirectory, "SerializedFiles"));
-                #endregion
-
-                #region Building the model
-                WaferFab waferFab = new WaferFab(simulation.MyModel, "WaferFab", new ConstantDistribution(60 * 60 * 24), intialDateTime);
-
-                WorkCenter workCenter = new WorkCenter(waferFab, $"WorkCenter_{wc}", waferFabSettings.WCServiceTimeDistributions[wc], waferFabSettings.LotStepsPerWorkStation[wc]);
-
-                // Connect workcenter to WIPDependentDistribution
-                EPTDistribution distr = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
-
-                distr.WorkCenter = workCenter;
-
-                EPTOvertakingDispatcher dispatcher = new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", waferFabSettings.WCOvertakingDistributions[wc]);
-
-                workCenter.SetDispatcher(dispatcher);
-
-                // Connect workcenter to OvertakingDistribution
-                waferFabSettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
-
-                waferFab.AddWorkCenter(workCenter.Name, workCenter);
-
-                // Sequences
-                foreach (var sequence in waferFabSettings.Sequences)
-                {
-                    waferFab.AddSequence(sequence.Key, sequence.Value);
-                }
-
-                // LotSteps
-                waferFab.LotSteps = waferFab.Sequences.Select(x => x.Value).Select(x => x.GetCurrentStep(0)).ToDictionary(x => x.Name);
-
-                // LotGenerator
-                waferFab.SetLotGenerator(new LotGenerator(waferFab, "LotGenerator", new ConstantDistribution(60), true));
-
-                // Add lotstarts
-                waferFab.LotStarts = waferFabSettings.LotStarts;
-
-                // Add observers
-                //LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_LotOutObserver");
-                //dispatcher.Subscribe(lotOutObserver);
-
-                //WaferFabObserver waferFabObserver = new WaferFabObserver(simulation, "WaferFabObserver", waferFab);
-                //waferFab.Subscribe(waferFabObserver); // Queue for each IRD stage for each workstation in the wafer fab
-
-                OptimiserObserver optimiserObs = new OptimiserObserver(simulation, wc + "_TotalQueueObserver");
-                //SeperateQueuesObserver seperateQueueObs = new SeperateQueuesObserver(simulation, workCenter, wc + "_SeperateQueuesObserver");
-
-                workCenter.Subscribe(optimiserObs); // Total queue for workcenter
-                //workCenter.Subscribe(seperateQueueObs); // Queue for each IRD stage at this workcenter
-                #endregion
-
-                simulation.Run();
-
-                results.Add(distr.Par, optimiserObs.QueueLengthStatistic);
-
-                delta = Math.Abs(optimiserObs.QueueLengthStatistic.Average() - RealWip);
-
-                #region Reporting
-                SimulationReporter reporter = simulation.MakeSimulationReporter();
-
-                reporter.PrintSummaryToConsole();
-                #endregion
-            }
-
-            using StreamWriter outputFile = new StreamWriter(Path.Combine(outputDirectory, $"{wc}_parameters.txt"));
-
-            outputFile.WriteLine("LBWIP,UBWIP,Tmin,Tmax,Tdecay,Cmin,Cmax,Cdecay,AverageQL,StdQL");
-
-            foreach (KeyValuePair<WIPDepDistParameters, WeightedStatistic> entry in results)
-            {
-                WIPDepDistParameters x = entry.Key;
-                WeightedStatistic y = entry.Value;
-                outputFile.WriteLine(x.LBWIP + "," + x.UBWIP + "," + x.Tmin + "," + x.Tmax + "," + x.Tdecay + "," + x.Cmin + "," + x.Cmax + "," + x.Cdecay
-                    + "," + y.Average() + "," + y.StandardDeviation());
-            }
+            }            
             */
         }
     }
