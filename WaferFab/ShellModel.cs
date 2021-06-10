@@ -111,7 +111,7 @@ namespace WaferFabSim
                 }
                 else if (MyWaferFabSettings.WCDispatchers[wc] == "MIVM")
                 {
-                    workCenter.SetDispatcher(new MIVMDispatcher(workCenter, workCenter.Name + "_MIVMDisptacher", 1, 0));
+                    workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVMDisptacher", 1, 0));
                 }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);

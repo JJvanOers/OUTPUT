@@ -7,9 +7,9 @@ using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Dispatchers
 {
-    public class MIVMDispatcher : DispatcherBase
+    public class MIVSDispatcher : DispatcherBase
     {
-        public MIVMDispatcher(WorkCenter workCenter, string name, int kStepAhead, int jStepBack) : base(workCenter, name)
+        public MIVSDispatcher(WorkCenter workCenter, string name, int kStepAhead, int jStepBack) : base(workCenter, name)
         {
             this.kStepAhead = kStepAhead;
             this.jStepBack = jStepBack;
