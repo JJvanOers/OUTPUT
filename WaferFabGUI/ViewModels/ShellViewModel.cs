@@ -62,15 +62,16 @@ namespace WaferFabGUI.ViewModels
             // Initialize Experiment Settings
             experimentSettings = new ExperimentSettings();
             experimentSettings.NumberOfReplications = 1;
-            experimentSettings.LengthOfReplication = 100 * 24 * 60 * 60;
-            experimentSettings.LengthOfWarmUp = 12 * 60 * 60;
+            experimentSettings.LengthOfReplication = 1 * 24 * 60 * 60;
+            experimentSettings.LengthOfWarmUp = 0 * 60 * 60;
             Settings.WriteOutput = true;
 
             // Initialize Waferfab Settings
             this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
             waferFabSettings = this.reader.ReadWaferFabSettings(false, true, DispatcherBase.Type.EPTOVERTAKING);
             waferFabSettings.WIPTargets = this.reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
-
+            waferFabSettings.UseRealLotStartsFlag = true;
+            waferFabSettings.SampleInterval = 60 * 60;
             initializeGUIWaferFabSettings(waferFabSettings);
 
             // TEMPORARY

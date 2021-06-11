@@ -112,13 +112,11 @@ namespace WaferFabSim
                 }
                 else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.MIVS)
                 {
-                    workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVSDisptacher", 1, 0));
+                    workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVSDisptacher", 1, 1));
                 }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);
             }
-
-
 
             //// Sequences
             foreach (var sequence in MyWaferFabSettings.Sequences)

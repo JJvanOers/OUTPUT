@@ -15,7 +15,7 @@ namespace WaferFabSim
 
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
-            DateTime initialDateTime = new DateTime(2019, 8, 1);
+            DateTime initialDateTime = new DateTime(2019, 6, 1);
 
 
             Settings.WriteOutput = true;
