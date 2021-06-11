@@ -5,6 +5,7 @@ using System.Linq;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Utilities;
 
 namespace WaferFabSim
@@ -22,7 +23,7 @@ namespace WaferFabSim
             WorkCenters = new List<string>();
             LotSteps = new Dictionary<string, LotStep>();
             WCServiceTimeDistributions = new Dictionary<string, Distribution>();
-            WCDispatchers = new Dictionary<string, string>();
+            WCDispatcherTypes = new Dictionary<string, DispatcherBase.Type>();
             WCOvertakingDistributions = new Dictionary<string, OvertakingDistributionBase>();
             LotStepsPerWorkStation = new Dictionary<string, List<LotStep>>();
             Sequences = new Dictionary<string, Sequence>();
@@ -75,7 +76,7 @@ namespace WaferFabSim
         public List<string> WorkCenters { get; set; }
         public Dictionary<string, Distribution> WCServiceTimeDistributions { get; set; }
         public Dictionary<string, OvertakingDistributionBase> WCOvertakingDistributions { get; set; }
-        public Dictionary<string, string> WCDispatchers { get; set; }
+        public Dictionary<string, DispatcherBase.Type> WCDispatcherTypes { get; set; }
         public Dictionary<string, List<LotStep>> LotStepsPerWorkStation { get; set; }
         public Dictionary<string, Sequence> Sequences { get; set; }
 

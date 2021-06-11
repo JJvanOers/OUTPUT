@@ -54,8 +54,10 @@ namespace WSC2021paper
                     EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
                     waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(fittedParameters);
-
                     waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
+                    waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.EPTOVERTAKING;
+
+
                     #endregion
 
                     #region Make starting lots

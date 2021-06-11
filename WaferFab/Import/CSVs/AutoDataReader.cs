@@ -1,4 +1,5 @@
-﻿using CSSL.Utilities.Distributions;
+﻿using CSSL.Examples.AccessController;
+using CSSL.Utilities.Distributions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,7 @@ using WaferFabSim.Import;
 using WaferFabSim.Import.Distributions;
 using WaferFabSim.SnapshotData;
 using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
 using WaferFabSim.WaferFabElements.Utilities;
 using static WaferFabSim.Import.LotTraces;
 using static WaferFabSim.WaferFabElements.Utilities.EPTDistribution;
@@ -35,7 +37,8 @@ namespace WaferFabSim.InputDataConversion
         /// because Random class in distributions cannot be serialized.</param>
         /// <param name="area"></param>
         /// <returns></returns>
-        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string dispatcherType, string area = "COMPLETE")
+        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType = DispatcherBase.Type.EPTOVERTAKING,
+            string area = "COMPLETE")
         {
             Console.Write("Reading waferfabsettings -");
 
@@ -57,7 +60,7 @@ namespace WaferFabSim.InputDataConversion
 
             WaferFabSettings.LotStepsPerWorkStation = getLotStepsPerWorkstation();
 
-            WaferFabSettings.WCDispatchers = getDispatchers(dispatcherType);
+            WaferFabSettings.WCDispatcherTypes = getDispatchers(dispatcherType);
 
             WaferFabSettings.Sequences = getSequencesPerIRDGroup();
 
@@ -476,9 +479,9 @@ namespace WaferFabSim.InputDataConversion
             return ProcessPlans;
         }
 
-        private Dictionary<string, string> getDispatchers(string dispatcherType)
+        private Dictionary<string, DispatcherBase.Type> getDispatchers(DispatcherBase.Type dispatcherType)
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
+            Dictionary<string, DispatcherBase.Type> dict = new Dictionary<string, DispatcherBase.Type>();
 
             foreach (string wc in WaferFabSettings.WorkCenters)
             {

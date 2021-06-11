@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using WaferFabSim.Import;
 using WaferFabSim.WaferFabElements;
+using WaferFabSim.WaferFabElements.Dispatchers;
 
 namespace WaferFabSim.InputDataConversion
 {
@@ -88,7 +89,7 @@ namespace WaferFabSim.InputDataConversion
                     {
                         WaferFabSettings.WorkCenters.Add(values[0]);
                         WaferFabSettings.WCServiceTimeDistributions.Add(values[0], new ExponentialDistribution(Convert.ToDouble(values[1])));
-                        WaferFabSettings.WCDispatchers.Add(values[0], "BQF");
+                        WaferFabSettings.WCDispatcherTypes.Add(values[0], DispatcherBase.Type.EPTOVERTAKING);
                     }
                     row++;
                 }

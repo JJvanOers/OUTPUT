@@ -1,4 +1,5 @@
-﻿using CSSL.Modeling;
+﻿using CSSL.Examples.AccessController;
+using CSSL.Modeling;
 using CSSL.Utilities.Distributions;
 using System;
 using System.ComponentModel;
@@ -94,24 +95,24 @@ namespace WaferFabSim
                     distr.WorkCenter = workCenter;
                 }
 
-                if (MyWaferFabSettings.WCDispatchers[wc] == "BQF")
+                if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.BQF)
                 {
                     workCenter.SetDispatcher(new BQFDispatcher(workCenter, workCenter.Name + "_BQFDispatcher"));
                 }
-                else if (MyWaferFabSettings.WCDispatchers[wc] == "EPTOvertaking")
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.EPTOVERTAKING)
                 {
                     workCenter.SetDispatcher(new EPTOvertakingDispatcher(workCenter, workCenter.Name + "_EPTOvertakingDispatcher", MyWaferFabSettings.WCOvertakingDistributions[wc]));
 
                     // Connect workcenter to OvertakingDistribution
                     MyWaferFabSettings.WCOvertakingDistributions[wc].WorkCenter = workCenter;
                 }
-                else if (MyWaferFabSettings.WCDispatchers[wc] == "Random")
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.RANDOM)
                 {
                     workCenter.SetDispatcher(new RandomDispatcher(workCenter, workCenter.Name + "_RandomDispatcher"));
                 }
-                else if (MyWaferFabSettings.WCDispatchers[wc] == "MIVM")
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.MIVS)
                 {
-                    workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVMDisptacher", 1, 0));
+                    workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVSDisptacher", 1, 0));
                 }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);
@@ -141,13 +142,12 @@ namespace WaferFabSim
             }
 
             // Add observers
-            // Add observers
-            //WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabObserver", waferFab);
-            //WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabObserverWafers", waferFab);
-            //WaferFabTotalQueueObserver waferFabTotalQueueObserver = new WaferFabTotalQueueObserver(MySimulation, "WaferFabTotalQueueObserver", waferFab);
-            //waferFab.Subscribe(waferFabObserver);
-            //waferFab.Subscribe(waferFabObserverWafers);
-            //waferFab.Subscribe(waferFabTotalQueueObserver);
+            WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabLotsObserver", waferFab);
+            WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabWafersObserver", waferFab);
+            WaferFabTotalQueueObserver waferFabTotalQueueObserver = new WaferFabTotalQueueObserver(MySimulation, "WaferFabTotalQueueObserver", waferFab);
+            waferFab.Subscribe(waferFabObserver);
+            waferFab.Subscribe(waferFabObserverWafers);
+            waferFab.Subscribe(waferFabTotalQueueObserver);
 
             foreach (var wc in waferFab.WorkCenters)
             {

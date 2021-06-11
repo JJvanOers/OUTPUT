@@ -26,5 +26,16 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
         public abstract void HandleFirstDeparture();
 
         public abstract void HandleInitialization(List<Lot> lots);
+
+        public enum Type
+        {
+            MIVS,
+            EPTOVERTAKING,
+            BQF,
+            RANDOM
+        }
     }
+
+
+
 }

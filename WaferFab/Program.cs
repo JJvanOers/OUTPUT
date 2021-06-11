@@ -3,6 +3,7 @@ using CSSL.Modeling;
 using CSSL.Reporting;
 using System.Linq;
 using WaferFabSim.InputDataConversion;
+using WaferFabSim.WaferFabElements.Dispatchers;
 
 namespace WaferFabSim
 {
@@ -25,11 +26,12 @@ namespace WaferFabSim
             // Load WaferFab settings
             AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, "MIVM");
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, DispatcherBase.Type.MIVS);
 
             waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
             waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
+
             waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
 
             // Read Initial Lots

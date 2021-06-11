@@ -29,7 +29,7 @@ namespace WaferAreaSim
             
             DateTime initialDateTime = new DateTime(2019, 10, 1);
 
-            string inputDirectory = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input";
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferFabArea";
 
@@ -70,8 +70,10 @@ namespace WaferAreaSim
                 EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
                 waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(isFitted);
-
                 waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
+                waferFabSettings.WCDispatcherTypes[workcenter] = DispatcherBase.Type.EPTOVERTAKING;
+
+
                 #endregion
 
                 #region Make starting lots

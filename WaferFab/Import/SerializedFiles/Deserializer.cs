@@ -17,6 +17,7 @@ namespace WaferFabSim.Import
         {
             Console.Write($"Reading {fileName} - ");
             WaferFabSettings waferFabSettings = Tools.ReadFromBinaryFile<WaferFabSettings>(fileName);
+            if (waferFabSettings.WCDispatcherTypes == null) waferFabSettings.WCDispatcherTypes = new Dictionary<string, WaferFabElements.Dispatchers.DispatcherBase.Type>();
             Console.Write($"done.\n");
             return waferFabSettings;
         }

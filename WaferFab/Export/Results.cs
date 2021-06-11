@@ -32,7 +32,7 @@ namespace WaferFabSim.OutputDataConversion
                 int replicationNumber = Convert.ToInt32(replicationDir.Substring(replicationDir.Length - 1));
 
                 // Get to waferFabObserver
-                var waferFabObserverDir = Directory.GetFiles(replicationDir).Where(x => x.Contains("WaferFabObserver")).First();
+                var waferFabObserverDir = Directory.GetFiles(replicationDir).Where(x => x.Contains("WaferFabLotsObserver")).First();
 
                 // Read data
                 using (var reader = new StreamReader(waferFabObserverDir))

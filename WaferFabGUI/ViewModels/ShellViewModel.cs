@@ -21,6 +21,7 @@ using WaferFabSim;
 using WaferFabSim.Import;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements.Dispatchers;
 using Action = System.Action;
 
 namespace WaferFabGUI.ViewModels
@@ -46,7 +47,7 @@ namespace WaferFabGUI.ViewModels
             LoadRealSnapshotsCommand = new RelayCommand(LoadRealSnapshotsAsync, () => true);
 
             // Initialize properties
-            DispatcherTypes = new ObservableCollection<string>() { "BQF", "EPTOvertaking", "MIVM" };
+            DispatcherTypes = new ObservableCollection<string>() { "BQF", "EPTOvertaking", "Random", "MIVS"};
             SelectedDispatcherType = DispatcherTypes.Last();
             WorkCenters = new ObservableCollection<WorkCenterData>();
             LotStartQtys = new ObservableCollection<LotStartQty>();
@@ -67,7 +68,7 @@ namespace WaferFabGUI.ViewModels
 
             // Initialize Waferfab Settings
             this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
-            waferFabSettings = this.reader.ReadWaferFabSettings(false, true, "EPTOvertaking");
+            waferFabSettings = this.reader.ReadWaferFabSettings(false, true, DispatcherBase.Type.EPTOVERTAKING);
             waferFabSettings.WIPTargets = this.reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
 
             initializeGUIWaferFabSettings(waferFabSettings);
@@ -300,7 +301,10 @@ namespace WaferFabGUI.ViewModels
 
             foreach (string wc in waferFabSettings.WorkCenters)
             {
-                waferFabSettings.WCDispatchers[wc] = SelectedDispatcherType;
+                if (SelectedDispatcherType == "MIVS") waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.MIVS;
+                else if (SelectedDispatcherType == "BQF") waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.BQF;
+                else if (SelectedDispatcherType == "Random") waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.RANDOM;
+                else if (SelectedDispatcherType == "EPTOvertaking") waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.EPTOVERTAKING;
             }
 
             if (waferFabSettings.UseRealLotStartsFlag == true && waferFabSettings.RealLotStarts == null)

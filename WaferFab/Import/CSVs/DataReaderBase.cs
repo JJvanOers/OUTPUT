@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.SnapshotData;
+using WaferFabSim.WaferFabElements.Dispatchers;
 
 namespace WaferFabSim.Import
 {
@@ -47,7 +48,7 @@ namespace WaferFabSim.Import
         }
 
 
-        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, string dispatcherType, string area = "COMPLETE")
+        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType, string area = "COMPLETE")
         {
             throw new NotImplementedException();
         }
