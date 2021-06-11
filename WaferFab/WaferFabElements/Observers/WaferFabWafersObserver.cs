@@ -129,7 +129,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void writeOutputToFile(WaferFab waferFab)
         {
-            Writer?.Write(waferFab.GetTime + "," + waferFab.GetWallClockTime) ;
+            Writer?.Write(waferFab.GetTime + "," + waferFab.GetWallClockTime + ",") ;
 
             foreach (LotStep step in orderedLotSteps)
             {

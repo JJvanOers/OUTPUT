@@ -53,8 +53,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     }
                 }
 
-                Console.WriteLine($"{lot.Id}\t{lot.GetCurrentWorkCenter.Name}\t{lot.GetCurrentStep.Name}\t{(int)WIPtargets[lot.GetCurrentStep]}\t{lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].Length}\t=" +
-                    $"{lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].Length - (int)WIPtargets[lot.GetCurrentStep]}");
+                //Console.WriteLine($"{lot.Id}\t{lot.GetCurrentWorkCenter.Name}\t{lot.GetCurrentStep.Name}\t{(int)WIPtargets[lot.GetCurrentStep]}\t{lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].Length}\t=" +
+                //    $"{lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].Length - (int)WIPtargets[lot.GetCurrentStep]}");
 
                 // Only if weight is higher, replace lotToDispatch. If weight is equal, do FIFO, so keep old one.
                 if (weight > maxWeight)
@@ -64,8 +64,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                 }
             }
 
-            lotToDispatch = wc.Queue.PeekAt(indexLotMaxWeight);
-            Console.WriteLine($"{lotToDispatch.Id} {lotToDispatch.GetCurrentStep.Name}");
+            //lotToDispatch = wc.Queue.PeekAt(indexLotMaxWeight);
+            //Console.WriteLine($"{lotToDispatch.Id} {lotToDispatch.GetCurrentStep.Name}");
         }
 
         public override void HandleArrival(Lot lot)
