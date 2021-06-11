@@ -30,9 +30,7 @@ namespace WaferFabSim
             waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
             waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
-
             waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
-            waferFabSettings.WCDispatchers = waferFabSettings.WCDispatchers.ToDictionary(x => x.Key, x => "MIVM");
 
             // Read Initial Lots
             WaferFabSim.ReadRealSnaphots(inputDir + @$"SerializedFiles\RealSnapShots_2019-{initialDateTime.Month}-1_2019-{initialDateTime.Month + 1}-1_1h.dat");
