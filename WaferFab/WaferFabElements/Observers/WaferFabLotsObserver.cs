@@ -104,7 +104,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
         private void headerToFile(WaferFab waferFab)
         {
-            Writer?.Write("Simulation Time, Wall Clock Time");
+            Writer?.Write("Simulation Time, Wall Clock Time,");
 
             foreach (LotStep step in orderedLotSteps)
             {
