@@ -28,7 +28,10 @@ namespace WaferFabSim.SnapshotData
             foreach(var lotStep in LotSteps)
             {
                 WIPlevels.Add(lotStep, lots.Where(x => x.IRDGroup == lotStep).Where(x => x.Qty >= waferQtyThreshold).Count());
+                WIPlevelsInWafers.Add(lotStep, lots.Where(x => x.IRDGroup == lotStep).Where(x => x.Qty >= waferQtyThreshold).Sum(x => x.Qty));
             }
         }
+
+
     }
 }

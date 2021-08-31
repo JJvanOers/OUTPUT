@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using CSSL.Modeling.CSSLQueue;
 
 namespace WaferFabSim.WaferFabElements.Dispatchers
 {
@@ -116,6 +117,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     {
                         queue.Add(null);
                     }
+
 
                     // Remove null lots at begin or add null lots at end of lot to match lot's WIPbegin.
                     foreach (Lot lot in lotsWithArrival)

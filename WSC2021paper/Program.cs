@@ -100,9 +100,9 @@ namespace WSC2021paper
                     waferFab.LotStarts = waferFabSettings.LotStarts;
 
                     // Add observers
-                    LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_" + overtaking + "_LotOutObserver");
+                    LotOutObserver lotOutObserver = new LotOutObserver(simulation, wc + "_" + overtaking + "LotOutObserver");
                     dispatcher.Subscribe(lotOutObserver);
-                    OptimiserObserver optimiserObserver = new OptimiserObserver(simulation, "_TotalQueueObserver");
+                    OptimiserObserver optimiserObserver = new OptimiserObserver(simulation, "TotalQueueObserver");
                     workCenter.Subscribe(optimiserObserver);
                     #endregion
 

@@ -249,7 +249,7 @@ namespace WaferFabSim.InputDataConversion
                 {
                     string[] data = reader.ReadLine().Trim(',').Split(',');
 
-                    wipTargets[lotSteps[data[irdIndex]]] = Convert.ToDouble(data[WIPindex]) / 25.0;
+                    wipTargets[lotSteps[data[irdIndex]]] = Convert.ToDouble(data[WIPindex]);
                 }
             }
 
@@ -297,7 +297,7 @@ namespace WaferFabSim.InputDataConversion
 
             foreach (LotActivity activity in selected.LotActivities.Where(x => x.Arrival != null && x.IRDGroup != null))
             {
-                starts.Add(new Tuple<DateTime,Lot>((DateTime)activity.Arrival, activity.ConvertToLot(0, sequences[activity.IRDGroup])));
+                starts.Add(new Tuple<DateTime, Lot>((DateTime)activity.Arrival, activity.ConvertToLot(0, sequences[activity.IRDGroup])));
             }
 
             WaferFabSettings.Sequences = sequences;
@@ -363,6 +363,8 @@ namespace WaferFabSim.InputDataConversion
 
 
             // Map IRDs on Steps
+            //List<string> missingIRDmappings = new List<string>();
+
             foreach (var step in lotStepsRaw)
             {
                 for (int i = 0; i < irdMappings.Count; i++)
@@ -378,9 +380,19 @@ namespace WaferFabSim.InputDataConversion
                     else if (i == irdMappings.Count - 1)
                     {
                         throw new Exception($"Did not find IRDGroup for {step.Productname} in {step.Techstage} {step.Subplan}");
+                        //Console.WriteLine($"Did not find IRDGroup for {step.Productname} in {step.Techstage} {step.Subplan}");
+                        //if (!missingIRDmappings.Contains($"{step.Techstage} {step.Subplan}"))
+                        //{
+                        //    missingIRDmappings.Add($"{step.Techstage} {step.Subplan}");
+                        //}
                     }
                 }
             }
+
+            //foreach (var missing in missingIRDmappings)
+            //{
+            //    Console.WriteLine(missing);
+            //}
 
             // Read IRD Numbering
             using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "IRDNumbering.csv")))
@@ -536,7 +548,7 @@ namespace WaferFabSim.InputDataConversion
 
                 for (int i = 0; i < data.Length; i++)
                 {
-                    if (headers[i] == "PRODUCTNAME") { Productname = data[i]; }
+                    if (headers[i] == "PRODUCTNAME" || headers[i] == "PRODUCT") { Productname = data[i]; }
                     if (headers[i] == "PLANGROUP") { Plangroup = data[i]; }
                     if (headers[i] == "TECHSTAGE") { Techstage = data[i]; }
                     if (headers[i] == "SUBPLAN") { Subplan = data[i]; }

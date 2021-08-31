@@ -22,26 +22,27 @@ namespace WaferFabDataReader
 
             AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
 
-            SerializeWorkCenterLotActivities(reader, "LotActivitySmallTestSet.csv", "SmallTestSet", true);
+            //SerializeWorkCenterLotActivities(reader, "LotActivity2019_2020.csv", "WorkCenterLotActivities_SmallTestSet", true);
 
-            SerializeWaferFabSettings(reader, false);
+            //SerializeWaferFabSettings(reader, false);
 
-            ////SerializeLotTraces(reader, "LotActivity2019_2020.csv");
+            //SerializeLotTraces(reader, "LotActivity2019_2020_2021.csv", "LotTraces_2019_2020_2021");
 
-            ////SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020_2021.dat", "AllLotActivitiesWithEPTs_201920202021.csv");
+
+            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
             ////SerializeWaferFabSettings(reader, true);
 
-            foreach (string wc in reader.WaferFabSettings.WorkCenters)
-            {
-                SerializeWaferFabSettings(reader, true, wc);
-            }
+            //foreach (string wc in reader.WaferFabSettings.WorkCenters)
+            //{
+            //    SerializeWaferFabSettings(reader, true, wc);
+            //}
 
             //SerializeRealSnaphotsAll(reader, 1);
 
             //SerializeRealSnapshotsPerMonth(reader, 1);
-
-            //WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020.dat", "LotActivitiesWithEPTs.csv");
+            
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace WaferFabDataReader
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, onlyProductionLots);
 
-            reader.SerializeWorkCenterLotActivities($"WorkCenterLotActivities_{filenameSerializedOutput}");
+            reader.SerializeWorkCenterLotActivities($"{filenameSerializedOutput}");
         }
 
         /// <summary>
@@ -77,7 +78,7 @@ namespace WaferFabDataReader
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="workCenterLotAcitivitiesSerializedFile"></param>
-        public static void SerializeLotTraces(AutoDataReader reader, string filenameLotActivities)
+        public static void SerializeLotTraces(AutoDataReader reader, string filenameLotActivities, string filenameOutputFile)
         {
             if (reader.WaferFabSettings == null)
             {
@@ -86,7 +87,7 @@ namespace WaferFabDataReader
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, true);
 
-            reader.SerializeLotTraces("LotTraces_2019_2020");
+            reader.SerializeLotTraces(filenameOutputFile);
         }
 
         /// <summary>

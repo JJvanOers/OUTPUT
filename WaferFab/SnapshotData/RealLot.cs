@@ -108,6 +108,7 @@ namespace WaferFabSim.SnapshotData
             }
             else
             {
+                Console.WriteLine($"WARNING: Process plans does not contain {DeviceType} for lot {LotID}");
                 return null;
                 throw new Exception($"Process plans does not contain {DeviceType}");
             }

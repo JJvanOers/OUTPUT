@@ -4,6 +4,8 @@ using CSSL.Reporting;
 using System.Linq;
 using WaferFabSim.InputDataConversion;
 using WaferFabSim.WaferFabElements.Dispatchers;
+using System.Collections.Generic;
+using WaferFabSim.WaferFabElements;
 
 namespace WaferFabSim
 {
@@ -16,7 +18,6 @@ namespace WaferFabSim
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
             DateTime initialDateTime = new DateTime(2019, 6, 1);
-
 
             Settings.WriteOutput = true;
             Settings.FixSeed = true;
@@ -33,6 +34,8 @@ namespace WaferFabSim
             waferFabSettings.UseRealLotStartsFlag = true;
 
             waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
+            waferFabSettings.MIVSjStepBack = 0;
+            waferFabSettings.MIVSkStepAhead = 1;
 
             // Read Initial Lots
             WaferFabSim.ReadRealSnaphots(inputDir + @$"SerializedFiles\RealSnapShots_2019-{initialDateTime.Month}-1_2019-{initialDateTime.Month + 1}-1_1h.dat");
@@ -42,7 +45,7 @@ namespace WaferFabSim
             ExperimentSettings experimentSettings = new ExperimentSettings();
 
             experimentSettings.NumberOfReplications = 1;
-            experimentSettings.LengthOfReplication = 1 * 24 * 60 * 60; // seconds
+            experimentSettings.LengthOfReplication = 61 * 24 * 60 * 60; // seconds
             experimentSettings.LengthOfWarmUp = 0 * 60 * 60;  // seconds
 
             // Connect settings
@@ -58,8 +61,6 @@ namespace WaferFabSim
 
             reporter.PrintSummaryToFile();
             reporter.PrintSummaryToConsole();
-
         }
-
     }
 }

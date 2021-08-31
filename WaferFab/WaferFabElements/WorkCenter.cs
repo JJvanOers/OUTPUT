@@ -20,12 +20,12 @@ namespace WaferFabSim.WaferFabElements
             LotSteps = lotSteps;
             ServiceTimeDistribution = serviceTimeDistribution;
             LotStepInService = null;
-            Queues = new Dictionary<LotStep, CSSLQueue<Lot>>();
+            Queues = new Dictionary<LotStep, LotQueue>();
             Queue = new CSSLQueue<Lot>(this, name + "_TotalQueue");
 
             foreach (LotStep lotStep in lotSteps)
             {
-                Queues.Add(lotStep, new CSSLQueue<Lot>(this, name + "_" + lotStep.Name + "_Queue"));
+                Queues.Add(lotStep, new LotQueue(this, name + "_" + lotStep.Name + "_Queue"));
             }
 
             SetWorkStationInLotSteps();
@@ -81,12 +81,17 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Use this for dispatching individual Queues per lotstep, such as BQF dispather
         /// </summary>
-        public Dictionary<LotStep, CSSLQueue<Lot>> Queues { get; set; }
+        public Dictionary<LotStep, LotQueue> Queues { get; set; }
 
         /// <summary>
-        /// Total WIP at workstation, including lot in service.
+        /// Total WIP in lots at workstation, including lot in service.
         /// </summary>
         public int TotalQueueLength => Queue.Length;
+
+        /// <summary>
+        /// Total WIP in wafers at workstation, including lot in service.
+        /// </summary>
+        public int TotalQueueLengthWafers { get; set; }
 
         public DateTime GetDateTime => WaferFab.GetDateTime;
 

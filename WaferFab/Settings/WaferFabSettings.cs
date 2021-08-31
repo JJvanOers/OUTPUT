@@ -77,6 +77,8 @@ namespace WaferFabSim
         public Dictionary<string, Distribution> WCServiceTimeDistributions { get; set; }
         public Dictionary<string, OvertakingDistributionBase> WCOvertakingDistributions { get; set; }
         public Dictionary<string, DispatcherBase.Type> WCDispatcherTypes { get; set; }
+        public int MIVSkStepAhead { get; set; }
+        public int MIVSjStepBack { get; set; }
         public Dictionary<string, List<LotStep>> LotStepsPerWorkStation { get; set; }
         public Dictionary<string, Sequence> Sequences { get; set; }
 

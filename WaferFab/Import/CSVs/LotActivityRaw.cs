@@ -62,8 +62,8 @@ namespace WaferFabSim.Import
                 if (headers[i] == "FW_TRACKINTIME") { TrackIn = Convert.ToDateTime(data[i]); }
                 if (headers[i] == "FW_TRACKOUTTIME")
                 {
-                    //if (data[i] != "1/0/1900 0:00:00" && data[i] != "1/0/1900 0:00")
-                    if (data[i] != "1/0/1900 0:00:00")
+                    //if (data[i] != "1/0/1900 0:00:00")
+                    if (data[i] != "1/0/1900 0:00:00" && data[i] != "1/0/1900 0:00")
                     {
                         TrackOut = Convert.ToDateTime(data[i]);
                     }

@@ -39,7 +39,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     {
                         LotStep step = lot.GetRelativeStep(relStep);
 
-                        weight += lot.GetRelativeWorkCenter(relStep).Queues[step].Length - WIPtargets[step];
+                        weight += lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers - WIPtargets[step];
                     }
                 }
 
@@ -49,7 +49,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     {
                         LotStep step = lot.GetRelativeStep(relStep);
 
-                        weight += WIPtargets[step] - lot.GetRelativeWorkCenter(relStep).Queues[step].Length;
+                        weight += WIPtargets[step] - lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers;
                     }
                 }
 
@@ -65,6 +65,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             }
 
             lotToDispatch = wc.Queue.PeekAt(indexLotMaxWeight);
+
+            string chosenLotStep = lotToDispatch.GetCurrentStep.Name;
             //Console.WriteLine($"{lotToDispatch.Id} {lotToDispatch.GetCurrentStep.Name}");
         }
 

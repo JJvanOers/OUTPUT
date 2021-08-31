@@ -70,7 +70,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
             foreach (var workCenter in waferFab.WorkCenters.Values)
             {
-                foreach (KeyValuePair<LotStep, CSSLQueue<Lot>> queue in workCenter.Queues)
+                foreach (KeyValuePair<LotStep, LotQueue> queue in workCenter.Queues)
                 {
                     int nrOfWafers = 0;
                     for (int i = 0; i < queue.Value.Length; i++)
@@ -94,7 +94,7 @@ namespace WaferFabSim.WaferFabElements.Observers
 
             foreach (var workCenter in waferFab.WorkCenters.Values)
             {
-                foreach (KeyValuePair<LotStep, CSSLQueue<Lot>> queue in workCenter.Queues)
+                foreach (KeyValuePair<LotStep, LotQueue> queue in workCenter.Queues)
                 {
                     int nrOfWafers = 0;
                     for (int i = 0; i < queue.Value.Length; i++)

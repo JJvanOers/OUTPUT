@@ -64,8 +64,8 @@
                                       HorizontalScrollBarVisibility="Disabled">
                             <StackPanel>
                                 <Label Content="Experiment"
-                           HorizontalAlignment="Center"
-                           Style="{DynamicResource DescriptionHeaderStyle}"/>
+                               HorizontalAlignment="Center"
+                               Style="{DynamicResource DescriptionHeaderStyle}"/>
                                 <Label Content="Number of replications" Margin="5,5,5,0" />
                                 <Controls:NumericUpDown 
                                 Margin="5,0,5,5"
@@ -137,6 +137,22 @@
                                 SelectedItem="{Binding SelectedDispatcherType}"
                                 Margin="5,0,5,10">
                                 </ComboBox>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Steps back"/>
+                                    <Controls:NumericUpDown 
+                                    Margin="5,0,5,5"
+                                    ButtonsAlignment="Right"
+                                    Interval="1"
+                                    Value="{Binding MIVSjStepBack}" />
+                                    <Label Content="Steps ahead"/>
+                                    <Controls:NumericUpDown 
+                                    Margin="5,0,5,5"
+                                    ButtonsAlignment="Right"
+                                    Interval="1"
+                                    Value="{Binding MIVSkStepAhead}" />
+                                </StackPanel>
+                                
                             </StackPanel>
                         </ScrollViewer>
                     </Border>

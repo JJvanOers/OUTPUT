@@ -86,7 +86,7 @@ namespace WaferFabSim.Import
 
                 // Create activity
                 LotActivity newActivity = new LotActivity(rawList[0]);
-                string currentWorkstation = rawList[0].WorkStation;
+                string currentIRD = rawList[0].IRDGroup;
 
                 // Set arrival time if first step
                 if (trace.HasStart)
@@ -97,7 +97,7 @@ namespace WaferFabSim.Import
                 // Loop over lot activities and stop if Workstation changed
                 for (int i = 0; i < rawList.Count(); i++)
                 {
-                    if (currentWorkstation != rawList[i].WorkStation)
+                    if (currentIRD != rawList[i].IRDGroup)
                     {
                         // Set time of event to Trackout previous step. If that is null, then to TrackIn of current step.
                         DateTime? timeOfEvent = rawList[i - 1].TrackOut != null ? rawList[i - 1].TrackOut : timeOfEvent = rawList[i].TrackIn;
@@ -108,7 +108,7 @@ namespace WaferFabSim.Import
 
                         newActivity = new LotActivity(rawList[i]);
                         newActivity.Arrival = timeOfEvent;
-                        currentWorkstation = rawList[i].WorkStation;
+                        currentIRD = rawList[i].IRDGroup;
                     }
 
                     newActivity.AddLotActivityRaw(rawList[i]);

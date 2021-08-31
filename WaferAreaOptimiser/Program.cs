@@ -17,13 +17,14 @@ using WaferFabSim.WaferFabElements.Observers;
 using WaferFabSim.WaferFabElements.Utilities;
 using static WaferFabSim.WaferFabElements.Utilities.EPTDistribution;
 
+
 namespace WaferAreaOptimiser
 {
     public class Program
     {
         static void Main(string[] args)
         {
-            string inputDirectory = @"C:\Users\nx015953\OneDrive - Nexperia\CSSLWaferFab\Input";
+            string inputDirectory = @"C:\CSSLWaferFab\Input\WSC2021paper";
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferAreaOptimiser";
 
@@ -33,8 +34,8 @@ namespace WaferAreaOptimiser
 
             List<string> workCenters = realQueueLengths.Keys.ToList(); // All work centers
 
-            //workCenters = new List<string>() // Remove to evaluate all work centers
-            //{"INSPECTION"};
+            workCenters = new List<string>() // Remove to evaluate all work centers
+            {"PHOTOLITH", "DRY ETCH"};
 
             foreach (string workCenter in workCenters)
             {
@@ -62,14 +63,14 @@ namespace WaferAreaOptimiser
                 {
                     {"LBWIP",   new Parameter("LBWIP", false)},
                     {"UBWIP",   new Parameter("UBWIP", false)},
-                    {"Tmin",    new Parameter("Tmin", false)},                   
+                    {"Tmin",    new Parameter("Tmin", false)},
                     {"Tmax",    new Parameter("Tmax", true)},
                     {"Tdecay",  new Parameter("Tdecay", true)},
                     {"Cmin",    new Parameter("Cmin", true)},
                     {"Cmax",    new Parameter("Cmax", true)},
                     {"Cdecay",  new Parameter("Cdecay", true)}
                 };
-                #endregion
+                #endregion  
 
                 #region Variables and instances
                 Optimiser optimiser = new Optimiser(wc, temp, parameterConfiguration);

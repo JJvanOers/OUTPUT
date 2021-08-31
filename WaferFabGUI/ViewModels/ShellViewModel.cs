@@ -57,7 +57,7 @@ namespace WaferFabGUI.ViewModels
             inputDirectory = inputDir;
             FPSAnimation = 5;
             FPSMax = 5;
-            waferThresholdQty = 25;
+            waferThresholdQty = 1;
 
             // Initialize Experiment Settings
             experimentSettings = new ExperimentSettings();
@@ -87,13 +87,14 @@ namespace WaferFabGUI.ViewModels
             xAxis = new CategoryAxis() { Angle = 60, ItemsSource = XAxisLotSteps.Where(x => x.Selected).Select(x => x.Name) };
             WIPBarChart.Axes.Add(xAxis);
             yAxis = new LinearAxis() { Minimum = 0 };
+            yAxis.Maximum = 400;
             WIPBarChart.Axes.Add(yAxis);
         }
 
         public ShellModel WaferFabSim { get; set; }
 
         private Stopwatch stopwatch = new Stopwatch();
-        private LinearAxis yAxis;
+        private LinearAxis yAxis { get; set; }
         private CategoryAxis xAxis;
         private Simulation sim;
         private ExperimentSettings experimentSettings;
@@ -344,6 +345,8 @@ namespace WaferFabGUI.ViewModels
                 }
             }
 
+            // Input second LineSeries for
+
             WIPBarChart.Series.Add(series);
             WIPBarChart.InvalidatePlot(true);
 
@@ -540,6 +543,30 @@ namespace WaferFabGUI.ViewModels
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(nameof(SnapshotsToAnimate));
                 PlayAnimationCommand.NotifyOfCanExecuteChange();
+            }
+        }
+        public int MIVSkStepAhead
+        {
+            get
+            {
+                return waferFabSettings.MIVSkStepAhead;
+            }
+            set
+            {
+                waferFabSettings.MIVSkStepAhead = value;
+                NotifyOfPropertyChange();
+            }
+        }
+        public int MIVSjStepBack
+        {
+            get
+            {
+                return waferFabSettings.MIVSjStepBack;
+            }
+            set
+            {
+                waferFabSettings.MIVSjStepBack = value;
+                NotifyOfPropertyChange();
             }
         }
         public double LengthOfReplication   // In hours

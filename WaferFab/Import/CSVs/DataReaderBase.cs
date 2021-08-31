@@ -94,7 +94,7 @@ namespace WaferFabSim.Import
         public void SerializeWorkCenterLotActivities(string filename)
         {
             Console.Write($"Saving {filename} - ");
-            Tools.WriteToBinaryFile<List<WorkCenterLotActivities>>($@"{DirectorySerializedFiles}\WorkCenterLotActivities_{filename}.dat", WorkCenterLotActivities);
+            Tools.WriteToBinaryFile<List<WorkCenterLotActivities>>($@"{DirectorySerializedFiles}\{filename}.dat", WorkCenterLotActivities);
             Console.Write($"done.\n");
         }
 

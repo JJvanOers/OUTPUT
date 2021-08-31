@@ -13,11 +13,14 @@ namespace WaferFabSim.SnapshotData
 
         public Dictionary<string, int> WIPlevels { get; protected set; }
 
+        public Dictionary<string, int> WIPlevelsInWafers { get; protected set; }
+
         public int TotalWIP => WIPlevels.Values.Sum();
 
         public WIPSnapshotBase()
         {
             WIPlevels = new Dictionary<string, int>();
+            WIPlevelsInWafers = new Dictionary<string, int>();
         }
 
     }
