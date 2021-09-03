@@ -25,6 +25,8 @@ namespace LithographyAreaValidation.Controls
         {
             base.OnReplicationStart();
 
+            int test = 0;
+
             ScheduledLotsPerMachine.Clear();
 
             foreach (Machine machine in LithographyArea.Machines)
