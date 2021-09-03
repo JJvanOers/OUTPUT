@@ -65,6 +65,8 @@ namespace LithographyAreaValidation.ModelElements
         public bool EndedOnDispatcherNoSolution { get; set; }
         public int TotalWafersProduced { get; set; }
         public int TotalLotsProduced { get; set; }
+        public int TotalLotsProducedTardy { get; set; }
+        public int TotalLotsProducedEarly { get; set; }
 
         public int TotalValidationLotsProduced { get; set; }
         public double TotalCompletionTimeValidationLots { get; set; }
@@ -124,6 +126,8 @@ namespace LithographyAreaValidation.ModelElements
 
             TotalLotsProduced = 0;
             TotalWafersProduced = 0;
+            TotalLotsProducedTardy = 0;
+            TotalLotsProducedEarly = 0;
 
             TotalValidationLotsProduced = 0;
             TotalCompletionTimeValidationLots = 0;
@@ -306,9 +310,19 @@ namespace LithographyAreaValidation.ModelElements
             TotalSquaredEarliness += earliness * earliness;
             TotalEarliness += earliness;
 
+            if (earliness != 0)
+            {
+                TotalLotsProducedEarly += 1;
+            }
+
             double tardiness = Math.Max(0,(this.StartDate.AddSeconds(GetTime).Subtract(finishedLot.ImprovedDueDate)).TotalDays);
             TotalSquaredTardiness += tardiness * tardiness;
             TotalTardiness += tardiness;
+
+            if (earliness != 0)
+            {
+                TotalLotsProducedTardy += 1;
+            }
 
             double fractionInSchedulingHorizon = Math.Min(Math.Max(((SchedulingHorizon - machine.CurrentStartRun) / (machine.CurrentEndRun - machine.CurrentStartRun)), 0.0), 1.0);
 

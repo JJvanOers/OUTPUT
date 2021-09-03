@@ -344,6 +344,47 @@ namespace LithographyAreaValidation.ModelElements
             return Queue.Length;
         }
 
+        public int GetNrJobsEarly()
+        {
+            int total = 0;
+            
+            // Get lateness of each lot in the queue
+            for (int i = 0; i < Queue.Length; i++)
+            {
+                Lot peekLot = Queue.PeekAt(i);
+
+                DateTime estimatedProductionTime = LithographyArea.StartDate.AddSeconds(GetTime).AddDays(1); //Next day
+
+                double lateness = (peekLot.ImprovedDueDate.Subtract(estimatedProductionTime)).TotalDays;
+                if (lateness>=0)
+                {
+                    total += 1;
+                }
+            }
+
+            return total;
+        }
+
+        public int GetNrJobsTardy()
+        {
+            int total = 0;
+
+            // Get lateness of each lot in the queue
+            for (int i = 0; i < Queue.Length; i++)
+            {
+                Lot peekLot = Queue.PeekAt(i);
+
+                DateTime estimatedProductionTime = LithographyArea.StartDate.AddSeconds(GetTime).AddDays(1); //Next day
+
+                double lateness = (peekLot.ImprovedDueDate.Subtract(estimatedProductionTime)).TotalDays;
+                if (lateness < 0)
+                {
+                    total += 1;
+                }
+            }
+            return total;
+        }
+
         public string GetRecipe(Lot lot, Machine machine)
         {
             string recipe;

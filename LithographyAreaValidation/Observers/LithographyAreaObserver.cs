@@ -47,7 +47,7 @@ namespace LithographyAreaValidation.Observers
                        $"Prod Lateness,Prod Earliness,Prod Tardiness," +
                        $"Queue Lateness,Queue Earliness,Queue Tardiness," +
                        $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score," +
-                       $"Downtime");
+                       $"Downtime, Prod Lots Early, Prod Lots Tardy, Queue Lots Early, Queue Lots Tardy");
 
 
             replication = 1;
@@ -65,7 +65,7 @@ namespace LithographyAreaValidation.Observers
                        $"Prod Lateness,Prod Earliness,Prod Tardiness," +
                        $"Queue Lateness,Queue Earliness,Queue Tardiness," +
                        $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score," +
-                       $"Downtime");
+                       $"Downtime, Prod Lots Early, Prod Lots Tardy, Queue Lots Early, Queue Lots Tardy");
             //Writer.WriteLine($"Start DateTime,End DateTime, Cumulative Weighted Throughput,Cumulative Weighted Underproduction,Cumulative Weighted Squared Lateness");
         }
 
@@ -129,7 +129,7 @@ namespace LithographyAreaValidation.Observers
                                  $"{l.TotalEarliness},{l.TotalEarliness},{l.TotalTardiness}," +
                                  $"{l.Dispatcher.GetTardinessQueue(false) - l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetTardinessQueue(false)}," +
                                  $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}," +
-                                 $"{totalDowntime}");
+                                 $"{totalDowntime},{l.TotalLotsProducedEarly},{l.TotalLotsProducedTardy},{l.Dispatcher.GetNrJobsEarly()},{l.Dispatcher.GetNrJobsTardy()}");
 
 
                 ExperimentWriter.WriteLine($"{replication},{startDateDay},{endDateDay},{l.TotalLotsProduced},{l.TotalWafersProduced}," +
@@ -141,7 +141,7 @@ namespace LithographyAreaValidation.Observers
                                  $"{l.TotalEarliness},{l.TotalEarliness},{l.TotalTardiness}," +
                                  $"{l.Dispatcher.GetTardinessQueue(false) - l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetTardinessQueue(false)}," +
                                  $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}," +
-                                 $"{totalDowntime}");
+                                 $"{totalDowntime},{l.TotalLotsProducedEarly},{l.TotalLotsProducedTardy},{l.Dispatcher.GetNrJobsEarly()},{l.Dispatcher.GetNrJobsTardy()}");
 
                 // Update startDateDay
                 startDateDay = endDateDay;
