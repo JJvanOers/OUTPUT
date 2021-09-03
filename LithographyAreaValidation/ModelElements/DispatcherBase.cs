@@ -283,7 +283,7 @@ namespace LithographyAreaValidation.ModelElements
             return totalSquaredLatenessQueue;
         }
 
-        public double GetEarlinessQueue() // Nog aan te vullen
+        public double GetEarlinessQueue(bool squared) // Nog aan te vullen
         {
             double totalEarlinessQueue = 0;
 
@@ -298,13 +298,20 @@ namespace LithographyAreaValidation.ModelElements
 
                 if (lateness>0)
                 {
-                    totalEarlinessQueue += lateness;
+                    if (squared)
+                    {
+                        totalEarlinessQueue += lateness*lateness;
+                    }
+                    else
+                    {
+                        totalEarlinessQueue += lateness;
+                    }
                 }
             }
             return totalEarlinessQueue;
         }
 
-        public double GetTardinessQueue() // Nog aan te vullen
+        public double GetTardinessQueue(bool squared) // Nog aan te vullen
         {
             double totalTardinessQueue = 0;
 
@@ -319,7 +326,14 @@ namespace LithographyAreaValidation.ModelElements
 
                 if (lateness <= 0)
                 {
-                    totalTardinessQueue -= lateness;
+                    if (squared)
+                    {
+                        totalTardinessQueue += lateness*lateness;
+                    }
+                    else
+                    {
+                        totalTardinessQueue -= lateness;
+                    }
                 }
             }
             return totalTardinessQueue;

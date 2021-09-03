@@ -83,6 +83,8 @@ namespace LithographyAreaValidation.ModelElements
 
         public string PreviousReticleID { get; set; }
 
+        public bool EndedOnError { get; set; } 
+
         public Lot CurrentLot { get; private set; }
 
         public double CurrentStartRun { get; private set; }
@@ -101,6 +103,7 @@ namespace LithographyAreaValidation.ModelElements
         {
             PreviousLotIRDName = null;
             PreviousReticleID = null;
+            EndedOnError = false;
 
             ScheduleEvent(0, HandleStartReplication);
         }
@@ -348,7 +351,6 @@ namespace LithographyAreaValidation.ModelElements
             }
         }
 
-
         private void TriggerMachinesWaiting()
         {
             // If machines are waiting
@@ -388,7 +390,9 @@ namespace LithographyAreaValidation.ModelElements
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
                         Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
 
                 }
@@ -402,7 +406,9 @@ namespace LithographyAreaValidation.ModelElements
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
                         Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
 
                 }
@@ -436,10 +442,10 @@ namespace LithographyAreaValidation.ModelElements
                     else
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
-                        Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
-
                 }
                 else
                 {
@@ -450,10 +456,10 @@ namespace LithographyAreaValidation.ModelElements
                     else
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
-                        Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
-
                 }
             }
 
@@ -482,7 +488,9 @@ namespace LithographyAreaValidation.ModelElements
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
                         Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
 
                 }
@@ -496,7 +504,9 @@ namespace LithographyAreaValidation.ModelElements
                     {
                         processingTime = 30 * 60; //TODO: Validate this assumption
                         Console.WriteLine($"No Processing Time known of Lot: {lot.LotID} on Machine: {this.Name}");
-                        Console.ReadLine();
+                        EndedOnError = true;
+                        NotifyObservers(this);
+                        ScheduleEndEvent(GetTime);
                     }
 
                 }
@@ -566,9 +576,9 @@ namespace LithographyAreaValidation.ModelElements
         private void HandleEndMachineDown(CSSLEvent e)
         {
             LithographyArea.MachineStates[Name] = "Up";
+            Dispatcher.HandleEndMachineDown(); // Reschedule if needed
             DispatchNextLot();
-            TriggerMachinesWaiting(); //TODO: Change
-            Dispatcher.HandleEndMachineDown();
+            TriggerMachinesWaiting(); // Maybe not needed
 
             EndMachineDown = GetTime;
             LithographyArea.HandleEndMachineDown(this);

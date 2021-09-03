@@ -62,7 +62,7 @@ namespace LithographyAreaValidation.ModelElements
         private List<Array> UltratechTitanLotEnds { get; set; }
 
         // NEW:
-
+        public bool EndedOnDispatcherNoSolution { get; set; }
         public int TotalWafersProduced { get; set; }
         public int TotalLotsProduced { get; set; }
 
@@ -111,6 +111,8 @@ namespace LithographyAreaValidation.ModelElements
 
         protected override void OnReplicationStart()
         {
+            EndedOnDispatcherNoSolution = false;
+
             MachineStates = new Dictionary<string, string>();
 
             foreach (Machine machine in Machines)
@@ -119,7 +121,6 @@ namespace LithographyAreaValidation.ModelElements
             }
 
             WaitingMachines = new List<Machine>();
-
 
             TotalLotsProduced = 0;
             TotalWafersProduced = 0;
@@ -219,6 +220,13 @@ namespace LithographyAreaValidation.ModelElements
             Array nextLotEndUltratechTitan = UltratechTitanLotEnds[0];
             double nextLotEndUltratechTitanTime = (double)nextLotEndUltratechTitan.GetValue(3);
             ScheduleEvent(nextLotEndUltratechTitanTime, HandleLotEndUltratechTitan);
+        }
+
+        public void HandleDispatcherError()
+        {
+            EndedOnDispatcherNoSolution = true;
+            NotifyObservers(this);
+            ScheduleEndEvent(GetTime);
         }
 
         public void HandleEndMachineDown(Machine machine)

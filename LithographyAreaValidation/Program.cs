@@ -23,6 +23,7 @@ namespace LithographyAreaValidation
             bool simulateCurrentProductionControl = false;
             bool simulateILPScheduling = false;
             bool simulateCPScheduling = true;
+            int CPTimeLimit = 120;
 
             // STOCHASTIC / DYNAMIC
             bool dynamic = true;
@@ -154,11 +155,11 @@ namespace LithographyAreaValidation
                         {
                             string settingDirectory = $"sto={stochastic}_dyn={dynamic}";
                             string dayDirectory = $"{date.Year}_{date.Month}_{date.Day}";
-                            string weightDirectory = $"a={weights[0]}_b={weights[1]}_c={weights[2]}";
+                            string weightDirectory = $"a={weights[0]}_b={weights[1]}_c={weights[2]}_t={CPTimeLimit}";
                             string controlDirectory = $"{control}";
                             string experimentOutputDirectory = Path.Combine(simulationOutputDirectory,settingDirectory, dayDirectory, controlDirectory, weightDirectory);
                             Directory.CreateDirectory(experimentOutputDirectory);
-                            Experiment(control, date, experimentOutputDirectory, dynamic, stochastic, weights[0], weights[1], weights[2], deterministicNonProductiveTimesRMS, deterministicNonProductiveTimesARMS);
+                            Experiment(control, date, experimentOutputDirectory, dynamic, stochastic, weights[0], weights[1], weights[2], deterministicNonProductiveTimesRMS, deterministicNonProductiveTimesARMS, CPTimeLimit);
                         }
                     }
                     else
@@ -175,7 +176,7 @@ namespace LithographyAreaValidation
             #endregion
         }
 
-        private static void Experiment(string control, DateTime startDate, string experimentOutputDirectory, bool dynamic, bool stochastic, double weightA, double weightB, double weightC, Dictionary<string,double> deterministicNonProductiveTimesRMS, Dictionary<string, double> deterministicNonProductiveTimesARMS)
+        private static void Experiment(string control, DateTime startDate, string experimentOutputDirectory, bool dynamic, bool stochastic, double weightA, double weightB, double weightC, Dictionary<string,double> deterministicNonProductiveTimesRMS, Dictionary<string, double> deterministicNonProductiveTimesARMS, int CPTimeLimit = 0)
         {
             string outputDir = experimentOutputDirectory;
             Simulation sim = new Simulation("LithographyAreaSim", outputDir);
@@ -183,14 +184,14 @@ namespace LithographyAreaValidation
             // Parameters
             double simulationLength = 15 * 24 * 3600 + 1;
             string productionControl = control;
-            int CPTimeLimit = 30;
+            
 
             // The experiment part
             sim.MyExperiment.LengthOfReplication = simulationLength; 
             sim.MyExperiment.LengthOfWarmUp = 0;
             if (stochastic)
             {
-                sim.MyExperiment.NumberOfReplications = 10;
+                sim.MyExperiment.NumberOfReplications = 3;
             }
             else
             { 
