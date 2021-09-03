@@ -47,21 +47,29 @@ namespace LithographyAreaValidation.Observers
             // Get machine object
             Machine machine = (Machine)modelElement;
 
-            // Get values
-            string lotID = machine.CurrentLot.LotID;
-            string irdName = machine.CurrentLot.IrdName;
-            string reticle = machine.CurrentLot.MasksetLayer;
+            if(machine.EndedOnError)
+            {
+                Writer.WriteLine($"Ended on error, no processing time found for {machine.Name} {machine.CurrentLot.LotID} {machine.CurrentLot.IrdName} {machine.CurrentLot.MasksetLayer_RecipeStepCluster}");
+            }
+            else
+            {
+                // Get values
+                string lotID = machine.CurrentLot.LotID;
+                string irdName = machine.CurrentLot.IrdName;
+                string reticle = machine.CurrentLot.MasksetLayer;
 
-            DateTime startRun = startDateRun.AddSeconds(machine.CurrentStartRun);
-            string startRunString = startRun.ToString("yyyy-MM-dd HH:mm:ss");
-            DateTime endRun = startDateRun.AddSeconds(machine.CurrentEndRun);
-            string endRunString = endRun.ToString("yyyy-MM-dd HH:mm:ss");
+                DateTime startRun = startDateRun.AddSeconds(machine.CurrentStartRun);
+                string startRunString = startRun.ToString("yyyy-MM-dd HH:mm:ss");
+                DateTime endRun = startDateRun.AddSeconds(machine.CurrentEndRun);
+                string endRunString = endRun.ToString("yyyy-MM-dd HH:mm:ss");
 
-            double lateness = Math.Ceiling((machine.CurrentLot.ImprovedDueDate.Subtract(endRun)).TotalDays);
-            string resource = machine.Name;
+                double lateness = Math.Ceiling((machine.CurrentLot.ImprovedDueDate.Subtract(endRun)).TotalDays);
+                string resource = machine.Name;
 
-            // Write
-            Writer.WriteLine($"{lotID},{startRunString},{endRunString},{resource},{irdName},{reticle},{lateness}");
+                // Write
+                Writer.WriteLine($"{lotID},{startRunString},{endRunString},{resource},{irdName},{reticle},{lateness}");
+            }
+;
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)

@@ -8,6 +8,8 @@ using ILOG.OPL;
 using CSSL.Modeling.CSSLQueue;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using ILOG.Concert;
 
 namespace LithographyAreaValidation.Controls
 {
@@ -80,6 +82,69 @@ namespace LithographyAreaValidation.Controls
                     }
                 }
             }
+            else // This is the case when machine goes up or all jobs are produced
+            {
+                // Collect all lots from queue which are not scheduled yet.
+                // For each collected lot, check on how many other machines the similar IRD is already scheduled.
+                Dictionary<Lot, int> lotsNotScheduled = new Dictionary<Lot, int>();
+
+                for (int i = 0; i < Queue.Length; i++)
+                {
+                    Lot lot = Queue.PeekAt(i);
+                    bool lotScheduled = false;
+
+                    foreach (var scheduledLotsPerMachine in ScheduledLotsPerMachine.Values)
+                    {
+                        if (scheduledLotsPerMachine.Contains(lot))
+                        {
+                            lotScheduled = true;
+                            break;
+                        }
+                    }
+
+                    if (!lotScheduled)
+                    {
+                        int sameIrdCount = 0;
+                        foreach (var scheduledLotsPerMachine in ScheduledLotsPerMachine.Values)
+                        {
+                            if (scheduledLotsPerMachine.Select(x => x.IrdName).Contains(lot.IrdName))
+                            {
+                                sameIrdCount++;
+                            }
+                        }
+                        lotsNotScheduled.Add(lot, sameIrdCount);
+                    }
+                }
+
+                // Select eligible lot with minimal other IRDs scheduled and earliest due date
+                IEnumerable<int> countsOrderded = lotsNotScheduled.Values.Distinct().OrderBy(x => x);
+
+                foreach (int count in countsOrderded)
+                {
+                    IEnumerable<Lot> lots = lotsNotScheduled.Where(x => x.Value == count).Select(x => x.Key).OrderBy(x => x.DueDate);
+
+                    if (lots.Any())
+                    {
+                        foreach (Lot lot in lots)
+                        {
+                            // Get needed recipe for the lot
+                            string recipe = GetRecipe(lot, machine);
+                            bool recipeEligible = CheckMachineEligibility(machine.Name + "__" + recipe);
+                            bool resourceAvailable = CheckResourceAvailability(lot);
+                            bool processingTimeKnown = CheckProcessingTimeKnown(lot, machine, recipe);
+
+                            // Dispatch if lot is eligible
+                            if (resourceAvailable && recipeEligible && processingTimeKnown)
+                            {
+                                // Dequeue earliestDueDateLot
+                                dispatchedLot = HandleDeparture(lot, machine);
+                                break;
+                            }
+                        }
+                    }
+                    if (dispatchedLot != null) break;
+                }
+            }
 
             return dispatchedLot;
         }
@@ -137,7 +202,7 @@ namespace LithographyAreaValidation.Controls
 
                 CP cp = oplF.CreateCP();
                 OplModel opl = oplF.CreateOplModel(def, cp);
-                OplDataSource dataSource = new MyCustomDataSource(oplF, Queue, LithographyArea, (DispatcherBase)this, this);
+                OplDataSource dataSource = new MyCustomDataSource(oplF, Queue, LithographyArea, this);
                 opl.AddDataSource(dataSource);
                 opl.Generate();
 
@@ -155,6 +220,9 @@ namespace LithographyAreaValidation.Controls
                 {
                     Console.Out.WriteLine("No solution!");
                     status = 1;
+                    this.LithographyArea.HandleDispatcherError();
+                    ScheduleEndEvent(GetTime);
+                    return;
                 }
                 oplF.End();
             }
@@ -168,7 +236,7 @@ namespace LithographyAreaValidation.Controls
                 Console.WriteLine(ex.Message);
                 status = 3;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 status = 4;
@@ -252,18 +320,16 @@ namespace LithographyAreaValidation.Controls
 
         internal class MyCustomDataSource : CustomOplDataSource
         {
-            internal MyCustomDataSource(OplFactory oplF, CSSLQueue<Lot> queue, LithographyArea lithographyArea, DispatcherBase dispatcherBase, CPDispatcher cpDispatcher)
+            internal MyCustomDataSource(OplFactory oplF, CSSLQueue<Lot> queue, LithographyArea lithographyArea, CPDispatcher cpDispatcher)
                 : base(oplF)
             {
                 Queue = queue;
                 LithographyArea = lithographyArea;
-                DispatcherBase = dispatcherBase;
                 CPDispatcher = cpDispatcher;
             }
 
             private CSSLQueue<Lot> Queue { get; }
             public LithographyArea LithographyArea { get; }
-            public DispatcherBase DispatcherBase { get; }
             public CPDispatcher CPDispatcher { get; }
 
             private Dictionary<string, int> ProductNameToID;
@@ -357,7 +423,7 @@ namespace LithographyAreaValidation.Controls
                 // Loop through queue
                 foreach (Lot lot in allLots)
                 {
-                    string productName = lot.MasksetLayer;
+                    string productName = lot.MasksetLayer_RecipeStepCluster;
 
                     if (!ProductNameToID.ContainsKey(productName))
                     {
@@ -401,14 +467,14 @@ namespace LithographyAreaValidation.Controls
                         }
 
                         // Get needed recipe for the lot
-                        string recipe = DispatcherBase.GetRecipe(peekLot, machine);
+                        string recipe = CPDispatcher.GetRecipe(peekLot, machine);
                         string recipeKey = machine.Name + "__" + recipe;
 
                         // Check if needed recipe is eligible on machine
-                        bool recipeEligible = DispatcherBase.CheckMachineEligibility(recipeKey);
+                        bool recipeEligible = CPDispatcher.CheckMachineEligibility(recipeKey);
 
                         // Check if processingTime is known
-                        bool processingTimeKnown = DispatcherBase.CheckProcessingTimeKnown(peekLot, machine, recipe);
+                        bool processingTimeKnown = CPDispatcher.CheckProcessingTimeKnown(peekLot, machine, recipe);
 
                         if (recipeEligible && processingTimeKnown)
                         {
@@ -422,7 +488,7 @@ namespace LithographyAreaValidation.Controls
                         // Add tuple
                         handler.StartTuple();
                         handler.AddStringItem(peekLot.Id.ToString()); //handler.AddStringItem(peekLot.Id.ToString());
-                        handler.AddIntItem(ProductNameToID[peekLot.MasksetLayer]);
+                        handler.AddIntItem(ProductNameToID[peekLot.MasksetLayer_RecipeStepCluster]);
                         handler.AddIntItem(peekLot.LotQty);
 
                         handler.AddNumItem(CPDispatcher.GetDueDateWeight(peekLot));
@@ -458,7 +524,7 @@ namespace LithographyAreaValidation.Controls
                     if (machine.Queue.Length > 0)
                     {
                         Lot lotAtMachine = machine.Queue.PeekFirst();
-                        initialProductID = ProductNameToID[lotAtMachine.MasksetLayer];
+                        initialProductID = ProductNameToID[lotAtMachine.MasksetLayer_RecipeStepCluster];
                         double estimatedEndTime;
 
                         if (machine.CurrentLot == lotAtMachine)
@@ -568,7 +634,12 @@ namespace LithographyAreaValidation.Controls
                         // Add tuple
                         handler.StartTuple();
                         handler.AddStringItem(lot.IrdName);
-                        handler.AddIntItem(2); // TODO: Check with capacity settings
+                        int capacity = 2;
+                        if (CPDispatcher.AvailableResources.ContainsKey(lot.IrdName))
+                        {
+                            capacity = CPDispatcher.AvailableResources[lot.IrdName];
+                        }
+                        handler.AddIntItem(capacity);
                         handler.EndTuple();
 
                         allIRDNames.Add(lot.IrdName);
@@ -607,7 +678,7 @@ namespace LithographyAreaValidation.Controls
                 // Loop through queue
                 foreach (Lot lot in allLots)
                 {
-                    string productName = lot.MasksetLayer;
+                    string productName = lot.MasksetLayer_RecipeStepCluster;
 
                     if (!productNames.Contains(productName))
                     {
@@ -659,7 +730,7 @@ namespace LithographyAreaValidation.Controls
                 // Loop through queue
                 foreach (Lot lot in allLots)
                 {
-                    if (!productNames.Contains(lot.MasksetLayer))
+                    if (!productNames.Contains(lot.MasksetLayer_RecipeStepCluster))
                     {
                         int modeNr = 0;
 
@@ -672,14 +743,14 @@ namespace LithographyAreaValidation.Controls
                             }
 
                             // Get needed recipe for the lot
-                            string recipe = DispatcherBase.GetRecipe(lot, machine);
+                            string recipe = CPDispatcher.GetRecipe(lot, machine);
                             string recipeKey = machine.Name + "__" + recipe;
 
                             // Check if needed recipe is eligible on machine
-                            bool recipeEligible = DispatcherBase.CheckMachineEligibility(recipeKey);
+                            bool recipeEligible = CPDispatcher.CheckMachineEligibility(recipeKey);
 
                             // Check if processingTime is known
-                            bool processingTimeKnown = DispatcherBase.CheckProcessingTimeKnown(lot, machine, recipe);
+                            bool processingTimeKnown = CPDispatcher.CheckProcessingTimeKnown(lot, machine, recipe);
 
                             if (recipeEligible && processingTimeKnown)
                             {
@@ -689,7 +760,7 @@ namespace LithographyAreaValidation.Controls
 
                                 // Add tuple
                                 handler.StartTuple();
-                                handler.AddIntItem(ProductNameToID[lot.MasksetLayer]);
+                                handler.AddIntItem(ProductNameToID[lot.MasksetLayer_RecipeStepCluster]);
                                 handler.AddIntItem(modeNr);
                                 handler.AddStringItem(machine.Name);
                                 handler.AddIntItem((int)processingTime);
@@ -699,7 +770,7 @@ namespace LithographyAreaValidation.Controls
                                 modeNr += 1;
                             }
                         }
-                        productNames.Add(lot.MasksetLayer);
+                        productNames.Add(lot.MasksetLayer_RecipeStepCluster);
                     }
                 }
 
@@ -735,30 +806,30 @@ namespace LithographyAreaValidation.Controls
                 // Loop through queue
                 foreach (Lot lotFrom in allLots)
                 {
-                    if (!productNamesFrom.Contains(lotFrom.MasksetLayer))
+                    if (!productNamesFrom.Contains(lotFrom.MasksetLayer_RecipeStepCluster))
                     {
                         List<string> productNamesTo = new List<string>();
 
                         // Loop through queue
                         foreach (Lot lotTo in allLots)
                         {
-                            if (!productNamesTo.Contains(lotTo.MasksetLayer))
+                            if (!productNamesTo.Contains(lotTo.MasksetLayer_RecipeStepCluster))
                             {
                                 if (lotFrom.ReticleID1 == lotTo.ReticleID1)
                                 {
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_ARMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesARMS["SameReticle"]);
                                     handler.EndTuple();
 
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_RMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesRMS["SameReticle"]);
                                     handler.EndTuple();
                                 }
@@ -767,16 +838,16 @@ namespace LithographyAreaValidation.Controls
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_ARMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesARMS["DifferentReticle"]);
                                     handler.EndTuple();
 
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_RMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesRMS["DifferentReticle"]);
                                     handler.EndTuple();
                                 }
@@ -785,23 +856,23 @@ namespace LithographyAreaValidation.Controls
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_ARMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesARMS["DifferentIRD"]);
                                     handler.EndTuple();
 
                                     // Add tuple
                                     handler.StartTuple();
                                     handler.AddStringItem("MTRX_RMS");
-                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer]);
-                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer]);
+                                    handler.AddIntItem(ProductNameToID[lotFrom.MasksetLayer_RecipeStepCluster]);
+                                    handler.AddIntItem(ProductNameToID[lotTo.MasksetLayer_RecipeStepCluster]);
                                     handler.AddIntItem((int)LithographyArea.DeterministicNonProductiveTimesRMS["DifferentIRD"]);
                                     handler.EndTuple();
                                 }
-                                productNamesTo.Add(lotTo.MasksetLayer);
+                                productNamesTo.Add(lotTo.MasksetLayer_RecipeStepCluster);
                             }
                         }
-                        productNamesFrom.Add(lotFrom.MasksetLayer);
+                        productNamesFrom.Add(lotFrom.MasksetLayer_RecipeStepCluster);
                     }
                 }
                 handler.EndSet();

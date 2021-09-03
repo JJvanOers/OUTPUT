@@ -50,6 +50,14 @@ namespace LithographyAreaValidation.ModelElements
 
         public string MasksetLayer { get; }
 
+        public string MasksetLayer_RecipeStepCluster
+        {
+            get
+            {
+                return $"{MasksetLayer}_{RecipeStepCluster}";
+            }
+        }
+
         public string ReticleID1 { get; }
 
         public string ReticleID2 { get; }
