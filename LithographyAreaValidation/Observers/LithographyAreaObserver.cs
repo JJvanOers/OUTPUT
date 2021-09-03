@@ -46,7 +46,8 @@ namespace LithographyAreaValidation.Observers
                        $"Queue Squared Lateness,Queue Squared Earliness,Queue Squared Tardiness," +
                        $"Prod Lateness,Prod Earliness,Prod Tardiness," +
                        $"Queue Lateness,Queue Earliness,Queue Tardiness," +
-                       $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score");
+                       $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score," +
+                       $"Downtime");
 
 
             replication = 1;
@@ -63,7 +64,8 @@ namespace LithographyAreaValidation.Observers
                        $"Queue Squared Lateness,Queue Squared Earliness,Queue Squared Tardiness," +
                        $"Prod Lateness,Prod Earliness,Prod Tardiness," +
                        $"Queue Lateness,Queue Earliness,Queue Tardiness," +
-                       $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score");
+                       $"Production Target Fulfillment,Throughput Score,Due Date Score, WIP Balance score," +
+                       $"Downtime");
             //Writer.WriteLine($"Start DateTime,End DateTime, Cumulative Weighted Throughput,Cumulative Weighted Underproduction,Cumulative Weighted Squared Lateness");
         }
 
@@ -97,13 +99,22 @@ namespace LithographyAreaValidation.Observers
                 double operationalEfficiency;
                 double rateEffiency = l.TotalTheoreticalProductionTime / l.TotalProductionTime;
 
+                double totalDowntime = l.TotalDownTime;
+
                 if (!l.Dynamic)
                 {
                     operationalEfficiency = l.TotalProductionTime / (l.Machines.Count * l.SchedulingHorizon);
                 }
                 else
                 {
-                    operationalEfficiency = l.TotalProductionTime / (l.Machines.Count * l.GetTime - l.TotalDownTime);
+                    foreach (Machine machine in l.Machines)
+                    {
+                        if (machine.StartMachineDown > machine.EndMachineDown && machine.StartMachineDown < GetTime)
+                        {
+                            totalDowntime += GetTime - machine.StartMachineDown;
+                        }
+                    }
+                    operationalEfficiency = l.TotalProductionTime / (l.Machines.Count * l.GetTime - totalDowntime);
                 }
 
                 double performanceEfficiency = operationalEfficiency * rateEffiency;
@@ -117,8 +128,9 @@ namespace LithographyAreaValidation.Observers
                                  $"{l.Dispatcher.GetSquaredLatenessQueue()},{l.Dispatcher.GetEarlinessQueue(true)},{l.Dispatcher.GetTardinessQueue(true)}," +
                                  $"{l.TotalEarliness},{l.TotalEarliness},{l.TotalTardiness}," +
                                  $"{l.Dispatcher.GetTardinessQueue(false) - l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetTardinessQueue(false)}," +
-                                 $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}");
-                
+                                 $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}," +
+                                 $"{totalDowntime}");
+
 
                 ExperimentWriter.WriteLine($"{replication},{startDateDay},{endDateDay},{l.TotalLotsProduced},{l.TotalWafersProduced}," +
                                  $"{rateEffiency},{operationalEfficiency},{performanceEfficiency}," +
@@ -128,7 +140,8 @@ namespace LithographyAreaValidation.Observers
                                  $"{l.Dispatcher.GetSquaredLatenessQueue()},{l.Dispatcher.GetEarlinessQueue(true)},{l.Dispatcher.GetTardinessQueue(true)}," +
                                  $"{l.TotalEarliness},{l.TotalEarliness},{l.TotalTardiness}," +
                                  $"{l.Dispatcher.GetTardinessQueue(false) - l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetEarlinessQueue(false)},{l.Dispatcher.GetTardinessQueue(false)}," +
-                                 $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}");
+                                 $"{l.TotalProductionTargetFulfillment},{l.TotalScoreThroughput},{l.TotalScoreDueDate},{l.TotalScoreWIPBalance}," +
+                                 $"{totalDowntime}");
 
                 // Update startDateDay
                 startDateDay = endDateDay;
