@@ -13,12 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
+    <ProjectReference Include="..\..\CSSL\CSSL\CSSL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="gurobi81.netstandard20">
-      <HintPath>..\..\..\..\..\..\gurobi811\win64\lib\gurobi81.netstandard20.dll</HintPath>
+    <Reference Include="gurobi91.netstandard20">
+      <HintPath>..\..\..\..\..\..\gurobi912\win64\lib\gurobi91.netstandard20.dll</HintPath>
     </Reference>
     <Reference Include="oplall">
       <HintPath>..\..\..\..\..\..\Program Files\IBM\ILOG\CPLEX_Studio201\opl\lib\oplall.dll</HintPath>
