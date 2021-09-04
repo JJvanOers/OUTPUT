@@ -756,9 +756,9 @@ namespace LithographyAreaValidation.Controls
         }
         public void RescheduleLotMachineAllocation()
         {
-            Console.WriteLine(GetTime);
-            Console.WriteLine("QueueLength:");
-            Console.WriteLine(Queue.Length);
+            //Console.WriteLine(GetTime);
+            //Console.WriteLine("QueueLength:");
+            //Console.WriteLine(Queue.Length);
             int limitILPSolver = 2000; // maximum number of jobs put into the ILP solver
 
 
@@ -815,7 +815,7 @@ namespace LithographyAreaValidation.Controls
                 int nMachines = processingTimes.GetLength(0);
                 int nJobs = processingTimes.GetLength(1);
 
-                Console.WriteLine($"Number of jobs Scheduled: {nJobs}, at time: {GetTime / 3600}");
+                Console.WriteLine($"Time: {LithographyArea.StartDate.AddSeconds(GetTime)}, number of jobs scheduled: {nJobs},");
 
                 // Create an empty environment, set options and start
                 GRBEnv env = new GRBEnv(true);
@@ -905,7 +905,7 @@ namespace LithographyAreaValidation.Controls
                     }
                 }
 
-                Console.WriteLine("Obj: " + model.ObjVal);
+                Console.Write(" Objective: " + model.ObjVal);
 
                 // Dispose of model and env
                 model.Dispose();

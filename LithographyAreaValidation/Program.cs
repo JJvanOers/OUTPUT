@@ -21,9 +21,9 @@ namespace LithographyAreaValidation
             bool simulateEDD = false;
             bool simulateSPT = false;
             bool simulateCurrentProductionControl = false;
-            bool simulateILPScheduling = false;
-            bool simulateCPScheduling = true;
-            int CPTimeLimit = 120;
+            bool simulateILPScheduling = true;
+            bool simulateCPScheduling = false;
+            int CPTimeLimit = 60;
 
             // STOCHASTIC / DYNAMIC
             bool dynamic = true;
@@ -182,16 +182,15 @@ namespace LithographyAreaValidation
             Simulation sim = new Simulation("LithographyAreaSim", outputDir);
 
             // Parameters
-            double simulationLength = 15 * 24 * 3600 + 1;
+            double simulationLength = 30 * 24 * 3600 + 1;
             string productionControl = control;
-            
 
             // The experiment part
             sim.MyExperiment.LengthOfReplication = simulationLength; 
             sim.MyExperiment.LengthOfWarmUp = 0;
             if (stochastic)
             {
-                sim.MyExperiment.NumberOfReplications = 3;
+                sim.MyExperiment.NumberOfReplications = 30;
             }
             else
             { 

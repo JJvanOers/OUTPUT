@@ -248,6 +248,7 @@ namespace LithographyAreaValidation.Controls
             //Console.WriteLine(solutionAsString);
             //Console.ReadLine();
             ChangeLotMachineAllocation(solutionAsString);
+            Console.WriteLine($"Scheduled for {LithographyArea.StartDate.AddSeconds(GetTime)}");
         }
 
         private void ChangeLotMachineAllocation(string solutionAsString)
@@ -301,7 +302,7 @@ namespace LithographyAreaValidation.Controls
                 }
 
                 lotsOrdenedByStartTime.Add(new Object[] { lot, machine, startTime });
-                Console.WriteLine(solutionAsStringArray[i]);
+                //Console.WriteLine(solutionAsStringArray[i]);
             }
 
             lotsOrdenedByStartTime = lotsOrdenedByStartTime.OrderBy(o => o[2]).ToList();
