@@ -319,7 +319,7 @@ namespace LithographyAreaValidation.ModelElements
             TotalSquaredTardiness += tardiness * tardiness;
             TotalTardiness += tardiness;
 
-            if (earliness != 0)
+            if (tardiness != 0)
             {
                 TotalLotsProducedTardy += 1;
             }
