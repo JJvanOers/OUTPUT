@@ -61,12 +61,12 @@ namespace LithographyAreaValidation.Controls
 
                 double scheduledStartTime = scheduledLot.ScheduledTime;
 
-                if (scheduledStartTime != GetTime && !LithographyArea.Dynamic)
+                if (scheduledStartTime != GetTime && !LithographyArea.Stochastic && !LithographyArea.Dynamic)
                 {
                     // Schedule next startRun
                     ScheduleEvent(scheduledStartTime, machine.DispatchNextLotEvent);
                 }
-                else if (scheduledStartTime == GetTime && !LithographyArea.Dynamic)
+                else if (scheduledStartTime == GetTime && !LithographyArea.Stochastic && !LithographyArea.Dynamic)
                 {
                     dispatchedLot = HandleDeparture(scheduledLot, machine);
                     ScheduledLotsPerMachine[machine.Name].Remove(dispatchedLot);

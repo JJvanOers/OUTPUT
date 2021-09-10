@@ -20,26 +20,32 @@ namespace LithographyAreaValidation
             bool simulateFIFO = false;
             bool simulateEDD = false;
             bool simulateSPT = false;
-            bool simulateCurrentProductionControl = false;
+            bool simulateCurrentProductionControl = true;
             bool simulateILPScheduling = true;
-            bool simulateCPScheduling = false;
+            bool simulateCPScheduling = true;
             int CPTimeLimit = 60;
 
             // STOCHASTIC / DYNAMIC
-            bool dynamic = true;
+            bool dynamic = false;
             bool stochastic = true;
 
             // START DATES
             List<DateTime> startDates = new List<DateTime>();
 
-            for (int i = 1; i < 29; i++)
+            if (dynamic)
             {
-                startDates.Add(new DateTime(2021, 2, i, 7, 0, 0));
+                startDates.Add(new DateTime(2021, 2, 1, 7, 0, 0));
             }
+            else
+            {
+                for (int i = 1; i < 29; i++)
+                {
+                    startDates.Add(new DateTime(2021, 2, i, 7, 0, 0));
+                }
 
-            startDates.Add(new DateTime(2021, 3, 1, 7, 0, 0));
-            startDates.Add(new DateTime(2021, 3, 2, 7, 0, 0));
-            //startDates.Add(new DateTime(2021, 4, 1, 7, 0, 0));
+                startDates.Add(new DateTime(2021, 3, 1, 7, 0, 0));
+                startDates.Add(new DateTime(2021, 3, 2, 7, 0, 0));
+            }
 
             // WEIGHTS
             List<double[]> weightsILPScheduler = new List<double[]>();
