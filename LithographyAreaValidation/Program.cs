@@ -32,13 +32,13 @@ namespace LithographyAreaValidation
             // START DATES
             List<DateTime> startDates = new List<DateTime>();
 
-            //for (int i = 1; i < 29; i++)
-            //{
-            //    startDates.Add(new DateTime(2021, 2, i, 7, 0, 0));
-            //}
+            for (int i = 1; i < 29; i++)
+            {
+                startDates.Add(new DateTime(2021, 2, i, 7, 0, 0));
+            }
 
-            startDates.Add(new DateTime(2021, 2, 1, 7, 0, 0));
-            //startDates.Add(new DateTime(2021, 3, 1, 7, 0, 0));
+            startDates.Add(new DateTime(2021, 3, 1, 7, 0, 0));
+            startDates.Add(new DateTime(2021, 3, 2, 7, 0, 0));
             //startDates.Add(new DateTime(2021, 4, 1, 7, 0, 0));
 
             // WEIGHTS

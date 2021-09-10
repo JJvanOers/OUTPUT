@@ -121,7 +121,7 @@ namespace LithographyAreaValidation.Controls
 
                 foreach (int count in countsOrderded)
                 {
-                    IEnumerable<Lot> lots = lotsNotScheduled.Where(x => x.Value == count).Select(x => x.Key).OrderBy(x => x.DueDate);
+                    IEnumerable<Lot> lots = lotsNotScheduled.Where(x => x.Value == count).Select(x => x.Key).OrderBy(x => x.ImprovedDueDate);
 
                     if (lots.Any())
                     {

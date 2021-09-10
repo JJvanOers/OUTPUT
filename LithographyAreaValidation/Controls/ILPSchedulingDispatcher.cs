@@ -815,12 +815,12 @@ namespace LithographyAreaValidation.Controls
                 int nMachines = processingTimes.GetLength(0);
                 int nJobs = processingTimes.GetLength(1);
 
-                Console.WriteLine($"Time: {LithographyArea.StartDate.AddSeconds(GetTime)}, number of jobs scheduled: {nJobs},");
+                Console.Write($"Time: {LithographyArea.StartDate.AddSeconds(GetTime)}, number of jobs scheduled: {nJobs}, ");
 
                 // Create an empty environment, set options and start
                 GRBEnv env = new GRBEnv(true);
-                //env.Set("LogFile", "mip1.log");
-                env.OutputFlag = 0;
+                env.Set("LogFile", "mip1.log");
+                //env.OutputFlag = 0;
                 env.Start();
 
                 // Create empty model
@@ -887,6 +887,8 @@ namespace LithographyAreaValidation.Controls
                 // Solve
                 model.Optimize();
 
+                Console.WriteLine($"Status {model.Status}");
+
                 for (int i = 0; i < nMachines; ++i)
                 {
                     for (int j = 0; j < nJobs; j++)
@@ -905,7 +907,7 @@ namespace LithographyAreaValidation.Controls
                     }
                 }
 
-                Console.Write(" Objective: " + model.ObjVal);
+                Console.WriteLine("Objective: " + model.ObjVal);
 
                 // Dispose of model and env
                 model.Dispose();
