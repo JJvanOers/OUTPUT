@@ -333,7 +333,7 @@ namespace LithographyAreaValidation.ModelElements
                     nonProductiveTime = GetDeterministicNonProductiveTime(layerChange, reticleChange);
                 }
 
-                if (!LithographyArea.Dynamic && Dispatcher.Name == "CPDispatcher")
+                if (!LithographyArea.Dynamic && !LithographyArea.Stochastic && Dispatcher.Name == "CPDispatcher")
                 {
                     nonProductiveTime = 0;
                 }
