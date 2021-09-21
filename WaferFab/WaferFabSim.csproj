@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
+    <ProjectReference Include="..\..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
   </ItemGroup>
 
 </Project>

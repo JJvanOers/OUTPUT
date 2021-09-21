@@ -33,6 +33,7 @@ namespace WaferFabSim
             waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
 
+            // MIVS Settings
             waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
             waferFabSettings.MIVSjStepBack = 0;
             waferFabSettings.MIVSkStepAhead = 1;

@@ -20,8 +20,8 @@ namespace LithographyAreaValidation
             bool simulateFIFO = false;
             bool simulateEDD = false;
             bool simulateSPT = false;
-            bool simulateCurrentProductionControl = true;
-            bool simulateILPScheduling = true;
+            bool simulateCurrentProductionControl = false;
+            bool simulateILPScheduling = false;
             bool simulateCPScheduling = true;
             int CPTimeLimit = 60;
 
@@ -196,7 +196,7 @@ namespace LithographyAreaValidation
             sim.MyExperiment.LengthOfWarmUp = 0;
             if (stochastic)
             {
-                sim.MyExperiment.NumberOfReplications = 30;
+                sim.MyExperiment.NumberOfReplications = 1;
             }
             else
             { 

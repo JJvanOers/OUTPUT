@@ -15,13 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaferAreaOptimiser", "WaferAreaOptimiser\WaferAreaOptimiser.csproj", "{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSSL", "..\JelleAdan\CSSL\CSSL\CSSL.csproj", "{2223A34E-3686-4896-8B6C-A4EEF46833AB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSC2021paper", "WSC2021paper\WSC2021paper.csproj", "{D6E6F64D-0693-4B5C-86DD-295BAFAD122B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WIPBalanceWeights", "WIPBalanceWeights\WIPBalanceWeights.csproj", "{25522BFE-7701-4CB8-B43D-254FFAA9D997}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LithographyAreaValidation", "LithographyAreaValidation\LithographyAreaValidation.csproj", "{A2D393C6-31B3-498B-9598-C81FDA73D09F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSSL", "..\..\JelleAdan\CSSL\CSSL\CSSL.csproj", "{6D2707A9-6E38-4AC8-98F3-967EE52F5966}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +53,6 @@ Global
 		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6178505-2BD8-4AE1-A9B9-A317C7B091EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2223A34E-3686-4896-8B6C-A4EEF46833AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2223A34E-3686-4896-8B6C-A4EEF46833AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2223A34E-3686-4896-8B6C-A4EEF46833AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2223A34E-3686-4896-8B6C-A4EEF46833AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6E6F64D-0693-4B5C-86DD-295BAFAD122B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D6E6F64D-0693-4B5C-86DD-295BAFAD122B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6E6F64D-0693-4B5C-86DD-295BAFAD122B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,6 +65,10 @@ Global
 		{A2D393C6-31B3-498B-9598-C81FDA73D09F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2D393C6-31B3-498B-9598-C81FDA73D09F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2D393C6-31B3-498B-9598-C81FDA73D09F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D2707A9-6E38-4AC8-98F3-967EE52F5966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D2707A9-6E38-4AC8-98F3-967EE52F5966}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D2707A9-6E38-4AC8-98F3-967EE52F5966}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D2707A9-6E38-4AC8-98F3-967EE52F5966}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -95,6 +95,7 @@ namespace WaferFabSim
                     distr.WorkCenter = workCenter;
                 }
 
+                // Choose dispatcher
                 if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.BQF)
                 {
                     workCenter.SetDispatcher(new BQFDispatcher(workCenter, workCenter.Name + "_BQFDispatcher"));
