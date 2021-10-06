@@ -37,6 +37,8 @@ namespace WaferFabSim.WaferFabElements
 
         public int stepCount => lotSteps.Count;
 
+        public double TPTPrediction => lotSteps[0].PlanDay;
+
 
         public bool HasNextStep(int currentStepCount)
         {

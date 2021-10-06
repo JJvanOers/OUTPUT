@@ -7,47 +7,33 @@ using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Dispatchers
 {
-    public class RandomDispatcher : DispatcherBase
+    public class FIFODispatcher : DispatcherBase
     {
-        public RandomDispatcher(ModelElementBase workCenter, string name) : base(workCenter, name)
+        public FIFODispatcher(ModelElementBase workCenter, string name) : base(workCenter, name)
         {
-            rnd = new Random();
         }
-
-        public Random rnd;
 
         public override void HandleArrival(Lot lot)
         {
-            wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
             wc.Queue.EnqueueLast(lot);
+            wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
 
             // Queue was empty upon arrival, lot gets taken into service and departure event is scheduled immediately
             if (wc.TotalQueueLength == 1)
             {
                 ScheduleEvent(GetTime + wc.ServiceTimeDistribution.Next(), wc.HandleDeparture);
-
-                wc.LotStepInService = lot.GetCurrentStep;
             }
         }
 
         public override void HandleDeparture()
         {
-            Lot lot = wc.Queues[wc.LotStepInService].DequeueFirst();
-            wc.Queue.Dequeue(lot);
+            Lot lot = wc.Queue.DequeueFirst();
+            wc.Queues[lot.GetCurrentStep].Dequeue(lot);
 
             // Schedule next departure event, if queue is nonempty
             if (wc.TotalQueueLength > 0)
             {
-                // Choose random queue to service
-                List<LotStep> possibleQueues = wc.Queues.Where(x => x.Value.Length > 0).Select(x => x.Key).ToList();
-
-                wc.LotStepInService = possibleQueues[rnd.Next(0, possibleQueues.Count)];
-
                 ScheduleEvent(GetTime + wc.ServiceTimeDistribution.Next(), wc.HandleDeparture);
-            }
-            else
-            {
-                wc.LotStepInService = null;
             }
 
             // Send to next workcenter. Caution: always put this after the schedule next departure event part.
@@ -63,15 +49,12 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
         public override void HandleFirstDeparture()
         {
-            // Choose biggest queue to service
-            wc.LotStepInService = wc.Queues.OrderByDescending(x => x.Value.Length).First().Key;
-
             HandleDeparture();
         }
 
         public override void HandleInitialization(List<Lot> lots)
         {
-            foreach(Lot lot in lots)
+            foreach(Lot lot in lots.OrderBy(x => x.ArrivalReal))
             {
                 HandleArrival(lot);
             }

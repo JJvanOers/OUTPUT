@@ -115,6 +115,14 @@ namespace WaferFabSim
                 {
                     workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVSDisptacher", MyWaferFabSettings.MIVSkStepAhead, MyWaferFabSettings.MIVSjStepBack));
                 }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.WORKLOAD)
+                {
+                    workCenter.SetDispatcher(new WLDispatcher(workCenter, workCenter.Name + "_WLDisptacher", MyWaferFabSettings.MIVSkStepAhead, MyWaferFabSettings.MIVSjStepBack));
+                }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.FIFO)
+                {
+                    workCenter.SetDispatcher(new FIFODispatcher(workCenter, workCenter.Name + "_FIFODisptacher"));
+                }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);
             }
@@ -150,11 +158,13 @@ namespace WaferFabSim
 
             foreach (var wc in waferFab.WorkCenters)
             {
-                TotalQueueObserver totalQueueObs = new TotalQueueObserver(MySimulation, wc.Key + "_TotalQueueObserver");
+                //TotalQueueObserver totalQueueObs = new TotalQueueObserver(MySimulation, wc.Key + "_TotalQueueObserver");
                 //SeperateQueuesObserver seperateQueueObs = new SeperateQueuesObserver(MySimulation, wc.Value, wc.Key + "_SeperateQueuesObserver");
+                LotOutObserver lotOutObserver = new LotOutObserver(MySimulation, wc.Key + "_LotOutObserver");
 
-                wc.Value.Subscribe(totalQueueObs);
+                //wc.Value.Subscribe(totalQueueObs);
                 //wc.Value.Subscribe(seperateQueueObs);
+                wc.Value.dispatcher.Subscribe(lotOutObserver);
             }
         }
 

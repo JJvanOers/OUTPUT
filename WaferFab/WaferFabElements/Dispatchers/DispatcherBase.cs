@@ -32,7 +32,9 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             MIVS,
             EPTOVERTAKING,
             BQF,
-            RANDOM
+            RANDOM,
+            WORKLOAD,
+            FIFO
         }
     }
 

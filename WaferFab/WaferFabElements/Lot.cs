@@ -90,6 +90,12 @@ namespace WaferFabSim.WaferFabElements
         public WorkCenter GetNextWorkCenter => Sequence.GetNextWorkCenter(CurrentStepCount);
 
         public LotStep GetCurrentStep => Sequence.GetCurrentStep(CurrentStepCount);
+        
+         // Schedule Deviation calculated as predicted days until this step, minus actual days passed. Negative if job is late to step.
+        public int GetCurrentSchedDev => (int)Math.Round((Sequence.TPTPrediction - Sequence.GetCurrentStep(CurrentStepCount).PlanDay) - GetCurrentWorkCenter.GetTime / 24 / 60 / 60); // days
+
+        // PlanDay is not set if it remains zero. In that case, GetCurrentSchedDev is unusable.
+        public bool HasPlanDay => Sequence.GetCurrentStep(CurrentStepCount).PlanDay == 0; 
 
         public LotStep GetNextStep => Sequence.GetNextStep(CurrentStepCount);
 

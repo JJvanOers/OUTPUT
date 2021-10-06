@@ -35,7 +35,7 @@ namespace WaferFabSim.WaferFabElements
 
         public Distribution ServiceTimeDistribution { get; }
 
-        private DispatcherBase dispatcher { get; set; }
+        public DispatcherBase dispatcher { get; set; }
 
         public List<LotStep> LotSteps { get; set; }
 

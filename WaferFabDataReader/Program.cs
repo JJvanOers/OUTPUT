@@ -22,7 +22,7 @@ namespace WaferFabDataReader
 
             AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
 
-            //SerializeWorkCenterLotActivities(reader, "LotActivity2019_2020.csv", "WorkCenterLotActivities_SmallTestSet", true);
+            SerializeWorkCenterLotActivities(reader, "LotActivity2019_2020.csv", "WorkCenterLotActivities_SmallTestSet", true);
 
             //SerializeWaferFabSettings(reader, false);
 

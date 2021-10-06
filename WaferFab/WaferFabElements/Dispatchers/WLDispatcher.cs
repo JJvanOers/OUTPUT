@@ -7,16 +7,22 @@ using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Dispatchers
 {
-    public class MIVSDispatcher : DispatcherBase
+    public class WLDispatcher : DispatcherBase
     {
-        public MIVSDispatcher(WorkCenter workCenter, string name, int kStepAhead, int jStepBack) : base(workCenter, name)
+        public WLDispatcher(WorkCenter workCenter, string name, int kStepAhead, int jStepBack) : base(workCenter, name)
         {
             this.kStepAhead = kStepAhead;
             this.jStepBack = jStepBack;
+            this.maxBatchSize = 25;
+            this.modX = 0.3;
+            this.modY = 1.4;
         }
 
         private int kStepAhead { get; set; }
         private int jStepBack { get; set; }
+        private double modX { get; set; }
+        private double modY { get; set; }
+        private double maxBatchSize { get; set; }
 
         private Dictionary<LotStep, double> WIPtargets => wc.WaferFab.WIPTargets;
 
@@ -31,15 +37,19 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             {
                 Lot lot = wc.Queue.PeekAt(i);
 
-                double weight = 0.0;
+                double batchUtil = lot.QtyReal / maxBatchSize;
+                double mod = 1; // Math.Min(Math.Max(modX + (batchUtil - 0.5) * modY, modX), 1.0);
+
+                double workLoadLocal = lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].LengthInWafers * lot.GetCurrentWorkCenter.ServiceTimeDistribution.Mean;
+                double weight = mod*workLoadLocal;
 
                 for (int relStep = -jStepBack; relStep <= 0; relStep++)
                 {
                     if (lot.HasRelativeStep(relStep))
                     {
                         LotStep step = lot.GetRelativeStep(relStep);
-
-                        weight += lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers - WIPtargets[step];
+                        double workLoadUpstream = lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers * lot.GetRelativeWorkCenter(relStep).ServiceTimeDistribution.Mean;
+                        weight += mod*workLoadUpstream / Math.Pow(2, Math.Abs(relStep));
                     }
                 }
 
@@ -48,8 +58,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                     if (lot.HasRelativeStep(relStep))
                     {
                         LotStep step = lot.GetRelativeStep(relStep);
-
-                        weight += WIPtargets[step] - lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers;
+                        double workLoadDownstream = lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers * lot.GetRelativeWorkCenter(relStep).ServiceTimeDistribution.Mean;
+                        weight -= 1/mod * workLoadDownstream / Math.Pow(2, Math.Abs(relStep));
                     }
                 }
 
@@ -95,14 +105,16 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             {
                 ScheduleEvent(GetTime + wc.ServiceTimeDistribution.Next(), wc.HandleDeparture);
             }
-
+            
             // Send to next workcenter. Caution: always put this after the schedule next departure event part.
             lotToDispatch.SendToNextWorkCenter();
-            if (!lotToDispatch.HasNextStep && lotToDispatch.StartTime > 0) // EPT realisations of lots initially in the system is unavailable
+            
+            if (!lotToDispatch.HasNextStep && lotToDispatch.StartTime > 0) // EPT realisations of lots initially in the system is unavailable (removes 1 more than necessary)
             {
                 DepartingLot = lotToDispatch;
                 NotifyObservers(this);
             }
+
             lotToDispatch = null;
             DepartingLot = null;
         }

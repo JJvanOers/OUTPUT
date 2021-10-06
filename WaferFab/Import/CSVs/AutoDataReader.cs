@@ -335,7 +335,7 @@ namespace WaferFabSim.InputDataConversion
             irdNumbering.Clear();
 
             // Read steps from process plans
-            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "ProcessPlans.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "ProcessPlansPlanDay_CSSL 2019-9-1.csv")))
             {
                 string headerLine = reader.ReadLine();
 
@@ -381,7 +381,7 @@ namespace WaferFabSim.InputDataConversion
                     {
                         throw new Exception($"Did not find IRDGroup for {step.Productname} in {step.Techstage} {step.Subplan}");
                         //Console.WriteLine($"Did not find IRDGroup for {step.Productname} in {step.Techstage} {step.Subplan}");
-                        //if (!missingIRDmappings.Contains($"{step.Techstage} {step.Subplan}"))
+                        //if (!missingirdmappings.contains($"{step.techstage} {step.subplan}"))
                         //{
                         //    missingIRDmappings.Add($"{step.Techstage} {step.Subplan}");
                         //}
@@ -461,6 +461,7 @@ namespace WaferFabSim.InputDataConversion
                 Sequence seq = new Sequence(stepsThisProduct.First().Productname, stepsThisProduct.First().Plangroup);
 
                 string currentIRD = "";
+                LotStep currLotStep;
 
                 // NOTE. Property of lists: foreach loop on List loops in correct order (from first to last index)
                 foreach (var step in stepsThisProduct)
@@ -468,8 +469,11 @@ namespace WaferFabSim.InputDataConversion
                     if (currentIRD != step.IRDGroup)
                     {
                         currentIRD = step.IRDGroup;
+                        currLotStep = lotSteps[currentIRD];
 
-                        seq.AddStep(lotSteps[currentIRD]);
+                        currLotStep.SetTPTPredictions(step.PlanDay, step.ProdPrediction, step.TechPrediction);
+
+                        seq.AddStep(currLotStep);
                     }
                 }
                 sequences.Add(seq);
@@ -533,6 +537,9 @@ namespace WaferFabSim.InputDataConversion
             public string Stepname { get; private set; }
             public string Recipe { get; private set; }
             public int StepSequence { get; private set; }
+            public double PlanDay { get; private set; }
+            public double ProdPrediction { get; private set; }
+            public double TechPrediction { get; private set; }
             public string IRDGroup { get; set; }
 
             public string ToolGroup { get; set; }
@@ -547,7 +554,7 @@ namespace WaferFabSim.InputDataConversion
                 string[] data = dataLine.Trim(',').Split(',');
 
                 for (int i = 0; i < data.Length; i++)
-                {
+                { // would switch case be quicker?
                     if (headers[i] == "PRODUCTNAME" || headers[i] == "PRODUCT") { Productname = data[i]; }
                     if (headers[i] == "PLANGROUP") { Plangroup = data[i]; }
                     if (headers[i] == "TECHSTAGE") { Techstage = data[i]; }
@@ -555,6 +562,9 @@ namespace WaferFabSim.InputDataConversion
                     if (headers[i] == "STEPNAME") { Stepname = data[i]; }
                     if (headers[i] == "RECIPE") { Recipe = data[i]; }
                     if (headers[i] == "STEPSEQUENCE") { StepSequence = int.Parse(data[i]); }
+                    if (headers[i] == "Plan Day") { PlanDay = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : 0; } // sets to zero if empty
+                    if (headers[i] == "Product Prediction") { ProdPrediction = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : double.NaN; } // sets to NaN if empty
+                    if (headers[i] == "Technology Prediction") { TechPrediction = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : double.NaN; } // sets to NaN if empty
                 }
             }
         }

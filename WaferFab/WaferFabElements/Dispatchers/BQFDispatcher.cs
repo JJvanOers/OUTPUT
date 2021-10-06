@@ -18,6 +18,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             //Console.WriteLine($"{GetTime} Arrival \tlot {lot.Id} \t{lot.GetCurrentStep.Name} \t{wc.Name}");
 
             wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
+            wc.Queue.EnqueueLast(lot);
 
             // Queue was empty upon arrival, lot gets taken into service and departure event is scheduled immediately
             if (wc.TotalQueueLength == 1)
@@ -31,6 +32,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
         public override void HandleDeparture()
         {
             Lot lot = wc.Queues[wc.LotStepInService].DequeueFirst();
+            wc.Queue.Dequeue(lot);
 
             //Console.WriteLine($"{GetTime} Departure \tlot {lot.Id} \t{lot.GetCurrentStep.Name} \t{wc.Name}");
 
@@ -50,6 +52,12 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             // Send to next workcenter. Caution: always put this after the schedule next departure event part.
             // Otherwise it causes problems when a lot has to visit the same workstation twice in a row.
             lot.SendToNextWorkCenter();
+            if (!lot.HasNextStep && lot.StartTime > 0) // EPT realisations of lots initially in the system is unavailable
+            {
+                DepartingLot = lot;
+                NotifyObservers(this);
+            }
+            DepartingLot = null;
         }
 
         public override void HandleFirstDeparture()
