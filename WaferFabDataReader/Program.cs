@@ -28,9 +28,9 @@ namespace WaferFabDataReader
 
             //SerializeLotTraces(reader, "LotActivity2019_2020_2021.csv", "LotTraces_2019_2020_2021");
 
-            WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020_2021.dat", "AllLotActivitiesWithEPTs_201920202021.csv");
+            //WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020_2021.dat", "AllLotActivitiesWithEPTs_201920202021.csv");
 
-            //SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
 
             ////SerializeWaferFabSettings(reader, true);
 
@@ -41,8 +41,8 @@ namespace WaferFabDataReader
 
             //SerializeRealSnaphotsAll(reader, 1);
 
-            //SerializeRealSnapshotsPerMonth(reader, 1);
-            
+            SerializeRealSnapshotsPerMonth(reader, 1);
+
         }
 
         /// <summary>

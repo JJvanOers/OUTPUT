@@ -32,11 +32,11 @@ namespace WaferFabSim.SnapshotData
 
             string type = Path.GetExtension(filename).ToLower();
 
-            if (type == ".csv")
-            {
-                readCSV();
-            }
-            else if (type == ".dat")
+            //if (type == ".csv")
+            //{
+            //    readCSV();
+            //}
+            if (type == ".dat")
             {
                 ReadDAT();
             }
@@ -48,28 +48,10 @@ namespace WaferFabSim.SnapshotData
             return RealSnapshots;
         }
 
-        private void readCSV()
-        {
-            RealLots = fillAllLots();
-            RealSnapshots = constructRealSnapshots();
-        }
-
         private void ReadDAT()
         {
             RealSnapshots = Tools.ReadFromBinaryFile<List<RealSnapshot>>(Filename);
             RealLots = RealSnapshots.SelectMany(x => x.GetRealLots(WaferQtyThreshold)).ToList();
-        }
-
-        private List<RealSnapshot> constructRealSnapshots()
-        {
-            List<RealSnapshot> allSnapshots = new List<RealSnapshot>();
-
-            foreach (var snapshotTime in RealLots.Select(x => x.SnapshotTime).Distinct())
-            {
-                allSnapshots.Add(new RealSnapshot(RealLots.Where(x => x.SnapshotTime == snapshotTime).ToList(), WaferQtyThreshold));
-            }
-
-            return allSnapshots.OrderBy(x => x.Time).ToList();
         }
 
         private List<RealLot> fillAllLots()

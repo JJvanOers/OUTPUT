@@ -17,13 +17,13 @@ namespace WaferFabSim.SnapshotData
             return RealLots.Where(x => x.Qty >= waferQtyThreshold).ToList();
         }
 
-        public RealSnapshot(List<RealLot> lots, int waferQtyThreshold)
+        public RealSnapshot(DateTime time, List<RealLot> lots, int waferQtyThreshold)
         {
             RealLots = lots;
 
             LotSteps = lots.Where(x => x.IRDGroup != null).Select(x => x.IRDGroup).Distinct().ToArray();
 
-            Time = lots.First().SnapshotTime;
+            Time = time;
 
             foreach(var lotStep in LotSteps)
             {
