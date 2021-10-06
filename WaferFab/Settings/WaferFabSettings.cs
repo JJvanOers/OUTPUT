@@ -30,7 +30,7 @@ namespace WaferFabSim
         }
 
         // Initial time
-        public DateTime? InitialTime => InitialRealLots.Any() ? (DateTime?)InitialRealLots.First().SnapshotTime : null;
+        public DateTime? InitialTime => InitialRealLots.Any() ? InitialRealLots.First().SnapshotTime : null;
 
         // Initial Lots. These are the lots which are already present in the waferfab at initial time of the simulation
         public List<RealLot> InitialRealLots { get; set; }
@@ -64,7 +64,7 @@ namespace WaferFabSim
 
             foreach (var real in RealLotStarts.Where(x => x.Item1 >= InitialTime))
             {
-                lotStarts.Add(new Tuple<DateTime, Lot>(real.Item1, real.Item2.ConvertToLot(0, Sequences, true)));
+                lotStarts.Add(new Tuple<DateTime, Lot>(real.Item1, real.Item2.ConvertToLot(0, Sequences, true, InitialTime)));
             }
 
             return lotStarts.Where(x => x.Item2 != null).ToList();

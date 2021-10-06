@@ -147,6 +147,8 @@ namespace WaferFabSim.WaferFabElements
             {
                 List<Lot> initialLotsDeepCopy = InitialLots.ConvertAll(x => new Lot(x));
 
+
+
                 dispatcher.HandleInitialization(initialLotsDeepCopy);
             }
         }

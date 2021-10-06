@@ -137,7 +137,7 @@ namespace WaferFabSim
             // Add intial lots (lots present at t = 0) by translating RealLots (from RealSnapshot) to Lots
             if (MyWaferFabSettings.InitialRealLots.Any() != default)
             {
-                waferFab.InitialLots = MyWaferFabSettings.InitialRealLots.Select(x => x.ConvertToLot(0, waferFab.Sequences, false)).Where(x => x != null).ToList();
+                waferFab.InitialLots = MyWaferFabSettings.InitialRealLots.Select(x => x.ConvertToLot(0, waferFab.Sequences, false, waferFab.InitialDateTime)).Where(x => x != null).ToList();
             }
 
             // Add observers

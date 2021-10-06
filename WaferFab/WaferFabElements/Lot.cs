@@ -27,6 +27,11 @@ namespace WaferFabSim.WaferFabElements
         /// Simulation time which the lot got released in the fab.
         /// </summary>
         public double StartTime { get; set; }
+
+        /// <summary>
+        /// Wall clock date time when the lot got released in the fab.
+        /// </summary>
+        public DateTime? StartTimeReal { get; set; }
         public double EndTime { get; private set; }
 
         /// <summary>
@@ -113,6 +118,7 @@ namespace WaferFabSim.WaferFabElements
                 if (CurrentStepCount == 0)
                 { // Means it is the first step, it is now released in fab so start time can be saved.
                     StartTime = nextWorkCenter.GetTime;
+                    StartTimeReal = nextWorkCenter.GetDateTime;
                 }
 
                 nextWorkCenter.HandleArrival(this);
@@ -142,6 +148,7 @@ namespace WaferFabSim.WaferFabElements
         /// <param name="lotToDeepCopy">Original lot to make deep copy of.</param>
         public Lot(Lot lotToDeepCopy)
         {
+            StartTimeReal = lotToDeepCopy.StartTimeReal;
             LotID = lotToDeepCopy.LotID;
             Sequence = lotToDeepCopy.Sequence;
             CurrentStepCount = lotToDeepCopy.CurrentStepCount;

@@ -153,14 +153,24 @@ namespace WaferFabSim.Import
 
                         if (activity != null && raw != null)
                         {
-                            RealLot newLot = new RealLot(activity, raw, time);
+                            RealLot newLot;
+
+                            if (trace.HasStart)
+                            {
+                                newLot = new RealLot(activity, raw, trace.StartDate, time);
+                            }
+                            else
+                            {
+                                newLot = new RealLot(activity, raw, null, time);
+                            }
+
 
                             lots.Add(newLot);
                         }
                     }
                 }
 
-                RealSnapshot snapshot = new RealSnapshot(lots, waferQtyThreshold);
+                RealSnapshot snapshot = new RealSnapshot(time, lots, waferQtyThreshold);
 
                 return snapshot;
             }

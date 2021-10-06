@@ -11,7 +11,8 @@ namespace WaferFabSim.SnapshotData
     [Serializable]
     public class RealLot
     {
-        public DateTime SnapshotTime { get; private set; }
+        public DateTime? SnapshotTime { get; private set; } = null;
+        public DateTime? StartTime { get; private set; } = null;
         public string IRDGroup { get; private set; }
         public string StepName { get; private set; }
         public string LotID { get; private set; }
@@ -30,9 +31,10 @@ namespace WaferFabSim.SnapshotData
         private int wipIn => LotActivity.WIPIn;
         public LotActivity LotActivity { get; }
 
-        public RealLot(LotActivity activity, LotActivityRaw raw, DateTime time)
+        public RealLot(LotActivity activity, LotActivityRaw raw, DateTime? startTime, DateTime? snapshotTime = null)
         {
-            SnapshotTime = time;
+            SnapshotTime = snapshotTime;
+            StartTime = startTime;
             IRDGroup = activity.IRDGroup;
             StepName = raw.Stepname;
             LotID = activity.LotId;
@@ -52,7 +54,6 @@ namespace WaferFabSim.SnapshotData
 
             for (int i = 0; i < data.Length; i++)
             {
-                if (headers[i] == "SNAPSHOTTIME") { SnapshotTime = DateTime.Parse(data[i]); }
                 if (headers[i] == "IRDGroup") { IRDGroup = data[i]; }
                 if (headers[i] == "StepName") { StepName = data[i]; }
                 if (headers[i] == "LotID") { LotID = data[i]; }
@@ -71,7 +72,7 @@ namespace WaferFabSim.SnapshotData
             }
         }
 
-        public Lot ConvertToLot(double creationTime, Dictionary<string, Sequence> sequences, bool lotYetToStart) // false = isInitialLot
+        public Lot ConvertToLot(double creationTime, Dictionary<string, Sequence> sequences, bool lotYetToStart, DateTime? initialTime) // lotYetToStart false = isInitialLot
         {
             if (sequences.ContainsKey(DeviceType))
             {
@@ -79,12 +80,20 @@ namespace WaferFabSim.SnapshotData
 
                 Lot lot = new Lot(creationTime, sequence);
 
+                lot.StartTimeReal = StartTime;
                 lot.LotID = LotID;
                 lot.PlanDayReal = PlanDay;
                 lot.ClipWeekReal = ClipWeek;
                 lot.ArrivalReal = arrival;
                 lot.WIPInReal = wipIn;
                 lot.QtyReal = Qty;
+
+                // Add calculate negative simulation start time for initial lots
+                if (!lotYetToStart && StartTime != null && initialTime != null)
+                {
+                    TimeSpan timeDelta = (DateTime)StartTime - (DateTime)initialTime;
+                    lot.StartTime = timeDelta.TotalSeconds;
+                }
 
                 if (!lotYetToStart)
                 {   // For intial lots, these have a initial position. Stepcount is set to according step based on Real lot's IRD group.
