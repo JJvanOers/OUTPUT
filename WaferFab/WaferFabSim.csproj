@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\OneDrive - Nexperia\Documents\C#\CSSL\CSSL\CSSL.csproj" />
+    <ProjectReference Include="..\..\High-Speed-Priority-Queue-for-C-Sharp\Priority Queue\Priority Queue.csproj" />
   </ItemGroup>
 
 </Project>

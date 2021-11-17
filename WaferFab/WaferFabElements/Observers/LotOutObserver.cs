@@ -27,14 +27,20 @@ namespace WaferFabSim.WaferFabElements.Observers
             Lot lot = dispatcher.DepartingLot;
             jobOutCounter++;
 
-            Writer?.WriteLine($"{dispatcher.GetDateTime},{lot.EndTime - lot.StartTime},{lot.GetCurrentStep.Name},{lot.LotID},{lot.ProductType},{lot.EndTime},{lot.StartTime},{lot.Sequence.TPTPrediction},{lot.GetCurrentSchedDev},{lot.HasPlanDay}");
+            bool HasPlanDay = lot.Sequence.TimeTillLotOut[0][0] != null;
+            
+            if (lot.StartTimeReal != null) // exclude initial lots without a starting time
+            {
+                if (!HasPlanDay) { Console.WriteLine($"WARNING: Lot {lot.LotID} of producttype {lot.ProductType} is not using the PlanDay prediction for CLIP-day. Continuing with product or technology prediction."); }
+                Writer?.WriteLine($"{dispatcher.GetDateTime},{lot.EndTime - lot.StartTime},{lot.GetCurrentStep.Name},{lot.LotID},{lot.ProductType},{lot.EndTime},{lot.StartTime},{lot.Sequence.StandardTPT},{lot.ClipDayDeviation},{lot.GetCurrentSchedDev()},{HasPlanDay}"); 
+            }
             //Writer?.WriteLine($"{dispatcher.GetDateTime},{lot.EndTime - lot.StartTime},{lot.GetCurrentStep.Name},{lot.LotID},{lot.ProductType},{lot.EndTime},{lot.StartTime},{lot.CycleTimeReal},{lot.WIPInReal},{lot.WIPIn}");
         }
 
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            Writer?.WriteLine("DateTime,CycleTime,IRDGroup,LotID,ProductType,EndTime,StartTime,PredictedCycleTime,ScheduleDeviation,HasPlanDay");
+            Writer?.WriteLine("DateTime,CycleTime,IRDGroup,LotID,ProductType,EndTime,StartTime,PredictedCycleTime,ScheduleDeviation,SchedDevCurrent,HasPlanDay");
             //Writer?.WriteLine("DateTime,CycleTime,IRDGroup,LotID,ProductType,EndTime,StartTime,OriginalCycleTime,WIPInReal,WIPIn");
         }
 

@@ -89,6 +89,52 @@ namespace WaferFabSim.WaferFabElements
             }
         }
 
+        public void UpdateBottleneck()
+        {
+            int maxBottlenecks = 1;
+            List<WorkCenter> workLoadOrdered = WorkCenters.Values.OrderByDescending(x => x.GetTotalWorkload).ToList();
+            foreach (WorkCenter workCenter in workLoadOrdered)
+            {
+                int i = workLoadOrdered.IndexOf(workCenter);
+                workCenter.WCisBottleneck = i < maxBottlenecks;  // if current workcenter has highest total workload, then this is a bottleneck (allows for choosing multiple bottlenecks)
+            }
+        }
+
+        public void ShiftLotStarts(double StartTimeShiftFactor, DateTime timeMinimum)
+        {
+            List<Lot> newInitials = new List<Lot>();
+            newInitials = InitialLots.Select(x => x.ShiftStarts(StartTimeShiftFactor, timeMinimum, InitialDateTime)).ToList();
+
+            List<Lot> ShiftedLGenStarts = LotStarts.Select(x => x.Item2.ShiftStarts(StartTimeShiftFactor, timeMinimum, InitialDateTime)).Where(x => x.StartTimeReal != null).ToList();
+            List<Tuple<DateTime, Lot>> newStarts = ShiftedLGenStarts.Select(x => new Tuple<DateTime, Lot>((DateTime)x.StartTimeReal, x)).ToList();
+
+            if (StartTimeShiftFactor < 1)
+            {
+                List<Tuple<DateTime, Lot>> moveLots = newStarts.Where(x => x.Item2.StartTimeReal < InitialDateTime).ToList();
+                foreach (Tuple<DateTime, Lot> tuple in moveLots)
+                {
+                    newStarts.Remove(tuple);
+                    Lot moveLot = tuple.Item2;
+                    newInitials.Add(moveLot.SetAsInitialLot(InitialDateTime));
+                }
+                newInitials = newInitials.Select(x => x.SetBestFittingStep()).Where(x => x != null).ToList();
+            }
+            else if (StartTimeShiftFactor > 1)
+            {
+                List<Lot> moveLots = newInitials.Where(x => x.StartTimeReal > InitialDateTime && x.StartTimeReal != null).ToList();
+                foreach (Lot lot in moveLots)
+                {
+                    //lot.SetCurrentStepCount(-1); // kan dit veilig weg?
+                    //lot.StartTime = default; // " ?
+                    newStarts.Add(new Tuple<DateTime, Lot>((DateTime)lot.StartTimeReal, lot));
+                    newInitials.Remove(lot);
+                }
+                newStarts = newStarts.OrderBy(x => x.Item2.StartTimeReal).ToList();
+            }
+            InitialLots = newInitials;
+            LotStarts = newStarts;
+        }
+
         /// <summary>
         /// This is created to read out data on a sampled interval.
         /// </summary>
@@ -106,7 +152,7 @@ namespace WaferFabSim.WaferFabElements
         /// <param name="e"></param>
         private void HandleFirstSnapshot(CSSLEvent e)
         {
-              NotifyObservers(this);
+            NotifyObservers(this);
         }
 
         protected override void OnReplicationStart()

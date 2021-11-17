@@ -13,16 +13,16 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
         {
             this.kStepAhead = kStepAhead;
             this.jStepBack = jStepBack;
-            this.maxBatchSize = 25;
-            this.modX = 0.3;
-            this.modY = 1.4;
+            //this.maxBatchSize = 25;
+            //this.modX = 0.3;
+            //this.modY = 1.4;
         }
 
         private int kStepAhead { get; set; }
         private int jStepBack { get; set; }
-        private double modX { get; set; }
-        private double modY { get; set; }
-        private double maxBatchSize { get; set; }
+        //private double modX { get; set; }
+        //private double modY { get; set; }
+        //private double maxBatchSize { get; set; }
 
         private Dictionary<LotStep, double> WIPtargets => wc.WaferFab.WIPTargets;
 
@@ -37,19 +37,19 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             {
                 Lot lot = wc.Queue.PeekAt(i);
 
-                double batchUtil = lot.QtyReal / maxBatchSize;
-                double mod = 1; // Math.Min(Math.Max(modX + (batchUtil - 0.5) * modY, modX), 1.0);
+                //double batchUtil = lot.QtyReal / maxBatchSize;
+                //double mod = 1; // Math.Min(Math.Max(modX + (batchUtil - 0.5) * modY, modX), 1.0);
 
-                double workLoadLocal = lot.GetCurrentWorkCenter.Queues[lot.GetCurrentStep].LengthInWafers * lot.GetCurrentWorkCenter.ServiceTimeDistribution.Mean;
-                double weight = mod*workLoadLocal;
+                double workLoadLocal = lot.GetCurrentWorkCenter.GetStepWorkload(lot.GetCurrentStep);
+                double weight = workLoadLocal; // mod *
 
                 for (int relStep = -jStepBack; relStep <= 0; relStep++)
                 {
                     if (lot.HasRelativeStep(relStep))
                     {
-                        LotStep step = lot.GetRelativeStep(relStep);
-                        double workLoadUpstream = lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers * lot.GetRelativeWorkCenter(relStep).ServiceTimeDistribution.Mean;
-                        weight += mod*workLoadUpstream / Math.Pow(2, Math.Abs(relStep));
+                        LotStep prodStep = lot.GetRelativeStep(relStep);
+                        double workLoadUpstream = lot.GetRelativeWorkCenter(relStep).GetStepWorkload(prodStep);
+                        weight += workLoadUpstream / Math.Pow(2, Math.Abs(relStep)); // mod *
                     }
                 }
 
@@ -57,9 +57,9 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
                 {
                     if (lot.HasRelativeStep(relStep))
                     {
-                        LotStep step = lot.GetRelativeStep(relStep);
-                        double workLoadDownstream = lot.GetRelativeWorkCenter(relStep).Queues[step].LengthInWafers * lot.GetRelativeWorkCenter(relStep).ServiceTimeDistribution.Mean;
-                        weight -= 1/mod * workLoadDownstream / Math.Pow(2, Math.Abs(relStep));
+                        LotStep prodStep = lot.GetRelativeStep(relStep);
+                        double workLoadDownstream = lot.GetRelativeWorkCenter(relStep).GetStepWorkload(prodStep);
+                        weight -= workLoadDownstream / Math.Pow(2, Math.Abs(relStep)); // 1/mod * 
                     }
                 }
 
@@ -76,15 +76,15 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
             lotToDispatch = wc.Queue.PeekAt(indexLotMaxWeight);
 
-            string chosenLotStep = lotToDispatch.GetCurrentStep.Name;
+            //string chosenLotStep = lotToDispatch.GetCurrentStep.Name;
             //Console.WriteLine($"{lotToDispatch.Id} {lotToDispatch.GetCurrentStep.Name}");
         }
 
         public override void HandleArrival(Lot lot)
         {
-            // TO DO: implement overtaking
             wc.Queues[lot.GetCurrentStep].EnqueueLast(lot);
             wc.Queue.EnqueueLast(lot);
+            wc.LatenessBasedQueue?.EnqueueLast(lot); // If ODD is not set, this statement will do nothing
 
             // Queue was empty upon arrival, lot gets taken into service and departure event is scheduled immediately
             if (wc.TotalQueueLength == 1)
@@ -95,10 +95,16 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
         public override void HandleDeparture()
         {
-            updateWeights();
+            if (wc.LatenessBasedQueue != null) { wc.WaferFab.UpdateBottleneck(); }
+            if (wc.LatenessBasedQueue?.PeekFirst().GetCurrentSchedDev() < 0 && !wc.WCisBottleneck)
+            {
+                lotToDispatch = wc.LatenessBasedQueue.PeekFirst();
+            }
+            else { updateWeights(); }
 
             wc.Queue.Dequeue(lotToDispatch);
             wc.Queues[lotToDispatch.GetCurrentStep].Dequeue(lotToDispatch);
+            wc.LatenessBasedQueue?.Dequeue(lotToDispatch); // If ODD is not set, this statement will do nothing
 
             // Schedule next departure event, if queue is nonempty
             if (wc.TotalQueueLength > 0)
@@ -109,7 +115,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             // Send to next workcenter. Caution: always put this after the schedule next departure event part.
             lotToDispatch.SendToNextWorkCenter();
             
-            if (!lotToDispatch.HasNextStep && lotToDispatch.StartTime > 0) // EPT realisations of lots initially in the system is unavailable (removes 1 more than necessary)
+            if (!lotToDispatch.HasNextStep)
             {
                 DepartingLot = lotToDispatch;
                 NotifyObservers(this);

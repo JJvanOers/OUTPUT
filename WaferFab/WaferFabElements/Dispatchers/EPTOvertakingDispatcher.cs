@@ -17,9 +17,11 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
         public EPTOvertakingDispatcher(ModelElementBase workCenter, string name, OvertakingDistributionBase overtakingDistribution) : base(workCenter, name)
         {
             OvertakingDistribution = overtakingDistribution;
+            counter = 0;
         }
 
         public OvertakingDistributionBase OvertakingDistribution { get; }
+        int counter;
 
         public override void HandleArrival(Lot lot)
         {
@@ -38,7 +40,8 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             if (wc.Queue.Length == 1)
             {
                 ScheduleEvent(GetTime + wc.ServiceTimeDistribution.Next(), wc.HandleDeparture);
-
+                counter++;
+                //Console.Write($" {counter} ");
                 wc.LotStepInService = lot.GetCurrentStep;
             }
             // Lot overtook complete queue and is now first

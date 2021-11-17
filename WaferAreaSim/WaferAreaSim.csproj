@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\JelleAdan\CSSL\CSSL\CSSL.csproj" />
+    <ProjectReference Include="..\..\..\..\OneDrive - Nexperia\Documents\C#\CSSL\CSSL\CSSL.csproj" />
     <ProjectReference Include="..\WaferFab\WaferFabSim.csproj" />
   </ItemGroup>
 

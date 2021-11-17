@@ -32,6 +32,10 @@ namespace WaferFabSim
         // Initial time
         public DateTime? InitialTime => InitialRealLots.Any() ? InitialRealLots.First().SnapshotTime : null;
 
+        // Absolute earliest startdate for jobs
+        public DateTime? TimeMinimum => RealLotStarts.Any() ? (DateTime?)RealLotStarts[0].Item1 : null;
+        public double StartTimeShiftFactor { get; set; }
+
         // Initial Lots. These are the lots which are already present in the waferfab at initial time of the simulation
         public List<RealLot> InitialRealLots { get; set; }
         public bool UseRealLotStartsFlag { get; set; }
@@ -84,7 +88,6 @@ namespace WaferFabSim
 
         // Control
         public Dictionary<LotStep, double> WIPTargets { get; set; }
-
 
         public string GetWorkCenterNameForLotstep(LotStep lotstep)
         {

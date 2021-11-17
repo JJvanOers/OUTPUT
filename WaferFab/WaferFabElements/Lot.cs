@@ -1,7 +1,9 @@
 ﻿using CSSL.Modeling.CSSLQueue;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Priority_Queue;
 
 namespace WaferFabSim.WaferFabElements
 {
@@ -27,6 +29,7 @@ namespace WaferFabSim.WaferFabElements
         /// Simulation time which the lot got released in the fab.
         /// </summary>
         public double StartTime { get; set; }
+        //public DateTime? TimeMinimum { get; set; }
 
         /// <summary>
         /// Wall clock date time when the lot got released in the fab.
@@ -96,11 +99,62 @@ namespace WaferFabSim.WaferFabElements
 
         public LotStep GetCurrentStep => Sequence.GetCurrentStep(CurrentStepCount);
         
-         // Schedule Deviation calculated as predicted days until this step, minus actual days passed. Negative if job is late to step.
-        public int GetCurrentSchedDev => (int)Math.Round((Sequence.TPTPrediction - Sequence.GetCurrentStep(CurrentStepCount).PlanDay) - GetCurrentWorkCenter.GetTime / 24 / 60 / 60); // days
+        // TPT predictor is not set if it remains null. If no predictor is set, GetCurrentSchedDev is unusable.
+        // public bool HasPlanDay => Sequence.GetCurrentStep(CurrentStepCount).PlanDay != null;
+        // public bool HasProdPrediction => Sequence.GetCurrentStep(CurrentStepCount).ProdPrediction != null;
+        // public bool HasTechPrediction => Sequence.GetCurrentStep(CurrentStepCount).TechPrediction != null;
 
-        // PlanDay is not set if it remains zero. In that case, GetCurrentSchedDev is unusable.
-        public bool HasPlanDay => Sequence.GetCurrentStep(CurrentStepCount).PlanDay == 0; 
+        /// <summary>
+        /// Current Schedule Deviation calculated as predicted days until this step, minus actual days passed. Negative if job is late to step. (Variable expression)
+        /// </summary> 
+        public int GetCurrentSchedDev()
+        {
+            if (StartTimeReal != null)
+            {
+                return (int)Math.Round((GetCurrentODD - GetCurrentWorkCenter.GetTime) / 24 / 60 / 60); // Schedule Deviation in days 
+            }
+            else
+            {
+                // Console.WriteLine($"WARNING: Start time not given for {ProductType}");
+                return int.MinValue; // If starttime is not given, give this lot maximum lateness. (This not printed in the LotOutObserver)
+            }
+        }
+
+        public double GetDueDate => (StartTimeReal != null) ? StartTime + Sequence.StandardTPT * 24 * 60 * 60 : double.MinValue;  // due date in seconds
+        public double GetCurrentODD => (StartTimeReal != null) ? GetDueDate - Sequence.RemainingTimePredictor(CurrentStepCount) * 24 * 60 * 60 : double.MinValue; // operation due date in seconds
+
+        public double GetCriticalRatio()
+        {
+            if (StartTimeReal != null)
+            {
+                double DaysTillDueDate = (GetDueDate - GetCurrentWorkCenter.GetTime) / 24 / 60 / 60;
+                double CR;
+                if (DaysTillDueDate >= 0)
+                {
+                    CR = (1 + DaysTillDueDate) / (1 + Sequence.RemainingTimePredictor(CurrentStepCount));
+                }
+                else
+                {
+                    CR = 1 / ((1 + Math.Abs(DaysTillDueDate)) * (1 + Sequence.RemainingTimePredictor(CurrentStepCount)));
+                }
+                return CR;
+            }
+            else { return 0; }
+        }
+        public double GetCriticalRatioAlt()
+        {
+            if (StartTimeReal != null)
+            {
+                double DaysTillDueDate = (GetDueDate - GetCurrentWorkCenter.GetTime) / 24 / 60 / 60;
+                return DaysTillDueDate / (1 + Sequence.RemainingTimePredictor(CurrentStepCount));
+            }
+            else { return double.MinValue; }
+        }
+
+        /// <summary>
+        /// Calculates schedule deviation upon leaving the factory, in days. Negative if job is late. (Constant expression)
+        /// </summary>
+        public int ClipDayDeviation { get; private set; } // Schedule deviation after 
 
         public LotStep GetNextStep => Sequence.GetNextStep(CurrentStepCount);
 
@@ -133,7 +187,54 @@ namespace WaferFabSim.WaferFabElements
             else
             {
                 EndTime = GetCurrentWorkCenter.GetTime;
+                ClipDayDeviation = (int)Math.Round(StartTime / 24 / 60 / 60 + Sequence.StandardTPT - GetCurrentWorkCenter.GetTime / 24 / 60 / 60); // set final lateness
             }
+        }
+
+        public Lot ShiftStarts(double StartTimeShiftFactor, DateTime timeMinimum, DateTime InitialDateTime)
+        {
+            if (StartTimeReal != null)
+            {
+                TimeSpan timeStepMinimum = (DateTime)StartTimeReal - timeMinimum;
+                DateTime newStartReal = timeMinimum + timeStepMinimum * StartTimeShiftFactor;
+                StartTimeReal = newStartReal;
+                if (StartTime != default)
+                {
+                    TimeSpan timeDelta = (DateTime)StartTimeReal - InitialDateTime;
+                    StartTime = timeDelta.TotalSeconds;
+                }
+            }
+            return this;
+        }
+
+        public Lot SetAsInitialLot(DateTime InitialDateTime)
+        {
+            if (StartTimeReal != null)
+            {
+                TimeSpan timeDelta = (DateTime)StartTimeReal - InitialDateTime;
+                StartTime = timeDelta.TotalSeconds;
+                SetBestFittingStep();
+            }
+            else throw new Exception($"Lot {Id} has no StartTimeReal, even though it came from the LotGenerator list.");
+            return this;
+        }
+
+        public Lot SetBestFittingStep()
+        {
+            List<Tuple<double, int>> selectStep = new List<Tuple<double, int>>();
+            for (int i = 0; i < Sequence.stepCount; i++)
+            {
+                selectStep.Add(new Tuple<double, int>(Math.Abs(StartTime + (Sequence.StandardTPT - Sequence.RemainingTimePredictor(i)) * 24 * 60 * 60), i));
+            }
+            int BestStep = selectStep.OrderBy(x => x.Item1).First().Item2;
+            //Console.WriteLine($"Selecting step {BestStep} with Schedule Deviation {GetCurrentSchedDev()}");
+            SetCurrentStepCount(BestStep);
+            int maxLatenessForInitial = -15;
+            if (!HasNextStep)
+            {
+                return (GetCurrentSchedDev() >= maxLatenessForInitial) ? this : null;  // if the job is fitted to final step and waiting for more than specified time, the lot leaves the system
+            }
+            return this;
         }
 
         public void SetCurrentStepCount(int i)
@@ -146,6 +247,9 @@ namespace WaferFabSim.WaferFabElements
             CurrentStepCount = -1;
 
             Sequence = sequence;
+
+            // If a sequence with a Standard TPT of 0 is given, the schedule deviation prediction will not be valid
+            if (Sequence.StandardTPT == 0){ throw new Exception($"Lot {LotID} of producttype {ProductType} has TPT set to 0. Check AllProductAttributes table."); }
         }
 
         /// <summary>
@@ -159,13 +263,13 @@ namespace WaferFabSim.WaferFabElements
             Sequence = lotToDeepCopy.Sequence;
             CurrentStepCount = lotToDeepCopy.CurrentStepCount;
             StartTime = lotToDeepCopy.StartTime;
-            EndTime = lotToDeepCopy.EndTime;
-            ArrivalReal = lotToDeepCopy.ArrivalReal;
-            DepartureReal = lotToDeepCopy.DepartureReal;
+            EndTime = lotToDeepCopy.EndTime; //
+            ArrivalReal = lotToDeepCopy.ArrivalReal; //
+            DepartureReal = lotToDeepCopy.DepartureReal; //
             WIPInReal = lotToDeepCopy.WIPInReal;
             OvertakenLotsReal = lotToDeepCopy.OvertakenLotsReal;
             PlanDayReal = lotToDeepCopy.PlanDayReal;
-            ClipWeekReal = lotToDeepCopy.ClipWeekReal;
+            ClipWeekReal = lotToDeepCopy.ClipWeekReal; //
             QtyReal = lotToDeepCopy.QtyReal;
         }
 

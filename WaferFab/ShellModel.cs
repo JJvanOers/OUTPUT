@@ -111,6 +111,30 @@ namespace WaferFabSim
                 {
                     workCenter.SetDispatcher(new RandomDispatcher(workCenter, workCenter.Name + "_RandomDispatcher"));
                 }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.FIFO)
+                {
+                    workCenter.SetDispatcher(new FIFODispatcher(workCenter, workCenter.Name + "_FIFODisptacher"));
+                }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.EDD)
+                {
+                    workCenter.SetDispatcher(new LatenessDispatcher(workCenter, workCenter.Name + "_EDDDisptacher"));
+                    workCenter.SetLatenessBasedQueue("EDD");
+                }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.ODD)
+                {
+                    workCenter.SetDispatcher(new LatenessDispatcher(workCenter, workCenter.Name + "_ODDDisptacher"));
+                    workCenter.SetLatenessBasedQueue("ODD");
+                }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.CR)
+                {
+                    workCenter.SetDispatcher(new LatenessDispatcher(workCenter, workCenter.Name + "_CRDisptacher"));
+                    workCenter.SetLatenessBasedQueue("CR");
+                }
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.CR_alt)
+                {
+                    workCenter.SetDispatcher(new LatenessDispatcher(workCenter, workCenter.Name + "_CRDisptacher"));
+                    workCenter.SetLatenessBasedQueue("CR_alt");
+                }
                 else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.MIVS)
                 {
                     workCenter.SetDispatcher(new MIVSDispatcher(workCenter, workCenter.Name + "_MIVSDisptacher", MyWaferFabSettings.MIVSkStepAhead, MyWaferFabSettings.MIVSjStepBack));
@@ -119,9 +143,10 @@ namespace WaferFabSim
                 {
                     workCenter.SetDispatcher(new WLDispatcher(workCenter, workCenter.Name + "_WLDisptacher", MyWaferFabSettings.MIVSkStepAhead, MyWaferFabSettings.MIVSjStepBack));
                 }
-                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.FIFO)
+                else if (MyWaferFabSettings.WCDispatcherTypes[wc] == DispatcherBase.Type.WL_ODD)
                 {
-                    workCenter.SetDispatcher(new FIFODispatcher(workCenter, workCenter.Name + "_FIFODisptacher"));
+                    workCenter.SetDispatcher(new WLDispatcher(workCenter, workCenter.Name + "_WL_ODDDisptacher", MyWaferFabSettings.MIVSkStepAhead, MyWaferFabSettings.MIVSjStepBack));
+                    workCenter.SetLatenessBasedQueue("ODD");
                 }
 
                 waferFab.AddWorkCenter(workCenter.Name, workCenter);
@@ -145,16 +170,24 @@ namespace WaferFabSim
             // Add intial lots (lots present at t = 0) by translating RealLots (from RealSnapshot) to Lots
             if (MyWaferFabSettings.InitialRealLots.Any() != default)
             {
+                //waferFab.InitialLots = new System.Collections.Generic.List<Lot>(); // no initial lots
                 waferFab.InitialLots = MyWaferFabSettings.InitialRealLots.Select(x => x.ConvertToLot(0, waferFab.Sequences, false, waferFab.InitialDateTime)).Where(x => x != null).ToList();
+                if (MyWaferFabSettings.TimeMinimum != null)
+                {
+                    if (MyWaferFabSettings.StartTimeShiftFactor != 1) waferFab.ShiftLotStarts(MyWaferFabSettings.StartTimeShiftFactor, (DateTime)MyWaferFabSettings.TimeMinimum);
+                }
+                else throw new Exception("No RealLotStarts found in WaferfabSettings.");
             }
 
             // Add observers
             WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabLotsObserver", waferFab);
             WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabWafersObserver", waferFab);
             WaferFabTotalQueueObserver waferFabTotalQueueObserver = new WaferFabTotalQueueObserver(MySimulation, "WaferFabTotalQueueObserver", waferFab);
+            WaferFabStartsObserver startsObserver = new WaferFabStartsObserver(MySimulation, "WaferFabStartsObserver");
             waferFab.Subscribe(waferFabObserver);
             waferFab.Subscribe(waferFabObserverWafers);
             waferFab.Subscribe(waferFabTotalQueueObserver);
+            waferFab.LotGenerator.Subscribe(startsObserver);
 
             foreach (var wc in waferFab.WorkCenters)
             {

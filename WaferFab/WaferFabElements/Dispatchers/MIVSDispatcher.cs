@@ -98,7 +98,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
             // Send to next workcenter. Caution: always put this after the schedule next departure event part.
             lotToDispatch.SendToNextWorkCenter();
-            if (!lotToDispatch.HasNextStep && lotToDispatch.StartTime > 0) // EPT realisations of lots initially in the system is unavailable
+            if (!lotToDispatch.HasNextStep)
             {
                 DepartingLot = lotToDispatch;
                 NotifyObservers(this);

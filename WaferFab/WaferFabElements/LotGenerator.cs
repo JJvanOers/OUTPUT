@@ -41,6 +41,10 @@ namespace WaferFabSim.WaferFabElements
 
         public bool UseRealLotStartsFlag { get; }
 
+        public int NJobsToStart { get; private set; }
+
+        public int GetInitialWIP => waferFab.InitialLots.Count();
+
         protected override void HandleGeneration(CSSLEvent e)
         {
             // Schedule next generation
@@ -58,6 +62,7 @@ namespace WaferFabSim.WaferFabElements
 
         private void StartManualLotStarts()
         {
+            NJobsToStart = 0;
             // Create lots according to preset quantities in LotStarts and send all lots to first workstation
             foreach (KeyValuePair<string, int> lotStart in waferFab.ManualLotStarts)
             {
@@ -68,8 +73,10 @@ namespace WaferFabSim.WaferFabElements
                     Lot newLot = new Lot(GetTime, sequence);
 
                     newLot.SendToNextWorkCenter();
+                    NJobsToStart++;
                 }
             }
+            NotifyObservers(this);
         }
 
         private void StartRealLotStarts()
@@ -89,7 +96,8 @@ namespace WaferFabSim.WaferFabElements
 
             var selectedLotstarts = waferFab.LotStarts.Skip(indexFrom).Take(indexUntil - indexFrom);
 
-            
+            NJobsToStart = selectedLotstarts.Count();
+            NotifyObservers(this);
 
             // Create lots according to preset quantities in LotStarts and send all lots to first workstation
             foreach (Tuple<DateTime, Lot> lot in selectedLotstarts)

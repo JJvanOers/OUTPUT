@@ -34,7 +34,12 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
             BQF,
             RANDOM,
             WORKLOAD,
-            FIFO
+            FIFO,
+            EDD,
+            ODD,
+            WL_ODD,
+            CR,
+            CR_alt
         }
     }
 

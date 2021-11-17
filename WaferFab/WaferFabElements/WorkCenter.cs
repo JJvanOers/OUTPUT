@@ -22,6 +22,7 @@ namespace WaferFabSim.WaferFabElements
             LotStepInService = null;
             Queues = new Dictionary<LotStep, LotQueue>();
             Queue = new CSSLQueue<Lot>(this, name + "_TotalQueue");
+            WCisBottleneck = false;
 
             foreach (LotStep lotStep in lotSteps)
             {
@@ -79,9 +80,14 @@ namespace WaferFabSim.WaferFabElements
         public CSSLQueue<Lot> Queue { get; set; }
 
         /// <summary>
-        /// Use this for dispatching individual Queues per lotstep, such as BQF dispather
+        /// Use this for dispatching individual Queues per lotstep, such as BQF dispatcher
         /// </summary>
         public Dictionary<LotStep, LotQueue> Queues { get; set; }
+
+        /// <summary>
+        /// Use this for dispatching lots by due date or similar strategy. (supporting EDD, ODD, CR, CR_alt)
+        /// </summary>
+        public LatenessBasedQueue LatenessBasedQueue { get; set; }
 
         /// <summary>
         /// Total WIP in lots at workstation, including lot in service.
@@ -93,11 +99,25 @@ namespace WaferFabSim.WaferFabElements
         /// </summary>
         public int TotalQueueLengthWafers { get; set; }
 
+        public double GetStepWorkload(LotStep prodStep) => Queues[prodStep].Length * ServiceTimeDistribution.Mean;
+
+        public double GetTotalWorkload => TotalQueueLength * ServiceTimeDistribution.Mean;
+
+        public bool WCisBottleneck { get; set; }
+
         public DateTime GetDateTime => WaferFab.GetDateTime;
 
         public void SetDispatcher(DispatcherBase dispatcher)
         {
             this.dispatcher = dispatcher;
+        }
+
+        /// <summary>
+        /// Creates a new queue based on the dispatching rule from input. Input should be either "EDD" or "ODD".
+        /// </summary>
+        public void SetLatenessBasedQueue(string strategy)
+        {
+            LatenessBasedQueue = new LatenessBasedQueue(this, Name + "_" + strategy + "Queue", strategy);
         }
 
         public void SetWorkStationInLotSteps()

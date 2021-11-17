@@ -335,7 +335,7 @@ namespace WaferFabSim.InputDataConversion
             irdNumbering.Clear();
 
             // Read steps from process plans
-            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "ProcessPlansPlanDay_CSSL 2019-9-1.csv")))
+            using (StreamReader reader = new StreamReader(Path.Combine(DirectoryInputCSVs, "ProcessPlansPlanDay_CSSL3 2019-9-1.csv")))
             {
                 string headerLine = reader.ReadLine();
 
@@ -461,7 +461,6 @@ namespace WaferFabSim.InputDataConversion
                 Sequence seq = new Sequence(stepsThisProduct.First().Productname, stepsThisProduct.First().Plangroup);
 
                 string currentIRD = "";
-                LotStep currLotStep;
 
                 // NOTE. Property of lists: foreach loop on List loops in correct order (from first to last index)
                 foreach (var step in stepsThisProduct)
@@ -469,12 +468,16 @@ namespace WaferFabSim.InputDataConversion
                     if (currentIRD != step.IRDGroup)
                     {
                         currentIRD = step.IRDGroup;
-                        currLotStep = lotSteps[currentIRD];
+                        LotStep currLotStep = lotSteps[currentIRD];
+                        
+                        //currLotStep.SetTPTPredictions(step.PlanDay, step.ProdPrediction, step.TechPrediction);
 
-                        currLotStep.SetTPTPredictions(step.PlanDay, step.ProdPrediction, step.TechPrediction);
-
-                        seq.AddStep(currLotStep);
+                        seq.AddStep(currLotStep, step.PlanDay, step.ProdPrediction, step.TechPrediction, step.TPTPrediciton);
                     }
+                }
+                if (seq.StandardTPT == 0)
+                {
+                    //Console.WriteLine($"WARNING: No TPT prediction given for {product} in ProductPlans");
                 }
                 sequences.Add(seq);
             }
@@ -537,9 +540,10 @@ namespace WaferFabSim.InputDataConversion
             public string Stepname { get; private set; }
             public string Recipe { get; private set; }
             public int StepSequence { get; private set; }
-            public double PlanDay { get; private set; }
-            public double ProdPrediction { get; private set; }
-            public double TechPrediction { get; private set; }
+            public double? PlanDay { get; private set; }
+            public double? ProdPrediction { get; private set; }
+            public double? TechPrediction { get; private set; }
+            public double? TPTPrediciton { get; private set; }
             public string IRDGroup { get; set; }
 
             public string ToolGroup { get; set; }
@@ -562,9 +566,10 @@ namespace WaferFabSim.InputDataConversion
                     if (headers[i] == "STEPNAME") { Stepname = data[i]; }
                     if (headers[i] == "RECIPE") { Recipe = data[i]; }
                     if (headers[i] == "STEPSEQUENCE") { StepSequence = int.Parse(data[i]); }
-                    if (headers[i] == "Plan Day") { PlanDay = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : 0; } // sets to zero if empty
-                    if (headers[i] == "Product Prediction") { ProdPrediction = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : double.NaN; } // sets to NaN if empty
-                    if (headers[i] == "Technology Prediction") { TechPrediction = (!String.IsNullOrEmpty(data[i])) ? double.Parse(data[i]) : double.NaN; } // sets to NaN if empty
+                    if (headers[i] == "Plan Day") { PlanDay = (!String.IsNullOrEmpty(data[i])) ? (double?)double.Parse(data[i]) : null; } // sets to null if empty
+                    if (headers[i] == "Product Prediction") { ProdPrediction = (!String.IsNullOrEmpty(data[i])) ? (double?)double.Parse(data[i]) : null; } // sets to null if empty
+                    if (headers[i] == "Technology Prediction") { TechPrediction = (!String.IsNullOrEmpty(data[i])) ? (double?)double.Parse(data[i]) : null; } // sets to null if empty
+                    if (headers[i] == "Total TPT") { TPTPrediciton = (!String.IsNullOrEmpty(data[i])) ? (double?)double.Parse(data[i]) : null; } // sets to null if empty
                 }
             }
         }

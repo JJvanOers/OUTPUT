@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WaferFabSim.WaferFabElements
@@ -12,21 +13,24 @@ namespace WaferFabSim.WaferFabElements
             ProductType = productType;
             ProductGroup = productGroup;
             this.lotSteps = lotSteps;
+            TimeTillLotOut = new List<double?[]>();
         }
 
         public Sequence(string productType, string productGroup)
         {
             ProductType = productType;
             ProductGroup = productGroup;
-            this.lotSteps = new List<LotStep>();
+            lotSteps = new List<LotStep>();
+            TimeTillLotOut = new List<double?[]>();
         }
 
         public Sequence (LotStep lotStep)
         {
             ProductGroup = "SingleStep_" + lotStep.Name;
             ProductType = "SingleStep_" + lotStep.Name;
-            this.lotSteps = new List<LotStep>();
+            lotSteps = new List<LotStep>();
             lotSteps.Add(lotStep);
+            TimeTillLotOut = new List<double?[]>();
         }
 
         public string ProductGroup { get; }
@@ -37,7 +41,17 @@ namespace WaferFabSim.WaferFabElements
 
         public int stepCount => lotSteps.Count;
 
-        public double TPTPrediction => lotSteps[0].PlanDay;
+        // If available, use Plan day of first step after batching for TPT prediction. Otherwise use tech prediction. If nothing is given, throw error. 
+        public double StandardTPT { get; private set; }
+        public List<double?[]> TimeTillLotOut { get; private set; }
+
+        public double RemainingTimePredictor(int currStepCount)
+        {
+            double? PlanDayBasedPredictor = TimeTillLotOut[currStepCount][0];
+            double? TechBasedPredictor = TimeTillLotOut[currStepCount][1];
+            double? ProductBasedPredictor = TimeTillLotOut[currStepCount][2];
+            return ProductBasedPredictor ?? TechBasedPredictor ?? PlanDayBasedPredictor ?? throw new Exception($"No Remaining Process Time predictor given for {ProductType}");
+        }
 
 
         public bool HasNextStep(int currentStepCount)
@@ -107,9 +121,21 @@ namespace WaferFabSim.WaferFabElements
             }
         }
 
-        public void AddStep(LotStep lotstep)
+        public void AddStep(LotStep lotstep, double? PlanDay, double? TechPredictor, double? ProductPredictor, double? standardTPT =null)
         {
+            TimeTillLotOut.Add(new double?[3] { PlanDay, TechPredictor, ProductPredictor });
+
+            if (!lotSteps.Any())  // If this is the first step added
+            {
+                StandardTPT = standardTPT ?? RemainingTimePredictor(0);  // first chooses Plan Day to predict total Throughput Time, otherwise selects product or technology prediction of first step
+            }
+            if (standardTPT != TimeTillLotOut[0][0]) 
+            { 
+                Console.WriteLine($"WARNING: Standard TPT and first in Plan Day do not match for {ProductType}"); 
+            }
             lotSteps.Add(lotstep);
+            
+            
         }
 
 
