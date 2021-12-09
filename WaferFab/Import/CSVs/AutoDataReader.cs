@@ -37,7 +37,7 @@ namespace WaferFabSim.InputDataConversion
         /// because Random class in distributions cannot be serialized.</param>
         /// <param name="area"></param>
         /// <returns></returns>
-        public override WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType = DispatcherBase.Type.EPTOVERTAKING,
+        public override WaferFabSettings ReadWaferFabSettings(string eptParameterFile, bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType = DispatcherBase.Type.EPTOVERTAKING,
             string area = "COMPLETE")
         {
             Console.Write("Reading waferfabsettings -");
@@ -70,7 +70,7 @@ namespace WaferFabSim.InputDataConversion
             {
                 if (area == "COMPLETE")
                 {
-                    WaferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(DirectorySerializedFiles, "LotStarts_2019_2020.dat"));
+                    WaferFabSettings.RealLotStarts = Deserializer.DeserializeRealLotStarts(Path.Combine(DirectorySerializedFiles, "LotStarts_2019_2020_2021.dat"));
                 }
                 else
                 {
@@ -83,7 +83,7 @@ namespace WaferFabSim.InputDataConversion
 
                 EPTDistributionReader reader = new EPTDistributionReader(DirectoryInputCSVs, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
 
-                WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
+                WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions(eptParameterFile);
 
                 WaferFabSettings.WCOvertakingDistributions = reader.GetOvertakingDistributions();
             }
@@ -91,7 +91,7 @@ namespace WaferFabSim.InputDataConversion
             return WaferFabSettings;
         }
 
-        public override WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
+        public override WaferFabSettings DeserializeWaferFabSettings(string serializedFileName, string eptParameterFile)
         {
             Console.Write("Reading waferfabsettings -");
 
@@ -99,7 +99,7 @@ namespace WaferFabSim.InputDataConversion
 
             EPTDistributionReader reader = new EPTDistributionReader(DirectoryInputCSVs, WaferFabSettings.WorkCenters, WaferFabSettings.LotStepsPerWorkStation);
 
-            WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions();
+            WaferFabSettings.WCServiceTimeDistributions = reader.GetServiceTimeDistributions(eptParameterFile);
 
             WaferFabSettings.WCOvertakingDistributions = reader.GetOvertakingDistributions();
 

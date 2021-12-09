@@ -2,6 +2,7 @@
 using CSSL.Modeling;
 using CSSL.Utilities.Distributions;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -140,6 +141,13 @@ namespace WaferFabSim
                 waferFab.InitialLots = MyWaferFabSettings.InitialRealLots.Select(x => x.ConvertToLot(0, waferFab.Sequences, false, waferFab.InitialDateTime)).Where(x => x != null).ToList();
             }
 
+            // Number of lots between 
+            List<Tuple<DateTime,Lot>> selectedLots = waferFab.LotStarts.Where(x => x.Item1 >= new DateTime(2019, 4, 1) && x.Item1 < new DateTime(2019, 12, 1)).ToList();
+
+            double avgSteps = selectedLots.Select(x => x.Item2.Sequence.stepCount).Average();
+
+            int uniqueProds = selectedLots.Select(x => x.Item2.ProductType).Distinct().Count();
+
             // Add observers
             WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabLotsObserver", waferFab);
             WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabWafersObserver", waferFab);
@@ -155,6 +163,13 @@ namespace WaferFabSim
 
                 wc.Value.Subscribe(totalQueueObs);
                 //wc.Value.Subscribe(seperateQueueObs);
+
+                LotOutObserver lotOutObserver = new LotOutObserver(MySimulation, "LotOutObserver");
+
+                if (wc.Value.Name == "WorkCenter_PACK")
+                {
+                    wc.Value.Dispatcher.Subscribe(lotOutObserver);
+                }
             }
         }
 

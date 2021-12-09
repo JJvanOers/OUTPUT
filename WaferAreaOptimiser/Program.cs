@@ -44,6 +44,7 @@ namespace WaferAreaOptimiser
                 string wc = workCenter;
 
                 DateTime initialDateTime = new DateTime(2019, 6, 1);
+                string eptParameterFile = @"FittedEPTParameters - 2019-06-01.csv";
 
                 bool useInitialLots = true;
 
@@ -77,7 +78,7 @@ namespace WaferAreaOptimiser
 
                 optimiser.SetBounds(inputDirectory);
 
-                WaferAreaSim waferAreaSim = new WaferAreaSim(wc, inputDirectory, outputDirectory, initialDateTime, optimiser, useInitialLots);
+                WaferAreaSim waferAreaSim = new WaferAreaSim(wc, eptParameterFile, inputDirectory, outputDirectory, initialDateTime, optimiser, useInitialLots);
 
                 Dictionary<string, Distribution> currentPar, nextPar, bestPar;
 

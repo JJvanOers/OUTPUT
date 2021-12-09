@@ -48,7 +48,7 @@ namespace WaferFabSim.Import
         }
 
 
-        public virtual WaferFabSettings ReadWaferFabSettings(bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType, string area = "COMPLETE")
+        public virtual WaferFabSettings ReadWaferFabSettings(string eptParameterFile, bool includeLotstarts, bool includeDistributions, DispatcherBase.Type dispatcherType, string area = "COMPLETE")
         {
             throw new NotImplementedException();
         }
@@ -58,7 +58,7 @@ namespace WaferFabSim.Import
             throw new NotImplementedException();
         }
 
-        public virtual WaferFabSettings DeserializeWaferFabSettings(string serializedFileName)
+        public virtual WaferFabSettings DeserializeWaferFabSettings(string eptParameterFile, string serializedFileName)
         {
             throw new NotImplementedException();
         }

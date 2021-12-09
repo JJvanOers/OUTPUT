@@ -24,18 +24,50 @@ namespace Test
     {
         static void Main(string[] args)
         {
+
+            LotArrivalAndDepartures();
+
+            //SnapshotsWorksstationQueueLenthsJeroen();
+
+        }
+
+        static void LotArrivalAndDepartures()
+        {
+            string inputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\Auto";
+
+            string outputDir = @"C:\Users\nx008314\OneDrive - Nexperia\Work\WaferFab\SerializedFiles";
+
+            AutoDataReader reader = new AutoDataReader(inputDir, outputDir);
+
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, $"LotTraces_2019_2020_2021.dat"));
+
+            using (StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "LotStartsDeparturesFab_2019_2020_2021.txt")))
+            {
+                writer.WriteLine("LotID,ProductType,StartTime,EndTime,Status");
+
+                foreach(LotTraces.LotTrace trace in reader.LotTraces.All)
+                {
+                    writer.WriteLine($"{trace.LotId},{trace.ProductType},{trace.StartDate},{trace.EndDate},{trace.Status}");
+                }
+            }
+        }
+
+        static void SnapshotsWorksstationQueueLenthsJeroen()
+        {
             /// //////////////////////////////////////////////
             /// SnapShots Workstation Queue Lengths //////////
-            
-            DateTime i = new DateTime(2019, 6, 1);
-            int monthsToEvaluate = 6;
+            /*
+            DateTime date = new DateTime(2019, 6, 1);
+            int monthsToEvaluate = 12;
 
-            string inputDir = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\";
+            string inputDir = @"C:\CSSLWaferFab\Input\";
 
             string outputDir = @"C:\CSSLWaferFab\Output";
 
+            string parameters = @"FittedEPTParameters - 2019-06-01.csv";
+
             AutoDataReader autoDataReader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
-            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(true, false);
+            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(parameters, true, false);
 
             List<string> workCenters = new List<string>();
             foreach (string workCenter in waferFabSettings.WorkCenters)
@@ -44,7 +76,7 @@ namespace Test
             }
 
             // Write headers
-            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots Workcenter - Complete.txt"));
+            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots Workcenter - Complete - 06-2019.txt"));
             writer.Write("Time,");
             foreach (string workCenter in workCenters)
             {
@@ -61,7 +93,10 @@ namespace Test
             RealSnapshotReader realSnapshotReader = new RealSnapshotReader();
             for (int j = 0; j < monthsToEvaluate; j++)
             {
-                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{i.Year}-{i.Month + j}-{i.Day}_{i.Year}-{i.Month + 1 + j}-{i.Day}_1h.dat";
+                DateTime n = date.AddMonths(j);
+                DateTime m = date.AddMonths(j + 1);
+
+                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{n.Year}-{n.Month}-{n.Day}_{m.Year}-{m.Month}-{m.Day}_1h.dat";
                 realSnapshotReader.Read(filename, 1);
 
                 List<RealSnapshot> realSnaphshots = new List<RealSnapshot>();
@@ -95,29 +130,33 @@ namespace Test
             }
 
             writer.Close();
+            */
 
 
             /// //////////////////////////////////////////////
             /// SnapShots IRD Queue Lengths //////////////////
-            /*
-            DateTime i = new DateTime(2019, 10, 1);
-            int monthsToEvaluate = 2;
 
-            string inputDir = @"E:\OneDrive - Nexperia\CSSLWaferFab\Input\";
+            DateTime date = new DateTime(2019, 6, 1);
+            int monthsToEvaluate = 12;
 
-            string outputDir = $@"C:\CSSLWaferFab\Output";
+            string inputDir = @"C:\CSSLWaferFab\Input\";
+
+            string outputDir = @"C:\CSSLWaferFab\Output";
+
+            string parameters = @"FittedEPTParameters - 2019-06-01.csv";
 
 
             AutoDataReader autoDataReader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
-            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(true, false);
+            WaferFabSettings waferFabSettings = autoDataReader.ReadWaferFabSettings(parameters, true, false);
+
             List<string> orderedLotSteps = new List<string>();
             foreach (var step in waferFabSettings.LotSteps.OrderBy(x => x.Value.Id))
             {
                 orderedLotSteps.Add(step.Key);
             }
 
-            // Write headers
-            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots IRD Wafers - {i.Year}-{i.Month}-{i.Day}.txt"));
+            //Write headers
+            StreamWriter writer = new StreamWriter(Path.Combine(outputDir, "Snapshots", $"Snapshots IRD Wafers - {date.Year}-{date.Month}-{date.Day}.txt"));
             writer.Write("Time,");
             foreach (string lotStep in orderedLotSteps)
             {
@@ -134,7 +173,10 @@ namespace Test
             RealSnapshotReader realSnapshotReader = new RealSnapshotReader();
             for (int j = 0; j < monthsToEvaluate; j++)
             {
-                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{i.Year}-{i.Month + j}-{i.Day}_{i.Year}-{i.Month + 1 + j}-{i.Day}_1h.dat";
+                DateTime n = date.AddMonths(j);
+                DateTime m = date.AddMonths(j + 1);
+
+                string filename = inputDir + @$"SerializedFiles\RealSnapShots_{n.Year}-{n.Month}-{n.Day}_{m.Year}-{m.Month}-{m.Day}_1h.dat";
                 realSnapshotReader.Read(filename, 1);
 
                 List<RealSnapshot> realSnaphshots = new List<RealSnapshot>();
@@ -147,7 +189,7 @@ namespace Test
                     realSnaphshots = realSnapshotReader.RealSnapshots.Skip(1).ToList();
                 }
 
-                // Write Data
+                //Write Data
                 foreach (RealSnapshot realSnapshot in realSnaphshots)
                 {
                     writer.Write($"{realSnapshot.Time},");
@@ -192,8 +234,7 @@ namespace Test
             }
 
             writer.Close();
-            */
-
+            
 
 
             /// //////////////////////////////////////////////
@@ -280,7 +321,7 @@ namespace Test
             }
 
             writer.Close();
-            */
+            
 
 
             /// ///////////////////////////////////////////////////

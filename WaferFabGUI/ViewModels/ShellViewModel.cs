@@ -32,6 +32,7 @@ namespace WaferFabGUI.ViewModels
         {
             string inputDir = @"C:\CSSLWaferFab\Input\";
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabGUI";
+            string eptParameterFile = @"FittedEPTParameters - 2019-6-1.csv";
 
             WaferFabSim = new ShellModel(outputDir);
             WaferFabSim.ReadSimulationResults();
@@ -68,7 +69,7 @@ namespace WaferFabGUI.ViewModels
 
             // Initialize Waferfab Settings
             this.reader = new AutoDataReader(inputDirectory + @"\CSVs", inputDir + @"\SerializedFiles");
-            waferFabSettings = this.reader.ReadWaferFabSettings(false, true, DispatcherBase.Type.EPTOVERTAKING);
+            waferFabSettings = this.reader.ReadWaferFabSettings(eptParameterFile, false, true, DispatcherBase.Type.EPTOVERTAKING);
             waferFabSettings.WIPTargets = this.reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
             waferFabSettings.UseRealLotStartsFlag = true;
             waferFabSettings.SampleInterval = 60 * 60;

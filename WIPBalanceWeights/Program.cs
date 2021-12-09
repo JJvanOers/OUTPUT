@@ -20,11 +20,12 @@ namespace WIPBalanceWeights
             int jStepBack = 0;
             int kStepAhead = 1;
 
-            string inputDir = @"C:\CSSLWaferFab\Input\"; 
+            string inputDir = @"C:\CSSLWaferFab\Input\";
+            string eptParameterFile = @"FittedEPTParameters - 2019-06-01.csv";
 
             // Get WaferFabSettings
             AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(false, false, DispatcherBase.Type.MIVS);
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(eptParameterFile, false, false, DispatcherBase.Type.MIVS);
             waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
 
 
@@ -34,7 +35,7 @@ namespace WIPBalanceWeights
             foreach (DateTime time in DateTimes)
             {
                 RealSnapshot realSnapshot = lotTraces.GetWIPSnapshot(time, 0);
-                List<Lot> lots = realSnapshot.GetRealLots(0).Select(x => x.ConvertToLot(0, waferFabSettings.Sequences, false)).Where(x => x != null).ToList();
+                List<Lot> lots = realSnapshot.GetRealLots(0).Select(x => x.ConvertToLot(0, waferFabSettings.Sequences, false, time)).Where(x => x != null).ToList();
 
                 // Construct current WIP levels and WIP targets
                 Dictionary<string, int> WIPlevels = realSnapshot.WIPlevelsInWafers;

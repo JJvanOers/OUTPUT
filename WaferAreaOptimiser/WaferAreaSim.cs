@@ -42,7 +42,7 @@ namespace WaferAreaOptimiser
 
         private bool useInitialLots;
 
-        public WaferAreaSim(string wc, string inputDirectory, string outputDirectory, DateTime initialDateTime, Optimiser optimiser, bool useInitialLots = false)
+        public WaferAreaSim(string wc, string eptParameterFile, string inputDirectory, string outputDirectory, DateTime initialDateTime, Optimiser optimiser, bool useInitialLots = false)
         {
             this.wc = wc;
 
@@ -62,7 +62,7 @@ namespace WaferAreaOptimiser
             distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
             // Get initial parameters
-            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions();
+            waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(eptParameterFile);
 
             EPTDistribution initialDist = (EPTDistribution)waferFabSettings.WCServiceTimeDistributions[wc];
             InitialParameters = new Dictionary<string, Distribution> { { wc, optimiser.CheckInitialDistBounds(initialDist) } };

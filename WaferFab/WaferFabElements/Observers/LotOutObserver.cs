@@ -16,6 +16,7 @@ namespace WaferFabSim.WaferFabElements.Observers
     {
         public LotOutObserver(Simulation mySimulation, string name) : base(mySimulation, name)
         {
+            
         }
         protected override void OnUpdate(ModelElementBase modelElement)
         {
@@ -23,13 +24,17 @@ namespace WaferFabSim.WaferFabElements.Observers
 
             Lot lot = dispatcher.DepartingLot;
 
-            Writer?.WriteLine($"{dispatcher.GetDateTime},{lot.EndTime - lot.StartTime},{lot.GetCurrentStep.Name},{lot.LotID},{lot.ProductType},{lot.EndTime},{lot.StartTime},{lot.CycleTimeReal},{lot.WIPInReal},{lot.WIPIn}");
+            if (lot.StartTime > 0 &&  lot.EndTime == 0)
+            {
+                int stop = 0;
+            }
+            Writer?.WriteLine($"{dispatcher.GetDateTime},{lot.EndTime - lot.StartTime},{lot.GetCurrentStep.Name},{lot.LotID},{lot.ProductType},{lot.EndTime},{lot.StartTime},{lot.CycleTimeTotalReal},{lot.WIPInReal},{lot.WIPIn}");
         }
 
 
         protected override void OnInitialized(ModelElementBase modelElement)
         {
-            Writer?.WriteLine("DateTime,CycleTime,IRDGroup,LotID,ProductType,EndTime,StartTime,OriginalCycleTime,WIPInReal,WIPIn");
+            Writer?.WriteLine("DateTime,CycleTime,IRDGroup,LotID,ProductType,EndTime,StartTime,CycleTimeReal,WIPInReal,WIPIn");
         }
 
         protected override void OnWarmUp(ModelElementBase modelElement)

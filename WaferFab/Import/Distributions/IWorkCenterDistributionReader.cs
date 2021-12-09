@@ -9,7 +9,7 @@ namespace WaferFabSim.Import.Distributions
     public interface IWorkCenterDistributionReader
     {
 
-        Dictionary<string, Distribution> GetServiceTimeDistributions(bool isFitted);
+        Dictionary<string, Distribution> GetServiceTimeDistributions(string eptParameterFile);
 
         Dictionary<string, OvertakingDistributionBase> GetOvertakingDistributions(bool isLotStepOvertaking);
     }

@@ -33,6 +33,8 @@ namespace WaferAreaSim
 
             string outputDirectory = @"C:\CSSLWaferFab\Output\WaferFabArea";
 
+            string eptParameterFile = @"FittedEPTParameters - 2019-6-1.csv";
+
             RealSnapshotReader reader = new RealSnapshotReader();
 
             List<RealSnapshot> realSnapshots = reader.Read(Path.Combine(inputDirectory, "SerializedFiles", reader.GetRealSnapshotString(initialDateTime)), 1);
@@ -69,7 +71,7 @@ namespace WaferAreaSim
 
                 EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
-                waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(isFitted);
+                waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(eptParameterFile);
                 waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
                 waferFabSettings.WCDispatcherTypes[workcenter] = DispatcherBase.Type.EPTOVERTAKING;
 

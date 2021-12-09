@@ -70,7 +70,7 @@ namespace WaferFabSim.Import
 
                 LotActivityRaw raw = trace.LotActivitiesRaw.First();
 
-                RealLot newLot = new RealLot(activity, raw, trace.StartDate);
+                RealLot newLot = new RealLot(activity, raw, trace.StartDate, trace.EndDate);
 
                 lotStarts.Add(new Tuple<DateTime, RealLot>(trace.StartDate, newLot));
             }
@@ -155,13 +155,21 @@ namespace WaferFabSim.Import
                         {
                             RealLot newLot;
 
-                            if (trace.HasStart)
+                            if (trace.HasStart && trace.HasEnd)
                             {
-                                newLot = new RealLot(activity, raw, trace.StartDate, time);
+                                newLot = new RealLot(activity, raw, trace.StartDate, trace.EndDate, time);
+                            }
+                            else if (trace.HasStart && !trace.HasEnd)
+                            {
+                                newLot = new RealLot(activity, raw, trace.StartDate, null, time);
+                            }
+                            else if (!trace.HasStart && trace.HasEnd)
+                            {
+                                newLot = new RealLot(activity, raw, null, trace.EndDate, time);
                             }
                             else
                             {
-                                newLot = new RealLot(activity, raw, null, time);
+                                newLot = new RealLot(activity, raw, null, null, time);
                             }
 
 

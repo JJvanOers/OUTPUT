@@ -24,7 +24,7 @@ namespace WSC2021paper
         {
             string inputDirectory = @"C:\CSSLWaferFab\Input\WSC2021paper";
             string outputDirectory = @"C:\CSSLWaferFab\Output\WSC2021paper";
-            bool fittedParameters = true; // true = fitted, false = optimised
+            string eptParameterFile = @"FittedEPTParameters - 2019-6-1.csv";
 
             List<string> workcenters = new List<string> { "PHOTOLITH", "FURNACING", "DRY ETCH" };
             List<string> SOvsLDO = new List<string> { "SO", "LDO" };
@@ -53,7 +53,7 @@ namespace WSC2021paper
 
                     EPTDistributionReader distributionReader = new EPTDistributionReader(Path.Combine(inputDirectory, "CSVs"), waferFabSettings.WorkCenters, waferFabSettings.LotStepsPerWorkStation);
 
-                    waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(fittedParameters);
+                    waferFabSettings.WCServiceTimeDistributions = distributionReader.GetServiceTimeDistributions(eptParameterFile);
                     waferFabSettings.WCOvertakingDistributions = distributionReader.GetOvertakingDistributions(lotStepOvertaking);
                     waferFabSettings.WCDispatcherTypes[wc] = DispatcherBase.Type.EPTOVERTAKING;
 

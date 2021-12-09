@@ -13,6 +13,7 @@ namespace WaferFabSim.SnapshotData
     {
         public DateTime? SnapshotTime { get; private set; } = null;
         public DateTime? StartTime { get; private set; } = null;
+        public DateTime? EndTime { get; private set; } = null;
         public string IRDGroup { get; private set; }
         public string StepName { get; private set; }
         public string LotID { get; private set; }
@@ -31,10 +32,11 @@ namespace WaferFabSim.SnapshotData
         private int wipIn => LotActivity.WIPIn;
         public LotActivity LotActivity { get; }
 
-        public RealLot(LotActivity activity, LotActivityRaw raw, DateTime? startTime, DateTime? snapshotTime = null)
+        public RealLot(LotActivity activity, LotActivityRaw raw, DateTime? startTime, DateTime? endTime, DateTime? snapshotTime = null)
         {
             SnapshotTime = snapshotTime;
             StartTime = startTime;
+            EndTime = endTime;
             IRDGroup = activity.IRDGroup;
             StepName = raw.Stepname;
             LotID = activity.LotId;
@@ -81,6 +83,7 @@ namespace WaferFabSim.SnapshotData
                 Lot lot = new Lot(creationTime, sequence);
 
                 lot.StartTimeReal = StartTime;
+                lot.EndTimeReal = EndTime;
                 lot.LotID = LotID;
                 lot.PlanDayReal = PlanDay;
                 lot.ClipWeekReal = ClipWeek;

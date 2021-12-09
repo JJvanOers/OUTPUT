@@ -32,6 +32,10 @@ namespace WaferFabSim.WaferFabElements
         /// Wall clock date time when the lot got released in the fab.
         /// </summary>
         public DateTime? StartTimeReal { get; set; }
+        /// <summary>
+        /// Wall clock date time when the lot was departed the fab.
+        /// </summary>
+        public DateTime? EndTimeReal { get; set; }
         public double EndTime { get; private set; }
 
         /// <summary>
@@ -63,13 +67,34 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Cycle time of original real lot activity
         /// </summary>
-        public double CycleTimeReal
+        public double CycleTimeWorkcenterReal
         {
             get
             {
+
                 if (DepartureReal != null && ArrivalReal != null)
                 {
                     TimeSpan cycle = (TimeSpan)(DepartureReal - ArrivalReal);
+
+                    return cycle.TotalSeconds;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Total cycle time of original lot in real fab
+        /// </summary>
+        public double CycleTimeTotalReal
+        {
+            get
+            {
+                if (StartTimeReal != null && EndTimeReal != null)
+                {
+                    TimeSpan cycle = (TimeSpan)(EndTimeReal - StartTimeReal);
 
                     return cycle.TotalSeconds;
                 }
@@ -122,7 +147,6 @@ namespace WaferFabSim.WaferFabElements
                 }
 
                 nextWorkCenter.HandleArrival(this);
-
             }
             else
             {
@@ -149,6 +173,7 @@ namespace WaferFabSim.WaferFabElements
         public Lot(Lot lotToDeepCopy)
         {
             StartTimeReal = lotToDeepCopy.StartTimeReal;
+            EndTimeReal = lotToDeepCopy.EndTimeReal;
             LotID = lotToDeepCopy.LotID;
             Sequence = lotToDeepCopy.Sequence;
             CurrentStepCount = lotToDeepCopy.CurrentStepCount;

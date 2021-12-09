@@ -35,7 +35,7 @@ namespace WaferFabSim.WaferFabElements
 
         public Distribution ServiceTimeDistribution { get; }
 
-        private DispatcherBase dispatcher { get; set; }
+        public DispatcherBase Dispatcher { get; private set; }
 
         public List<LotStep> LotSteps { get; set; }
 
@@ -97,7 +97,7 @@ namespace WaferFabSim.WaferFabElements
 
         public void SetDispatcher(DispatcherBase dispatcher)
         {
-            this.dispatcher = dispatcher;
+            this.Dispatcher = dispatcher;
         }
 
         public void SetWorkStationInLotSteps()
@@ -117,7 +117,7 @@ namespace WaferFabSim.WaferFabElements
 
             IsArrivalFlag = true;
 
-            dispatcher.HandleArrival(lot);
+            Dispatcher.HandleArrival(lot);
 
             NotifyObservers(this);
         }
@@ -126,13 +126,13 @@ namespace WaferFabSim.WaferFabElements
         {
             if (LotStepInService == null)
             {
-                dispatcher.HandleFirstDeparture();
+                Dispatcher.HandleFirstDeparture();
             }
             else
             {
                 IsArrivalFlag = false;
 
-                dispatcher.HandleDeparture();                
+                Dispatcher.HandleDeparture();                
             }
 
             NotifyObservers(this);
@@ -147,9 +147,7 @@ namespace WaferFabSim.WaferFabElements
             {
                 List<Lot> initialLotsDeepCopy = InitialLots.ConvertAll(x => new Lot(x));
 
-
-
-                dispatcher.HandleInitialization(initialLotsDeepCopy);
+                Dispatcher.HandleInitialization(initialLotsDeepCopy);
             }
         }
     }

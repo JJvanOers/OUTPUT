@@ -26,11 +26,11 @@ namespace WaferFabDataReader
 
             //SerializeWaferFabSettings(reader, false);
 
-            //SerializeLotTraces(reader, "LotActivity2019_2020_2021.csv", "LotTraces_2019_2020_2021");
+            SerializeLotTraces(reader, "LotActivity2019_2020_2021.csv", "LotTraces_2019_2020_2021");
 
             //WriteLotActivitiesWithEPTsToCSV(reader, "LotTraces_2019_2020_2021.dat", "AllLotActivitiesWithEPTs_201920202021.csv");
 
-            SerializeLotStarts(reader, "LotTraces_2019_2020.dat");
+            SerializeLotStarts(reader, "2019_2020_2021");
 
             ////SerializeWaferFabSettings(reader, true);
 
@@ -51,7 +51,7 @@ namespace WaferFabDataReader
         /// <param name="lotActivitiesFilename"></param>
         public static void SerializeWorkCenterLotActivities(AutoDataReader reader, string filenameLotActivities, string filenameSerializedOutput, bool onlyProductionLots)
         {
-            reader.ReadWaferFabSettings(false, true, DispatcherBase.Type.EPTOVERTAKING);
+            reader.ReadWaferFabSettings(@"FittedEPTParameters.csv", false, true, DispatcherBase.Type.EPTOVERTAKING);
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, onlyProductionLots);
 
@@ -66,7 +66,7 @@ namespace WaferFabDataReader
         /// <param name="withLotStarts">With or without real lot starts</param>
         public static void SerializeWaferFabSettings(AutoDataReader reader, bool withLotStarts, string area = "COMPLETE")
         {
-            reader.ReadWaferFabSettings(withLotStarts, false, DispatcherBase.Type.EPTOVERTAKING, area);
+            reader.ReadWaferFabSettings(@"FittedEPTParameters.csv", withLotStarts, false, DispatcherBase.Type.EPTOVERTAKING, area);
 
             string fileName = withLotStarts ? $"WaferFabSettings_{area}_WithLotStarts" : $"WaferFabSettings_{area}_NoLotStarts";
 
@@ -82,7 +82,7 @@ namespace WaferFabDataReader
         {
             if (reader.WaferFabSettings == null)
             {
-                reader.ReadWaferFabSettings(false, false, DispatcherBase.Type.EPTOVERTAKING);
+                reader.ReadWaferFabSettings(@"FittedEPTParameters.csv", false, false, DispatcherBase.Type.EPTOVERTAKING);
             }
 
             reader.ReadWorkCenterLotActivities(filenameLotActivities, true);
@@ -94,18 +94,18 @@ namespace WaferFabDataReader
         /// Serializes LotStarts. Reads the LotTraces from serialized file, gets from all traces the starts and transfers this into LotStarts.
         /// </summary>
         /// <param name="reader"></param>
-        public static void SerializeLotStarts(AutoDataReader reader, string lotTracesSerializedFile)
+        public static void SerializeLotStarts(AutoDataReader reader, string timeframe)
         {
             if (reader.WaferFabSettings == null)
             {
-                reader.ReadWaferFabSettings(false, false, DispatcherBase.Type.EPTOVERTAKING);
+                reader.ReadWaferFabSettings(@"FittedEPTParameters.csv", false, false, DispatcherBase.Type.EPTOVERTAKING);
             }
 
-            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, "LotTraces_2019_2020.dat"));
+            reader.LotTraces = Deserializer.DeserializeLotTraces(Path.Combine(reader.DirectorySerializedFiles, $"LotTraces_{timeframe}.dat"));
 
             reader.GetLotStarts();
 
-            reader.SerializeLotStarts("LotStarts_2019_2020");
+            reader.SerializeLotStarts($"LotStarts_{timeframe}");
         }
 
         public static void WriteLotActivitiesWithEPTsToCSV(AutoDataReader reader, string serializedLotTracesFile, string filenameCSVOutput)

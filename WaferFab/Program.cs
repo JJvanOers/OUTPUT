@@ -17,7 +17,9 @@ namespace WaferFabSim
 
             string outputDir = @"C:\CSSLWaferFab\Output\WaferFabSim\";
 
-            DateTime initialDateTime = new DateTime(2019, 6, 1);
+            string parameters = @"FittedEPTParameters - 2019-8-1_4months.csv";
+
+            DateTime initialDateTime = new DateTime(2019, 8, 1);
 
             Settings.WriteOutput = true;
             Settings.FixSeed = true;
@@ -27,26 +29,28 @@ namespace WaferFabSim
             // Load WaferFab settings
             AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, DispatcherBase.Type.MIVS);
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(parameters, true, true, DispatcherBase.Type.EPTOVERTAKING);
 
             waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
             waferFabSettings.LotStartsFrequency = 1;        // hours
             waferFabSettings.UseRealLotStartsFlag = true;
 
             // MIVS Settings
-            waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
-            waferFabSettings.MIVSjStepBack = 0;
-            waferFabSettings.MIVSkStepAhead = 1;
+            //waferFabSettings.WIPTargets = reader.ReadWIPTargets(waferFabSettings.LotSteps, "WIPTargets.csv");
+            //waferFabSettings.MIVSjStepBack = 2;
+            //waferFabSettings.MIVSkStepAhead = 2;
 
             // Read Initial Lots
             WaferFabSim.ReadRealSnaphots(inputDir + @$"SerializedFiles\RealSnapShots_2019-{initialDateTime.Month}-1_2019-{initialDateTime.Month + 1}-1_1h.dat");
-            waferFabSettings.InitialRealLots = WaferFabSim.RealSnapshotReader.RealSnapshots.First().GetRealLots(1);
+            waferFabSettings.InitialRealLots = WaferFabSim.RealSnapshotReader.RealSnapshots.Where(x => x.Time.Date == initialDateTime).OrderBy(x => x.Time).First().GetRealLots(1);
 
             // Experiment settings
             ExperimentSettings experimentSettings = new ExperimentSettings();
 
-            experimentSettings.NumberOfReplications = 1;
-            experimentSettings.LengthOfReplication = 61 * 24 * 60 * 60; // seconds
+            int count = waferFabSettings.InitialRealLots.Where(x => x.StartTime == null).Count();
+
+            experimentSettings.NumberOfReplications = 30;
+            experimentSettings.LengthOfReplication = 121 * 24 * 60 * 60; // seconds
             experimentSettings.LengthOfWarmUp = 0 * 60 * 60;  // seconds
 
             // Connect settings
