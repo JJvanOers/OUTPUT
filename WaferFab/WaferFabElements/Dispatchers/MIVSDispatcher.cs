@@ -66,7 +66,7 @@ namespace WaferFabSim.WaferFabElements.Dispatchers
 
             lotToDispatch = wc.Queue.PeekAt(indexLotMaxWeight);
 
-            string chosenLotStep = lotToDispatch.GetCurrentStep.Name;
+            //string chosenLotStep = lotToDispatch.GetCurrentStep.Name;
             //Console.WriteLine($"{lotToDispatch.Id} {lotToDispatch.GetCurrentStep.Name}");
         }
 

@@ -27,14 +27,14 @@ namespace WaferFabSim
             DateTime initialDateTime = new DateTime(2019, 6, 1);
 
             Settings.WriteOutput = true;
-            Settings.FixSeed = true;
+            Settings.FixSeed = false;
 
             ShellModel WaferFabSim = new ShellModel(outputDir);
 
             // Load WaferFab settings
             AutoDataReader reader = new AutoDataReader(inputDir + @"CSVs\", inputDir + @"SerializedFiles\");
 
-            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, DispatcherBase.Type.CR_alt);
+            WaferFabSettings waferFabSettings = reader.ReadWaferFabSettings(true, true, DispatcherBase.Type.EPTOVERTAKING);
 
             waferFabSettings.SampleInterval = 1 * 60 * 60;  // seconds
             waferFabSettings.LotStartsFrequency = 1;        // hours
