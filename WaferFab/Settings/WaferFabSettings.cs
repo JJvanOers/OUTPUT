@@ -25,6 +25,7 @@ namespace WaferFabSim
             WCServiceTimeDistributions = new Dictionary<string, Distribution>();
             WCDispatcherTypes = new Dictionary<string, DispatcherBase.Type>();
             WCOvertakingDistributions = new Dictionary<string, OvertakingDistributionBase>();
+            WCMachines = new Dictionary<string, Int64>();  // temporary
             LotStepsPerWorkStation = new Dictionary<string, List<LotStep>>();
             Sequences = new Dictionary<string, Sequence>();
         }
@@ -81,6 +82,7 @@ namespace WaferFabSim
         public Dictionary<string, Distribution> WCServiceTimeDistributions { get; set; }
         public Dictionary<string, OvertakingDistributionBase> WCOvertakingDistributions { get; set; }
         public Dictionary<string, DispatcherBase.Type> WCDispatcherTypes { get; set; }
+        public Dictionary<string, Int64> WCMachines { get; set; }
         public int MIVSkStepAhead { get; set; }
         public int MIVSjStepBack { get; set; }
         public Dictionary<string, List<LotStep>> LotStepsPerWorkStation { get; set; }

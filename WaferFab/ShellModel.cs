@@ -183,7 +183,7 @@ namespace WaferFabSim
             WaferFabLotsObserver waferFabObserver = new WaferFabLotsObserver(MySimulation, "WaferFabLotsObserver", waferFab);
             WaferFabWafersObserver waferFabObserverWafers = new WaferFabWafersObserver(MySimulation, "WaferFabWafersObserver", waferFab);
             WaferFabTotalQueueObserver waferFabTotalQueueObserver = new WaferFabTotalQueueObserver(MySimulation, "WaferFabTotalQueueObserver", waferFab);
-            WaferFabStartsObserver startsObserver = new WaferFabStartsObserver(MySimulation, "WaferFabStartsObserver");
+            LotGeneratorStartsObserver startsObserver = new LotGeneratorStartsObserver(MySimulation, "WaferFabStartsObserver");
             waferFab.Subscribe(waferFabObserver);
             waferFab.Subscribe(waferFabObserverWafers);
             waferFab.Subscribe(waferFabTotalQueueObserver);

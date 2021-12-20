@@ -38,7 +38,7 @@ namespace WaferFabSim.WaferFabElements
 
         public DispatcherBase dispatcher { get; set; }
 
-        public List<LotStep> LotSteps { get; set; }
+        public virtual List<LotStep> LotSteps { get; set; }
 
         public List<Lot> InitialLots
         {
@@ -50,12 +50,12 @@ namespace WaferFabSim.WaferFabElements
             }
         }
 
-        public Lot LastArrivedLot { get; set; }
+        public virtual Lot LastArrivedLot { get; set; }
 
         /// <summary>
         /// Flag for observers to indicate whether NotifyObservers is triggered by arrival or departure event. True = arrival, false = departure.
         /// </summary>
-        public bool IsArrivalFlag { get; set; }
+        public virtual bool IsArrivalFlag { get; set; }
 
         private LotStep _lotStepInService;
         public LotStep LotStepInService
@@ -82,7 +82,7 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Use this for dispatching individual Queues per lotstep, such as BQF dispatcher
         /// </summary>
-        public Dictionary<LotStep, LotQueue> Queues { get; set; }
+        public virtual Dictionary<LotStep, LotQueue> Queues { get; set; }
 
         /// <summary>
         /// Use this for dispatching lots by due date or similar strategy. (supporting EDD, ODD, CR, CR_alt)
@@ -92,7 +92,7 @@ namespace WaferFabSim.WaferFabElements
         /// <summary>
         /// Total WIP in lots at workstation, including lot in service.
         /// </summary>
-        public int TotalQueueLength => Queue.Length;
+        public virtual int TotalQueueLength => Queue.Length;
 
         /// <summary>
         /// Total WIP in wafers at workstation, including lot in service.
@@ -120,7 +120,7 @@ namespace WaferFabSim.WaferFabElements
             LatenessBasedQueue = new LatenessBasedQueue(this, Name + "_" + strategy + "Queue", strategy);
         }
 
-        public void SetWorkStationInLotSteps()
+        public virtual void SetWorkStationInLotSteps()
         {
             foreach (LotStep step in LotSteps)
             {
@@ -128,7 +128,7 @@ namespace WaferFabSim.WaferFabElements
             }
         }
 
-        public void HandleArrival(Lot lot)
+        public virtual void HandleArrival(Lot lot)
         {
             LastArrivedLot = lot;
 
@@ -142,7 +142,7 @@ namespace WaferFabSim.WaferFabElements
             NotifyObservers(this);
         }
 
-        public void HandleDeparture(CSSLEvent e)
+        public virtual void HandleDeparture(CSSLEvent e)
         {
             if (LotStepInService == null)
             {

@@ -10,9 +10,9 @@ using System.Text;
 
 namespace WaferFabSim.WaferFabElements.Observers
 {
-    class WaferFabStartsObserver : ModelElementObserverBase
+    class LotGeneratorStartsObserver : ModelElementObserverBase
     {
-        public WaferFabStartsObserver(Simulation mySimulation, string name) : base(mySimulation, name)
+        public LotGeneratorStartsObserver(Simulation mySimulation, string name) : base(mySimulation, name)
         {
         }
 

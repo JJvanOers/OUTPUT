@@ -15,9 +15,12 @@ namespace WaferFabSim.InputDataConversion
         public ManualDataReader(string directory) : base(directory)
         {
             WorkCenterLotStepMapping = new Dictionary<LotStep, string>();
+            eligibilityMap = new Dictionary<LotStep, List<double?>>();
         }
 
         private Dictionary<LotStep, string> WorkCenterLotStepMapping { get; set; }
+
+        public Dictionary<LotStep, List<double?>> eligibilityMap { get; set;}
 
         public WaferFabSettings ReadWaferFabSettings()
         {
@@ -88,7 +91,15 @@ namespace WaferFabSim.InputDataConversion
                     if (row != 1)
                     {
                         WaferFabSettings.WorkCenters.Add(values[0]);
-                        WaferFabSettings.WCServiceTimeDistributions.Add(values[0], new ExponentialDistribution(Convert.ToDouble(values[1])));
+                        Distribution servDist;
+                        if (values.Length > 3) // temporary adding x identical machines 
+                        {
+                            servDist = new ExponentialDistribution(Convert.ToDouble(values[1]));
+                            //servDist = new ExponentialDistribution(Convert.ToDouble(values[1]) / Convert.ToInt64(values[3]));
+                            WaferFabSettings.WCMachines.Add(values[0], Convert.ToInt64(values[3]));
+                        }
+                        else { servDist = new ExponentialDistribution(Convert.ToDouble(values[1])); }
+                        WaferFabSettings.WCServiceTimeDistributions.Add(values[0], servDist);
                         WaferFabSettings.WCDispatcherTypes.Add(values[0], DispatcherBase.Type.EPTOVERTAKING);
                     }
                     row++;
@@ -113,6 +124,13 @@ namespace WaferFabSim.InputDataConversion
                         WaferFabSettings.LotSteps.Add(values[1], step);
 
                         WorkCenterLotStepMapping.Add(step, values[2]);
+
+                        List<double?> machineEligibility = new List<double?>(); 
+                        for (int i = 4; i < values.Length; i++) 
+                        {
+                            machineEligibility.Add((values[i] != "") ? Convert.ToDouble(values[i]) : (double?)null);
+                        }
+                        eligibilityMap.Add(step, machineEligibility);
                     }
                     row++;
                 }

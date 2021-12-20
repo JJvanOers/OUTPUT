@@ -15,15 +15,15 @@ namespace WaferFabSim.WaferFabElements
     {
         public DateTime InitialDateTime { get; }
 
-        public LotGenerator LotGenerator { get; private set; }
+        public virtual LotGenerator LotGenerator { get; set; }
 
         public Dictionary<string, WorkCenter> WorkCenters { get; private set; }
 
-        public Dictionary<string, Sequence> Sequences { get; private set; }
+        public virtual Dictionary<string, Sequence> Sequences { get; set; }
 
-        public Dictionary<string, LotStep> LotSteps { get; set; }
+        public virtual Dictionary<string, LotStep> LotSteps { get; set; }
 
-        public Dictionary<string, int> ManualLotStarts { get; set; }
+        public virtual Dictionary<string, int> ManualLotStarts { get; set; }
 
         public List<Tuple<DateTime, Lot>> LotStarts { get; set; }
 

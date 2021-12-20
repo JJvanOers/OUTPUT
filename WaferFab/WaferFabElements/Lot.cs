@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Priority_Queue;
 
 namespace WaferFabSim.WaferFabElements
 {
@@ -249,7 +248,7 @@ namespace WaferFabSim.WaferFabElements
             Sequence = sequence;
 
             // If a sequence with a Standard TPT of 0 is given, the schedule deviation prediction will not be valid
-            if (Sequence.StandardTPT == 0){ throw new Exception($"Lot {LotID} of producttype {ProductType} has TPT set to 0. Check AllProductAttributes table."); }
+            //if (Sequence.StandardTPT == 0){ throw new Exception($"Lot {LotID} of producttype {ProductType} has TPT set to 0. Check AllProductAttributes table."); }
         }
 
         /// <summary>
